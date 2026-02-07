@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <style>
+    .product-detail-card {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 20px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+    }
+    .primary-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .secondary-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+      background-color: green;
+      padding: 20px;
+    }
+    .rouned-green-container {
+      border-radius: 50%;
+      overflow: hidden;
+      width: 220px;
+      height: 220px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #e0ffe0;
+    }
+    .crazy-text {
+      font-size: 24px;
+      color: #333;
+      margin-top: 20px;
+    }
+  </style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalle de producto</title>
+  </head>
+  <body>
+    <h1>Detalle de producto</h1>
+    <a href="/">Volver al inicio</a>
+    <div class="product-detail-card">
+      <div class="primary-container">
+        <h2>{{ product.name }}</h2>
+        <div class="secondary-container">
+          <div class="rouned-green-container">
+            <img src="{{ product.featured_image }}" alt="{{ product.name }}" style="max-width: 200px; height: auto;" />
+          </div>
+        </div>
+        <p class="crazy-text" id="crazyText"></p>
+      </div>
+    </div>
+
+    <script>
+      function createCrazyText(text, elementId) {
+        const colors = [
+          '#ff1744', '#2196f3', '#4caf50', '#ff9800', '#9c27b0',
+          '#00bcd4', '#ff5722', '#e91e63', '#8bc34a', '#ff6f00',
+          '#3f51b5', '#f44336', '#009688', '#673ab7', '#cddc39',
+          '#ffc107', '#03a9f4'
+        ];
+        
+        const element = document.getElementById(elementId);
+        element.innerHTML = '';
+        
+        for (let i = 0; i < text.length; i++) {
+          const span = document.createElement('span');
+          const char = text[i];
+          
+          // Para espacios, usar un tamaño base
+          if (char === ' ') {
+            span.textContent = char;
+            span.style.fontSize = '24px';
+            span.style.color = '#333';
+          } else {
+            span.textContent = char;
+            // Tamaños aleatorios entre 18px y 35px
+            const fontSize = Math.floor(Math.random() * 18) + 18;
+            span.style.fontSize = fontSize + 'px';
+            // Color aleatorio del array
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            span.style.color = randomColor;
+          }
+          
+          element.appendChild(span);
+        }
+      }
+
+      // Ejecutar cuando el DOM esté listo
+      document.addEventListener('DOMContentLoaded', function() {
+        createCrazyText('Graphic design is my passion', 'crazyText');
+      });
+    </script>
+  </body>
+</html>

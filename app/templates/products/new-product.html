@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crear producto</title>
+  </head>
+  <body>
+    <h1>Crear nuevo producto</h1>
+    <a href="/">Volver al inicio</a>
+    <form action="/product/new/product" method="post">
+      <label for="name">Nombre del producto:</label><br />
+      <input type="text" id="name" name="name" required /><br /><br />
+      <label for="featured_image">URL de la imagen destacada:</label><br />
+      <input type="text" id="featured_image" name="featured_image" required /><br /><br />
+      <input type="submit" value="Crear producto" />
+    </form>
+     {% if error %}
+        <p style="color: red;">{{ error }}</p>
+     {% endif %}
+  </body>
+</html>

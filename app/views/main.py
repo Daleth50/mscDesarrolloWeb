@@ -1,11 +1,11 @@
-from app.view_model.product.main import ProductViewModel
+from app.view_model.main import MainViewModel
 from flask import render_template
 
 class MainView:
     def __init__(self):
-        self.product_service = ProductViewModel()
-
+        pass
+    
     def render(self):
-        products = self.product_service.get_all_products()
+        products = MainViewModel().get_index_data()
         return render_template("index.html", products=products)
     

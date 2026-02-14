@@ -8,6 +8,7 @@ load_dotenv()
 
 from app.config import config
 from app.database import db
+import app.models
 from app.routes import main_bp
 from flask_migrate import Migrate
 
@@ -29,10 +30,6 @@ def create_app(config_name=None):
     
     # Setup logging
     setup_logging(app)
-    
-    # Create database tables
-    with app.app_context():
-        db.create_all()
     
     return app
 

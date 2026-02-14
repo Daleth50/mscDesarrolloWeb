@@ -1,5 +1,4 @@
 from app.database import db
-# create a class that fetches products from the database and returns them as a list of dictionaries
 from app.models.inventory.product import Product
 
 class ProductViewModel:
@@ -20,8 +19,12 @@ class ProductViewModel:
     @staticmethod
     def create_product(form_data):
         name = form_data.get("name", "").strip()
-        description = form_data.get("description", "")
-        featured_image = form_data.get("featured_image", "")
+        sku = form_data.get("sku", "").strip() or None
+        category = form_data.get("category", "").strip() or None
+        taxonomy_id = form_data.get("taxonomy_id", "").strip() or None
+        attribute_combinations = (
+            form_data.get("attribute_combinations", "").strip() or None
+        )
 
         if not name:
             raise ValueError("Name is required")
@@ -32,16 +35,24 @@ class ProductViewModel:
             raise ValueError("Price must be a valid number")
 
         try:
-            stock_quantity = int(form_data.get("stock_quantity", 0))
+            cost = float(form_data.get("cost", 0.0))
         except (TypeError, ValueError):
-            raise ValueError("Stock quantity must be a valid integer")
+            raise ValueError("Cost must be a valid number")
+
+        try:
+            tax_rate = float(form_data.get("tax_rate", 0.0))
+        except (TypeError, ValueError):
+            raise ValueError("Tax rate must be a valid number")
 
         new_product = Product(
             name=name,
-            description=description,
             price=price,
-            stock_quantity=stock_quantity,  
-            featured_image=featured_image
+            cost=cost,
+            sku=sku,
+            category=category,
+            tax_rate=tax_rate,
+            taxonomy_id=taxonomy_id,
+            attribute_combinations=attribute_combinations,
         )
         db.session.add(new_product)
         db.session.commit()
@@ -63,15 +74,29 @@ class ProductViewModel:
             raise ValueError("Price must be a valid number")
 
         try:
-            stock_quantity = int(form_data.get("stock_quantity", product.stock_quantity))
+            cost = float(form_data.get("cost", product.cost if product.cost is not None else 0.0))
         except (TypeError, ValueError):
-            raise ValueError("Stock quantity must be a valid integer")
+            raise ValueError("Cost must be a valid number")
+
+        try:
+            tax_rate = float(
+                form_data.get(
+                    "tax_rate", product.tax_rate if product.tax_rate is not None else 0.0
+                )
+            )
+        except (TypeError, ValueError):
+            raise ValueError("Tax rate must be a valid number")
 
         product.name = name
-        product.description = form_data.get("description", "")
+        product.sku = form_data.get("sku", "").strip() or None
         product.price = price
-        product.stock_quantity = stock_quantity
-        product.featured_image = form_data.get("featured_image", "")
+        product.cost = cost
+        product.category = form_data.get("category", "").strip() or None
+        product.tax_rate = tax_rate
+        product.taxonomy_id = form_data.get("taxonomy_id", "").strip() or None
+        product.attribute_combinations = (
+            form_data.get("attribute_combinations", "").strip() or None
+        )
 
         db.session.commit()
         return product.to_dict()

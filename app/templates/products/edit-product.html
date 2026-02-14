@@ -13,8 +13,8 @@
     </div>
 
     <div>
-      <label for="description" class="block text-sm font-medium mb-1">Descripción:</label>
-      <textarea class="w-full border border-slate-300 rounded-md px-3 py-2" id="description" name="description" rows="3">{{ product.description }}</textarea>
+      <label for="sku" class="block text-sm font-medium mb-1">SKU:</label>
+      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="text" id="sku" name="sku" value="{{ product.sku or '' }}" />
     </div>
 
     <div>
@@ -23,13 +23,28 @@
     </div>
 
     <div>
-      <label for="stock_quantity" class="block text-sm font-medium mb-1">Cantidad en inventario:</label>
-      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="number" min="0" id="stock_quantity" name="stock_quantity" value="{{ product.stock_quantity }}" required />
+      <label for="cost" class="block text-sm font-medium mb-1">Costo:</label>
+      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="number" step="0.01" min="0" id="cost" name="cost" value="{{ product.cost if product.cost is not none else 0 }}" required />
     </div>
 
     <div>
-      <label for="featured_image" class="block text-sm font-medium mb-1">URL de la imagen destacada:</label>
-      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="text" id="featured_image" name="featured_image" value="{{ product.featured_image }}" required />
+      <label for="category" class="block text-sm font-medium mb-1">Categoría:</label>
+      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="text" id="category" name="category" value="{{ product.category or '' }}" />
+    </div>
+
+    <div>
+      <label for="tax_rate" class="block text-sm font-medium mb-1">Tasa de impuesto:</label>
+      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="number" step="0.01" min="0" id="tax_rate" name="tax_rate" value="{{ product.tax_rate if product.tax_rate is not none else 0 }}" required />
+    </div>
+
+    <div>
+      <label for="taxonomy_id" class="block text-sm font-medium mb-1">Taxonomy ID:</label>
+      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="text" id="taxonomy_id" name="taxonomy_id" value="{{ product.taxonomy_id or '' }}" />
+    </div>
+
+    <div>
+      <label for="attribute_combinations" class="block text-sm font-medium mb-1">Combinaciones de atributos (JSON/texto):</label>
+      <textarea class="w-full border border-slate-300 rounded-md px-3 py-2" id="attribute_combinations" name="attribute_combinations" rows="3">{{ product.attribute_combinations or '' }}</textarea>
     </div>
 
     <div class="flex items-center gap-3">

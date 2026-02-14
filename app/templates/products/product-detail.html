@@ -6,59 +6,20 @@
 <section class="bg-white border border-slate-200 rounded-lg p-6">
   <h2 class="text-2xl font-semibold mb-4">Detalle de producto</h2>
 
-  <div class="flex flex-col items-center gap-6">
+  <div class="space-y-3">
     <h3 class="text-xl font-medium">{{ product.name }}</h3>
+    <p><strong>ID:</strong> {{ product.id }}</p>
+    <p><strong>SKU:</strong> {{ product.sku or '-' }}</p>
+    <p><strong>Precio:</strong> {{ product.price if product.price is not none else '-' }}</p>
+    <p><strong>Costo:</strong> {{ product.cost if product.cost is not none else '-' }}</p>
+    <p><strong>Categoría:</strong> {{ product.category or '-' }}</p>
+    <p><strong>Tasa de impuesto:</strong> {{ product.tax_rate if product.tax_rate is not none else '-' }}</p>
+    <p><strong>Taxonomy ID:</strong> {{ product.taxonomy_id or '-' }}</p>
+    <p><strong>Combinaciones de atributos:</strong> {{ product.attribute_combinations or '-' }}</p>
 
-    <a class="text-blue-600 hover:text-blue-700 hover:underline" href="{{ url_for('main.edit_product', product_id=product.id) }}">Editar producto</a>
-
-    <div class="bg-green-600 p-5 rounded-lg">
-      <div class="rounded-full overflow-hidden w-[220px] h-[220px] flex items-center justify-center bg-green-100">
-        <img src="{{ product.featured_image }}" alt="{{ product.name }}" class="max-w-[200px] h-auto" />
-      </div>
+    <div class="pt-2">
+      <a class="text-blue-600 hover:text-blue-700 hover:underline" href="{{ url_for('main.edit_product', product_id=product.id) }}">Editar producto</a>
     </div>
-
-    <p class="text-2xl mt-2" id="crazyText"></p>
   </div>
 </section>
-
-<script>
-      function createCrazyText(text, elementId) {
-        const colors = [
-          '#ff1744', '#2196f3', '#4caf50', '#ff9800', '#9c27b0',
-          '#00bcd4', '#ff5722', '#e91e63', '#8bc34a', '#ff6f00',
-          '#3f51b5', '#f44336', '#009688', '#673ab7', '#cddc39',
-          '#ffc107', '#03a9f4'
-        ];
-        
-        const element = document.getElementById(elementId);
-        element.innerHTML = '';
-        
-        for (let i = 0; i < text.length; i++) {
-          const span = document.createElement('span');
-          const char = text[i];
-          
-          // Para espacios, usar un tamaño base
-          if (char === ' ') {
-            span.textContent = char;
-            span.style.fontSize = '24px';
-            span.style.color = '#333';
-          } else {
-            span.textContent = char;
-            // Tamaños aleatorios entre 18px y 35px
-            const fontSize = Math.floor(Math.random() * 18) + 18;
-            span.style.fontSize = fontSize + 'px';
-            // Color aleatorio del array
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            span.style.color = randomColor;
-          }
-          
-          element.appendChild(span);
-        }
-      }
-
-      // Ejecutar cuando el DOM esté listo
-      document.addEventListener('DOMContentLoaded', function() {
-        createCrazyText('Graphic design is my passion', 'crazyText');
-      });
-    </script>
 {% endblock %}

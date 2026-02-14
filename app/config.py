@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from urllib.parse import quote_plus
 
 class Config:
     """Base configuration"""
@@ -15,14 +16,15 @@ class DevelopmentConfig(Config):
     DEBUG = True
     TESTING = False
     db_user = os.getenv('DB_USER', 'root')
-    db_password = os.getenv('DB_PASSWORD', 'password')
-    db_host = os.getenv('DB_HOST', 'localhost')
+    db_password = os.getenv('DB_PASSWORD', '')
+    db_host = os.getenv('DB_HOST', '127.0.0.1')
     db_port = os.getenv('DB_PORT', '3306')
-    db_name = os.getenv('DB_NAME', 'app_database')
-    print(os.getenv('DB_USER'))
-    
-    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
-    print(SQLALCHEMY_DATABASE_URI)
+    db_name = os.getenv('DB_NAME', 'swipall_pos')
+
+    SQLALCHEMY_DATABASE_URI = (
+        f"mysql+pymysql://{quote_plus(db_user)}:{quote_plus(db_password)}@"
+        f"{db_host}:{db_port}/{db_name}"
+    )
     SQLALCHEMY_ECHO = True
 
 
@@ -36,7 +38,10 @@ class ProductionConfig(Config):
     db_port = os.getenv('DB_PORT', '3306')
     db_name = os.getenv('DB_NAME')
     
-    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
+    SQLALCHEMY_DATABASE_URI = (
+        f"mysql+pymysql://{quote_plus(db_user)}:{quote_plus(db_password or '')}@"
+        f"{db_host}:{db_port}/{db_name}"
+    )
     SQLALCHEMY_ECHO = False
 
 

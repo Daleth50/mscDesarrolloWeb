@@ -15,8 +15,10 @@
         <tr>
           <th class="px-4 py-2 text-left border-b border-slate-200">ID</th>
           <th class="px-4 py-2 text-left border-b border-slate-200">Nombre</th>
+          <th class="px-4 py-2 text-left border-b border-slate-200">SKU</th>
           <th class="px-4 py-2 text-left border-b border-slate-200">Precio</th>
-          <th class="px-4 py-2 text-left border-b border-slate-200">Stock</th>
+          <th class="px-4 py-2 text-left border-b border-slate-200">Costo</th>
+          <th class="px-4 py-2 text-left border-b border-slate-200">Categoría</th>
           <th class="px-4 py-2 text-left border-b border-slate-200">Acciones</th>
         </tr>
       </thead>
@@ -25,8 +27,10 @@
           <tr class="hover:bg-slate-50">
             <td class="px-4 py-2 border-b border-slate-200">{{ product.id }}</td>
             <td class="px-4 py-2 border-b border-slate-200">{{ product.name }}</td>
+            <td class="px-4 py-2 border-b border-slate-200">{{ product.sku or '-' }}</td>
             <td class="px-4 py-2 border-b border-slate-200">{{ product.price }}</td>
-            <td class="px-4 py-2 border-b border-slate-200">{{ product.stock_quantity }}</td>
+            <td class="px-4 py-2 border-b border-slate-200">{{ product.cost }}</td>
+            <td class="px-4 py-2 border-b border-slate-200">{{ product.category or '-' }}</td>
             <td class="px-4 py-2 border-b border-slate-200">
               <div class="flex items-center gap-3">
                 <a class="text-blue-600 hover:text-blue-700 hover:underline" href="{{ url_for('main.product_detail', product_id=product.id) }}">Ver</a>
@@ -39,7 +43,7 @@
           </tr>
         {% else %}
           <tr>
-            <td class="px-4 py-4 text-slate-500" colspan="5">No hay productos aún.</td>
+            <td class="px-4 py-4 text-slate-500" colspan="7">No hay productos aún.</td>
           </tr>
         {% endfor %}
       </tbody>

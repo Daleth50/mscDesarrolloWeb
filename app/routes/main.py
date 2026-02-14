@@ -24,7 +24,7 @@ def health():
 
 
 # Ruta detalle de producto
-@main_bp.route("/product/<int:product_id>")
+@main_bp.route("/product/<string:product_id>")
 def product_detail(product_id):
     return ProductDetailView().render(product_id)
 
@@ -43,7 +43,7 @@ def new_product():
     return render_template("products/new-product.html")
 
 
-@main_bp.route("/product/<int:product_id>/edit", methods=["GET", "POST"])
+@main_bp.route("/product/<string:product_id>/edit", methods=["GET", "POST"])
 def edit_product(product_id):
     inventory_view = InventoryView()
 
@@ -58,10 +58,13 @@ def edit_product(product_id):
             product_data = {
                 "id": product_id,
                 "name": form_data.get("name", ""),
-                "description": form_data.get("description", ""),
+                "sku": form_data.get("sku", ""),
                 "price": form_data.get("price", 0),
-                "stock_quantity": form_data.get("stock_quantity", 0),
-                "featured_image": form_data.get("featured_image", ""),
+                "cost": form_data.get("cost", 0),
+                "category": form_data.get("category", ""),
+                "tax_rate": form_data.get("tax_rate", 0),
+                "taxonomy_id": form_data.get("taxonomy_id", ""),
+                "attribute_combinations": form_data.get("attribute_combinations", ""),
             }
             return render_template(
                 "products/edit-product.html",
@@ -75,7 +78,7 @@ def edit_product(product_id):
     return render_template("products/edit-product.html", product=product)
 
 
-@main_bp.route("/product/<int:product_id>/delete", methods=["POST"])
+@main_bp.route("/product/<string:product_id>/delete", methods=["POST"])
 def delete_product(product_id):
     inventory_view = InventoryView()
     try:

@@ -79,6 +79,24 @@ class Order(db.Model):
         server_onupdate=db.func.current_timestamp(),
     )
 
+    def __repr__(self):
+        return f"<Order {self.id}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "contact_id": self.contact_id,
+            "total": float(self.total) if self.total is not None else None,
+            "subtotal": float(self.subtotal) if self.subtotal is not None else None,
+            "tax": float(self.tax) if self.tax is not None else None,
+            "discount": float(self.discount) if self.discount is not None else None,
+            "status": self.status,
+            "payment_status": self.payment_status,
+            "payment_method": self.payment_method,
+            "type": self.type,
+            "extra_fields": self.extra_fields,
+        }
+
 
 class OrderItem(db.Model):
     __tablename__ = "order_items"

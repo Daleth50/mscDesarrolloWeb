@@ -5,6 +5,7 @@ from app.views.inventory.product_detail import ProductDetailView
 from app.views.inventory.product_list import ProductListView
 from app.views.pos.main import PosView
 from app.views.pos.contact_list import ContactListView
+from app.views.pos.order_list import OrderListView
 
 main_bp = Blueprint("main", __name__)
 
@@ -22,6 +23,11 @@ def products_list():
 @main_bp.route("/contacts", methods=["GET"])
 def contacts_list():
     return ContactListView().render()
+
+
+@main_bp.route("/orders", methods=["GET"])
+def orders_list():
+    return OrderListView().render()
 
 
 @main_bp.route("/health", methods=["GET"])
@@ -60,6 +66,18 @@ def new_contact():
         except ValueError as e:
             return render_template("contacts/new-contact.html", error=str(e))
     return render_template("contacts/new-contact.html")
+
+
+@main_bp.route("/order/new", methods=["GET", "POST"])
+def new_order():
+    if request.method == "POST":
+        form_data = request.form
+        try:
+            PosView().create_order(form_data)
+            return redirect(url_for("main.orders_list"))
+        except ValueError as e:
+            return render_template("orders/new-order.html", error=str(e))
+    return render_template("orders/new-order.html")
 
 
 @main_bp.route("/product/<string:product_id>/edit", methods=["GET", "POST"])

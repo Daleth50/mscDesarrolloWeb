@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}App Web{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
+    {% include "shared/header.html" %}
+    {% include "shared/menu.html" %}
+
+    <main class="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "shared/footer.html" %}
+</body>
+</html>

@@ -1,18 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio</title>
-</head>
-<body>
-    <h1>Bienvenido a la aplicación web</h1>
-    <p>Esta es la página de inicio.</p>
-    <ul>
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<section class="bg-white border border-slate-200 rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-2">Bienvenido a la aplicación web</h2>
+    <p class="text-slate-600 mb-4">Esta es la página de inicio.</p>
+
+    <h3 class="text-lg font-medium mb-2">Productos</h3>
+    <ul class="space-y-2">
         {% for product in products %}
-            <li><a href="{{ url_for('main.product_detail', product_id=product.id) }}">{{ product.name }}</a></li>
+            <li>
+                <a class="text-blue-600 hover:text-blue-700 hover:underline" href="{{ url_for('main.product_detail', product_id=product.id) }}">{{ product.name }}</a>
+            </li>
+        {% else %}
+            <li class="text-slate-500">No hay productos aún.</li>
         {% endfor %}
     </ul>
-    <a href="{{ url_for('main.new_product') }}">Crear nuevo producto</a>
-</body>
-</html>
+</section>
+{% endblock %}

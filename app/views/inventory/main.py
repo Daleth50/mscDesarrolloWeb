@@ -13,3 +13,6 @@ class InventoryView:
     
     def create_product(self, form_data):
         return self.product_service.create_product(form_data)
+
+    def update_product(self, product_id, form_data):
+        return self.product_service.update_product(product_id, form_data)

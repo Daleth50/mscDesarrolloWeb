@@ -35,3 +35,35 @@ def new_product():
         except ValueError as e:
             return render_template("products/new-product.html", error=str(e))
     return render_template("products/new-product.html")
+
+
+@main_bp.route("/product/<int:product_id>/edit", methods=["GET", "POST"])
+def edit_product(product_id):
+    inventory_view = InventoryView()
+
+    if request.method == "POST":
+        form_data = request.form
+        try:
+            updated_product = inventory_view.update_product(product_id, form_data)
+            return redirect(
+                url_for("main.product_detail", product_id=updated_product["id"])
+            )
+        except ValueError as e:
+            product_data = {
+                "id": product_id,
+                "name": form_data.get("name", ""),
+                "description": form_data.get("description", ""),
+                "price": form_data.get("price", 0),
+                "stock_quantity": form_data.get("stock_quantity", 0),
+                "featured_image": form_data.get("featured_image", ""),
+            }
+            return render_template(
+                "products/edit-product.html",
+                product=product_data,
+                error=str(e),
+            )
+
+    product = inventory_view.get_product_detail_data(product_id)
+    if not product:
+        return "Product not found", 404
+    return render_template("products/edit-product.html", product=product)

@@ -1,68 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-  <style>
-    .product-detail-card {
-      border: 1px solid #ccc;
-      padding: 20px;
-      margin: 20px;
-      border-radius: 5px;
-      background-color: #f9f9f9;
-      justify-content: center;
-      align-items: center;
-      flex: 1;
-    }
-    .primary-container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      margin-top: 20px;
-    }
-    .secondary-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 20px;
-      background-color: green;
-      padding: 20px;
-    }
-    .rouned-green-container {
-      border-radius: 50%;
-      overflow: hidden;
-      width: 220px;
-      height: 220px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #e0ffe0;
-    }
-    .crazy-text {
-      font-size: 24px;
-      color: #333;
-      margin-top: 20px;
-    }
-  </style>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Detalle de producto</title>
-  </head>
-  <body>
-    <h1>Detalle de producto</h1>
-    <a href="/">Volver al inicio</a>
-    <div class="product-detail-card">
-      <div class="primary-container">
-        <h2>{{ product.name }}</h2>
-        <div class="secondary-container">
-          <div class="rouned-green-container">
-            <img src="{{ product.featured_image }}" alt="{{ product.name }}" style="max-width: 200px; height: auto;" />
-          </div>
-        </div>
-        <p class="crazy-text" id="crazyText"></p>
+{% extends "base.html" %}
+
+{% block title %}Detalle de producto{% endblock %}
+
+{% block content %}
+<section class="bg-white border border-slate-200 rounded-lg p-6">
+  <h2 class="text-2xl font-semibold mb-4">Detalle de producto</h2>
+
+  <div class="flex flex-col items-center gap-6">
+    <h3 class="text-xl font-medium">{{ product.name }}</h3>
+
+    <a class="text-blue-600 hover:text-blue-700 hover:underline" href="{{ url_for('main.edit_product', product_id=product.id) }}">Editar producto</a>
+
+    <div class="bg-green-600 p-5 rounded-lg">
+      <div class="rounded-full overflow-hidden w-[220px] h-[220px] flex items-center justify-center bg-green-100">
+        <img src="{{ product.featured_image }}" alt="{{ product.name }}" class="max-w-[200px] h-auto" />
       </div>
     </div>
 
-    <script>
+    <p class="text-2xl mt-2" id="crazyText"></p>
+  </div>
+</section>
+
+<script>
       function createCrazyText(text, elementId) {
         const colors = [
           '#ff1744', '#2196f3', '#4caf50', '#ff9800', '#9c27b0',
@@ -102,5 +61,4 @@
         createCrazyText('Graphic design is my passion', 'crazyText');
       });
     </script>
-  </body>
-</html>
+{% endblock %}

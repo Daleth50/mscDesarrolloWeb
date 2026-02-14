@@ -1,5 +1,5 @@
 from app.database import db
-from app.models.inventory.product import Product
+from app.models.inventory.product import Product, Taxonomy
 
 class ProductViewModel:
     @staticmethod
@@ -10,6 +10,21 @@ class ProductViewModel:
     def get_all_products():
         products = Product.query.all()
         return [product.to_dict() for product in products]
+
+    @staticmethod
+    def get_categories():
+        rows = (
+            Taxonomy.query.with_entities(Taxonomy.id, Taxonomy.name, Taxonomy.value)
+            .filter(Taxonomy.kind == "category")
+            .order_by(Taxonomy.name.asc())
+            .all()
+        )
+        categories = []
+        for taxonomy_id, taxonomy_name, taxonomy_value in rows:
+            label = (taxonomy_name or taxonomy_value or "").strip()
+            if label:
+                categories.append({"id": taxonomy_id, "label": label})
+        return categories
     
     @staticmethod
     def get_product_by_id(product_id):
@@ -20,11 +35,16 @@ class ProductViewModel:
     def create_product(form_data):
         name = form_data.get("name", "").strip()
         sku = form_data.get("sku", "").strip() or None
-        category = form_data.get("category", "").strip() or None
         taxonomy_id = form_data.get("taxonomy_id", "").strip() or None
+        category = form_data.get("category", "").strip() or None
         attribute_combinations = (
             form_data.get("attribute_combinations", "").strip() or None
         )
+
+        if taxonomy_id and not category:
+            taxonomy = Taxonomy.query.get(taxonomy_id)
+            if taxonomy:
+                category = (taxonomy.name or taxonomy.value or "").strip() or None
 
         if not name:
             raise ValueError("Name is required")
@@ -91,9 +111,16 @@ class ProductViewModel:
         product.sku = form_data.get("sku", "").strip() or None
         product.price = price
         product.cost = cost
-        product.category = form_data.get("category", "").strip() or None
+        taxonomy_id = form_data.get("taxonomy_id", "").strip() or None
+        category = form_data.get("category", "").strip() or None
+        if taxonomy_id and not category:
+            taxonomy = Taxonomy.query.get(taxonomy_id)
+            if taxonomy:
+                category = (taxonomy.name or taxonomy.value or "").strip() or None
+
+        product.category = category
         product.tax_rate = tax_rate
-        product.taxonomy_id = form_data.get("taxonomy_id", "").strip() or None
+        product.taxonomy_id = taxonomy_id
         product.attribute_combinations = (
             form_data.get("attribute_combinations", "").strip() or None
         )

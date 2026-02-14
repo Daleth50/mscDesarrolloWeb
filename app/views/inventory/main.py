@@ -10,6 +10,9 @@ class InventoryView:
     def get_product_detail_data(self, product_id):
         product = self.product_service.get_product_by_id(product_id)
         return product
+
+    def get_product_categories(self):
+        return self.product_service.get_categories()
     
     def create_product(self, form_data):
         return self.product_service.create_product(form_data)

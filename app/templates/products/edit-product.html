@@ -6,50 +6,18 @@
 <section class="bg-white border border-slate-200 rounded-lg p-6 max-w-2xl">
   <h2 class="text-2xl font-semibold mb-4">Editar producto</h2>
 
-  <form action="{{ url_for('main.edit_product', product_id=product.id) }}" method="post" class="space-y-4">
-    <div>
-      <label for="name" class="block text-sm font-medium mb-1">Nombre del producto:</label>
-      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="text" id="name" name="name" value="{{ product.name }}" required />
-    </div>
-
-    <div>
-      <label for="sku" class="block text-sm font-medium mb-1">SKU:</label>
-      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="text" id="sku" name="sku" value="{{ product.sku or '' }}" />
-    </div>
-
-    <div>
-      <label for="price" class="block text-sm font-medium mb-1">Precio:</label>
-      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="number" step="0.01" min="0" id="price" name="price" value="{{ product.price }}" required />
-    </div>
-
-    <div>
-      <label for="cost" class="block text-sm font-medium mb-1">Costo:</label>
-      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="number" step="0.01" min="0" id="cost" name="cost" value="{{ product.cost if product.cost is not none else 0 }}" required />
-    </div>
-
-    <div>
-      <label for="category" class="block text-sm font-medium mb-1">Categoría:</label>
-      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="text" id="category" name="category" value="{{ product.category or '' }}" />
-    </div>
-
-    <div>
-      <label for="tax_rate" class="block text-sm font-medium mb-1">Tasa de impuesto:</label>
-      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="number" step="0.01" min="0" id="tax_rate" name="tax_rate" value="{{ product.tax_rate if product.tax_rate is not none else 0 }}" required />
-    </div>
-
-    <div>
-      <label for="taxonomy_id" class="block text-sm font-medium mb-1">Taxonomy ID:</label>
-      <input class="w-full border border-slate-300 rounded-md px-3 py-2" type="text" id="taxonomy_id" name="taxonomy_id" value="{{ product.taxonomy_id or '' }}" />
-    </div>
-
-    <div>
-      <label for="attribute_combinations" class="block text-sm font-medium mb-1">Combinaciones de atributos (JSON/texto):</label>
-      <textarea class="w-full border border-slate-300 rounded-md px-3 py-2" id="attribute_combinations" name="attribute_combinations" rows="3">{{ product.attribute_combinations or '' }}</textarea>
-    </div>
-
-    <div class="flex items-center gap-3">
-      <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" type="submit">Guardar cambios</button>
-      <a class="text-slate-600 hover:text-slate-800" href="{{ url_for('main.product_detail', product_id=product.id) }}">Cancelar</a>
+  <form action="{{ url_for('main.edit_product', product_id=product_id) }}" method="post">
+    <script id="new-product-initial-data" type="application/json">
+      {{ {
+        "categories": categories or [],
+        "form_data": form_data or {},
+        "mode": "edit",
+        "submit_label": "Guardar cambios",
+        "cancel_url": url_for('main.product_detail', product_id=product_id)
+      } | tojson }}
+    </script>
+    <div id="new-product-form">
+      <div class="loader"></div>
     </div>
   </form>
 
@@ -57,4 +25,24 @@
     <p class="text-red-600 mt-4">{{ error }}</p>
   {% endif %}
 </section>
+{% endblock %}
+
+{% block scripts %}
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@latest",
+        "react-dom": "https://esm.sh/react-dom@latest",
+        "react-dom/client": "https://esm.sh/react-dom@latest/client",
+        "react/jsx-runtime": "https://esm.sh/react@latest/jsx-runtime",
+        "@mui/material": "https://esm.sh/@mui/material@latest?external=react,react-dom"
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script
+    type="text/babel"
+    data-type="module"
+    src="{{ url_for('static', filename='js/components/products/product-form.js') }}"
+  ></script>
 {% endblock %}

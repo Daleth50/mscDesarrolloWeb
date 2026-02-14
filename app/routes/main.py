@@ -44,16 +44,24 @@ def product_detail(product_id):
 
 @main_bp.route("/product/new/product", methods=["GET", "POST"])
 def new_product():
+    inventory_view = InventoryView()
+    categories = inventory_view.get_product_categories()
+
     if request.method == "POST":
         form_data = request.form
         try:
-            new_product = InventoryView().create_product(form_data)
+            new_product = inventory_view.create_product(form_data)
             return redirect(
                 url_for("main.product_detail", product_id=new_product["id"])
             )
         except ValueError as e:
-            return render_template("products/new-product.html", error=str(e))
-    return render_template("products/new-product.html")
+            return render_template(
+                "products/new-product.html",
+                error=str(e),
+                categories=categories,
+                form_data=form_data.to_dict(flat=True),
+            )
+    return render_template("products/new-product.html", categories=categories)
 
 
 @main_bp.route("/contact/new", methods=["GET", "POST"])
@@ -83,6 +91,7 @@ def new_order():
 @main_bp.route("/product/<string:product_id>/edit", methods=["GET", "POST"])
 def edit_product(product_id):
     inventory_view = InventoryView()
+    categories = inventory_view.get_product_categories()
 
     if request.method == "POST":
         form_data = request.form
@@ -98,21 +107,27 @@ def edit_product(product_id):
                 "sku": form_data.get("sku", ""),
                 "price": form_data.get("price", 0),
                 "cost": form_data.get("cost", 0),
-                "category": form_data.get("category", ""),
                 "tax_rate": form_data.get("tax_rate", 0),
                 "taxonomy_id": form_data.get("taxonomy_id", ""),
                 "attribute_combinations": form_data.get("attribute_combinations", ""),
             }
             return render_template(
                 "products/edit-product.html",
-                product=product_data,
+                form_data=product_data,
+                categories=categories,
+                product_id=product_id,
                 error=str(e),
             )
 
     product = inventory_view.get_product_detail_data(product_id)
     if not product:
         return "Product not found", 404
-    return render_template("products/edit-product.html", product=product)
+    return render_template(
+        "products/edit-product.html",
+        form_data=product,
+        categories=categories,
+        product_id=product_id,
+    )
 
 
 @main_bp.route("/product/<string:product_id>/delete", methods=["POST"])

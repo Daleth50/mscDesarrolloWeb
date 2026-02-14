@@ -17,6 +17,18 @@ class Contact(db.Model):
         server_onupdate=db.func.current_timestamp(),
     )
 
+    def __repr__(self):
+        return f"<Contact {self.name}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "phone": self.phone,
+            "address": self.address,
+        }
+
 
 class Warehouse(db.Model):
     __tablename__ = "warehouses"

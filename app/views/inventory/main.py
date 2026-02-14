@@ -16,3 +16,6 @@ class InventoryView:
 
     def update_product(self, product_id, form_data):
         return self.product_service.update_product(product_id, form_data)
+
+    def delete_product(self, product_id):
+        return self.product_service.delete_product(product_id)

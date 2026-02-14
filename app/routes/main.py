@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, render_template, request, redirect, url_fo
 from app.views.main import MainView
 from app.views.inventory.main import InventoryView
 from app.views.inventory.product_detail import ProductDetailView
+from app.views.inventory.product_list import ProductListView
 
 main_bp = Blueprint("main", __name__)
 
@@ -9,6 +10,11 @@ main_bp = Blueprint("main", __name__)
 @main_bp.route("/", methods=["GET"])
 def index():
     return MainView().render()
+
+
+@main_bp.route("/products", methods=["GET"])
+def products_list():
+    return ProductListView().render()
 
 
 @main_bp.route("/health", methods=["GET"])
@@ -67,3 +73,13 @@ def edit_product(product_id):
     if not product:
         return "Product not found", 404
     return render_template("products/edit-product.html", product=product)
+
+
+@main_bp.route("/product/<int:product_id>/delete", methods=["POST"])
+def delete_product(product_id):
+    inventory_view = InventoryView()
+    try:
+        inventory_view.delete_product(product_id)
+    except ValueError:
+        pass
+    return redirect(url_for("main.products_list"))

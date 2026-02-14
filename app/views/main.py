@@ -6,6 +6,5 @@ class MainView:
         pass
     
     def render(self):
-        products = MainViewModel().get_index_data()
-        return render_template("index.html", products=products)
+        return render_template("index.html")
     

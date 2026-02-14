@@ -6,16 +6,6 @@
 <section class="bg-white border border-slate-200 rounded-lg p-6">
     <h2 class="text-2xl font-semibold mb-2">Bienvenido a la aplicación web</h2>
     <p class="text-slate-600 mb-4">Esta es la página de inicio.</p>
-
-    <h3 class="text-lg font-medium mb-2">Productos</h3>
-    <ul class="space-y-2">
-        {% for product in products %}
-            <li>
-                <a class="text-blue-600 hover:text-blue-700 hover:underline" href="{{ url_for('main.product_detail', product_id=product.id) }}">{{ product.name }}</a>
-            </li>
-        {% else %}
-            <li class="text-slate-500">No hay productos aún.</li>
-        {% endfor %}
-    </ul>
+    <a class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" href="{{ url_for('main.products_list') }}">Ver productos</a>
 </section>
 {% endblock %}

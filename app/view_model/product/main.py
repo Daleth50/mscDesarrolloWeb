@@ -4,6 +4,10 @@ from app.models.inventory.product import Product
 
 class ProductViewModel:
     @staticmethod
+    def list_products():
+        return ProductViewModel.get_all_products()
+
+    @staticmethod
     def get_all_products():
         products = Product.query.all()
         return [product.to_dict() for product in products]
@@ -71,3 +75,13 @@ class ProductViewModel:
 
         db.session.commit()
         return product.to_dict()
+
+    @staticmethod
+    def delete_product(product_id):
+        product = Product.query.get(product_id)
+        if not product:
+            raise ValueError("Product not found")
+
+        db.session.delete(product)
+        db.session.commit()
+        return True

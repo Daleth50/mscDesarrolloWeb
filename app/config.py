@@ -5,7 +5,6 @@ from urllib.parse import quote_plus
 class Config:
     """Base configuration"""
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
@@ -15,6 +14,7 @@ class DevelopmentConfig(Config):
     """Development configuration"""
     DEBUG = True
     TESTING = False
+    SESSION_COOKIE_SECURE = False
     db_user = os.getenv('DB_USER', 'root')
     db_password = os.getenv('DB_PASSWORD', '')
     db_host = os.getenv('DB_HOST', '127.0.0.1')
@@ -32,6 +32,7 @@ class ProductionConfig(Config):
     """Production configuration"""
     DEBUG = False
     TESTING = False
+    SESSION_COOKIE_SECURE = True
     db_user = os.getenv('DB_USER')
     db_password = os.getenv('DB_PASSWORD')
     db_host = os.getenv('DB_HOST')

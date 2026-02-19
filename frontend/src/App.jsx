@@ -1,62 +1,133 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import ProductsPage from './pages/ProductsPage';
+import {
+  AppBar,
+  Box,
+  Button,
+  Container,
+  Toolbar,
+  Typography
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import ContactFormPage from './pages/ContactFormPage';
+import ContactsPage from './pages/ContactsPage';
+import HomePage from './pages/HomePage';
+import OrderFormPage from './pages/OrderFormPage';
+import OrdersPage from './pages/OrdersPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import ProductFormPage from './pages/ProductFormPage';
-import ContactsPage from './pages/ContactsPage';
-import ContactFormPage from './pages/ContactFormPage';
-import OrdersPage from './pages/OrdersPage';
-import OrderFormPage from './pages/OrderFormPage';
-import HomePage from './pages/HomePage';
+import ProductsPage from './pages/ProductsPage';
+
+const StyledFooter = styled(Box)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  borderTop: `1px solid ${theme.palette.divider}`,
+  marginTop: 'auto',
+  padding: theme.spacing(3, 0),
+}));
 
 function App() {
   console.log(import.meta.env); // Para verificar que las variables de entorno se están cargando correctamente
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-slate-50 flex flex-col">
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         {/* Header */}
-        <header className="bg-white border-b border-slate-200 shadow-sm">
-          <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <Link to="/" className="text-xl font-bold text-blue-600">
-              AppWeb
-            </Link>
-            <nav className="flex gap-4">
-              <Link to="/" className="hover:text-blue-600">Inicio</Link>
-              <Link to="/products" className="hover:text-blue-600">Productos</Link>
-              <Link to="/contacts" className="hover:text-blue-600">Contactos</Link>
-              <Link to="/orders" className="hover:text-blue-600">Órdenes</Link>
-            </nav>
-          </div>
-        </header>
+        <AppBar position="static" color="default" elevation={1}>
+          <Container maxWidth="lg">
+            <Toolbar disableGutters sx={{ justifyContent: 'space-between', gap: 2 }}>
+              <Link to="/" style={{ textDecoration: 'none' }}>
+                <Typography
+                  variant="h6"
+                  component="h1"
+                  sx={{
+                    fontWeight: 700,
+                    color: 'primary.main',
+                    fontSize: '1.25rem',
+                  }}
+                >
+                  AppWeb
+                </Typography>
+              </Link>
+              <Box sx={{ display: 'flex', gap: 3 }}>
+                <Button
+                  component={Link}
+                  to="/"
+                  color="inherit"
+                  sx={{
+                    textDecoration: 'none',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  Inicio
+                </Button>
+                <Button
+                  component={Link}
+                  to="/products"
+                  color="inherit"
+                  sx={{
+                    textDecoration: 'none',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  Productos
+                </Button>
+                <Button
+                  component={Link}
+                  to="/contacts"
+                  color="inherit"
+                  sx={{
+                    textDecoration: 'none',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  Contactos
+                </Button>
+                <Button
+                  component={Link}
+                  to="/orders"
+                  color="inherit"
+                  sx={{
+                    textDecoration: 'none',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  Órdenes
+                </Button>
+              </Box>
+            </Toolbar>
+          </Container>
+        </AppBar>
 
         {/* Main content */}
-        <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            
-            {/* Products */}
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/products/new" element={<ProductFormPage />} />
-            <Route path="/products/:id" element={<ProductDetailPage />} />
-            <Route path="/products/:id/edit" element={<ProductFormPage />} />
+        <Box component="main" sx={{ flex: 1 }}>
+          <Container maxWidth="lg" sx={{ py: 6 }}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
 
-            {/* Contacts */}
-            <Route path="/contacts" element={<ContactsPage />} />
-            <Route path="/contacts/new" element={<ContactFormPage />} />
+              {/* Products */}
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/products/new" element={<ProductFormPage />} />
+              <Route path="/products/:id" element={<ProductDetailPage />} />
+              <Route path="/products/:id/edit" element={<ProductFormPage />} />
 
-            {/* Orders */}
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/orders/new" element={<OrderFormPage />} />
-          </Routes>
-        </main>
+              {/* Contacts */}
+              <Route path="/contacts" element={<ContactsPage />} />
+              <Route path="/contacts/new" element={<ContactFormPage />} />
+
+              {/* Orders */}
+              <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/orders/new" element={<OrderFormPage />} />
+            </Routes>
+          </Container>
+        </Box>
 
         {/* Footer */}
-        <footer className="bg-white border-t border-slate-200 mt-auto">
-          <div className="max-w-5xl mx-auto px-4 py-4 text-center text-slate-600 text-sm">
-            <p>&copy; 2026 AppWeb. Todos los derechos reservados.</p>
-          </div>
-        </footer>
-      </div>
+        <StyledFooter component="footer">
+          <Container maxWidth="lg">
+            <Typography variant="body2" color="textSecondary" align="center">
+              &copy; 2026 AppWeb. Todos los derechos reservados.
+            </Typography>
+          </Container>
+        </StyledFooter>
+      </Box>
     </BrowserRouter>
   );
 }

@@ -33,23 +33,25 @@ source .venv/bin/activate  # En Windows: .venv\Scripts\activate
 
 Instalar dependencias de Python:
 ```bash
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 ### 3. Configurar variables de entorno
 
 Crear archivo `.env` basado en `.env.example`:
 ```bash
-cp .env.example .env
+cp .env.example backend/.env
 ```
 
-Actualizar `.env` con credenciales de MySQL:
+Actualizar `backend/.env` con credenciales de MySQL:
 ```env
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=your_user
 DB_PASSWORD=your_password
 DB_NAME=swipall_pos
+FLASK_PORT=5000
+VITE_API_URL=http://localhost:5000/api
 ```
 
 ### 4. Configurar la base de datos MySQL
@@ -61,12 +63,14 @@ CREATE DATABASE swipall_pos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 Ejecutar migraciones de Alembic:
 ```bash
+cd backend
 flask db upgrade
 ```
 
 ### 5. Instalar dependencias de Node.js
 
 ```bash
+cd frontend
 npm install
 ```
 
@@ -74,61 +78,64 @@ npm install
 
 ```
 appWeb/
-├── app/                          # Backend Flask
-│   ├── __init__.py              # Application factory y SPA serving
-│   ├── config.py                # Configuración de la aplicación
-│   ├── database.py              # Inicialización de SQLAlchemy
-│   ├── routes/
-│   │   ├── __init__.py
-│   │   ├── main.py              # Health check endpoint
-│   │   └── api.py               # REST API endpoints
-│   ├── view_model/              # ViewModels (lógica de presentación)
-│   │   ├── product/
-│   │   │   ├── main.py          # ProductViewModel
-│   │   │   └── list.py
-│   │   ├── contact/
-│   │   │   ├── main.py          # ContactViewModel
-│   │   │   └── list.py
-│   │   └── order/
-│   │       ├── main.py          # OrderViewModel
-│   │       └── list.py
-│   ├── models/
-│   │   ├── base.py              # Modelos base
-│   │   ├── pos.py               # Modelos de POS (Contact, Order)
-│   │   └── inventory/
-│   │       └── product.py       # Modelo Product
-│   ├── scripts/
-│   │   └── dev.py               # Script de inicio para desarrollo
-│   ├── static/
-│   │   └── dist/                # Archivos compilados de React (producción)
+├── backend/                      # Backend Flask
+│   ├── app/
+│   │   ├── __init__.py          # Application factory y SPA serving
+│   │   ├── config.py            # Configuración de la aplicación
+│   │   ├── database.py          # Inicialización de SQLAlchemy
+│   │   ├── routes/
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py          # Health check endpoint
+│   │   │   └── api.py           # REST API endpoints
+│   │   ├── view_model/          # ViewModels (lógica de presentación)
+│   │   │   ├── product/
+│   │   │   │   ├── main.py      # ProductViewModel
+│   │   │   │   └── list.py
+│   │   │   ├── contact/
+│   │   │   │   ├── main.py      # ContactViewModel
+│   │   │   │   └── list.py
+│   │   │   └── order/
+│   │   │       ├── main.py      # OrderViewModel
+│   │   │       └── list.py
+│   │   ├── models/
+│   │   │   ├── base.py          # Modelos base
+│   │   │   ├── pos.py           # Modelos de POS (Contact, Order)
+│   │   │   └── inventory/
+│   │   │       └── product.py   # Modelo Product
+│   │   ├── scripts/
+│   │   │   └── dev.py           # Script de inicio para desarrollo
+│   │   ├── static/
+│   │   │   └── dist/            # Archivos compilados de React (producción)
+│   ├── migrations/              # Migraciones de base de datos (Alembic)
+│   ├── tests/                   # Tests (unittest)
+│   ├── requirements.txt         # Dependencias de Python
+│   ├── main.py                  # Punto de entrada (legacy, usa run.py)
+│   └── run.py                   # Punto de entrada de Flask
 │
-├── src/                         # Frontend React
-│   ├── index.jsx                # Punto de entrada
-│   ├── App.jsx                  # Componente raíz
-│   ├── pages/
-│   │   ├── HomePage.jsx
-│   │   ├── ProductsPage.jsx        # Listado de productos
-│   │   ├── ProductFormPage.jsx     # Crear/editar producto
-│   │   ├── ProductDetailPage.jsx   # Detalle de producto
-│   │   ├── ContactsPage.jsx        # Listado de contactos
-│   │   ├── ContactFormPage.jsx     # Crear contacto
-│   │   ├── OrdersPage.jsx          # Listado de órdenes
-│   │   └── OrderFormPage.jsx       # Crear orden
-│   └── services/
-│       ├── api.js               # Cliente HTTP para API
-│       ├── productService.js    # Métodos de productos
-│       ├── contactService.js    # Métodos de contactos
-│       └── orderService.js      # Métodos de órdenes
+├── frontend/                    # Frontend React
+│   ├── src/
+│   │   ├── App.jsx              # Componente raíz
+│   │   ├── main.jsx             # Punto de entrada
+│   │   ├── pages/
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── ProductsPage.jsx    # Listado de productos
+│   │   │   ├── ProductFormPage.jsx # Crear/editar producto
+│   │   │   ├── ProductDetailPage.jsx
+│   │   │   ├── ContactsPage.jsx    # Listado de contactos
+│   │   │   ├── ContactFormPage.jsx # Crear contacto
+│   │   │   ├── OrdersPage.jsx      # Listado de órdenes
+│   │   │   └── OrderFormPage.jsx   # Crear orden
+│   │   └── services/
+│   │       ├── api.js           # Cliente HTTP para API
+│   │       ├── productService.js
+│   │       ├── contactService.js
+│   │       └── orderService.js
+│   ├── index.html               # HTML base de Vite
+│   ├── package.json             # Dependencias de Node.js
+│   └── vite.config.js           # Configuración de Vite
 │
-├── migrations/                  # Migraciones de base de datos (Alembic)
-├── tests/                       # Tests (unittest)
-├── vite.config.js              # Configuración de Vite
-├── package.json                # Dependencias de Node.js
-├── requirements.txt            # Dependencias de Python
-├── .env.example               # Template de variables de entorno
-├── main.py                     # Punto de entrada (legacy, usa run.py)
-├── run.py                      # Punto de entrada de Flask
-└── README.md                   # Este archivo
+├── .env.example                 # Template de variables de entorno
+└── README.md                    # Este archivo
 ```
 
 ## API REST Endpoints
@@ -158,11 +165,11 @@ appWeb/
 
 ```bash
 cd appWeb
-/Users/daleth/code/msc/appWeb/.venv/bin/python app/scripts/dev.py
+/Users/daleth/code/msc/appWeb/.venv/bin/python backend/app/scripts/dev.py
 ```
 
 Este comando inicia:
-- **Flask API** en `http://localhost:5000`
+- **Flask API** en `http://localhost:4003`
 - **Vite Dev Server** en `http://localhost:5173` con Hot Module Replacement (HMR)
 
 Accede a la aplicación en: `http://localhost:5173`
@@ -172,11 +179,12 @@ Accede a la aplicación en: `http://localhost:5173`
 **Terminal 1 - Backend (Flask):**
 ```bash
 source .venv/bin/activate
-python run.py
+python backend/run.py
 ```
 
 **Terminal 2 - Frontend (Vite):**
 ```bash
+cd frontend
 npm run dev
 ```
 
@@ -184,23 +192,24 @@ npm run dev
 
 Compilar la aplicación React:
 ```bash
+cd frontend
 npm run build
 ```
 
 Ejecutar Flask (que sirve los archivos compilados):
 ```bash
 source .venv/bin/activate
-python run.py
+python backend/run.py
 ```
 
-La aplicación estará disponible en `http://localhost:5000`
+La aplicación estará disponible en `http://localhost:4003`
 
-## Script de Desarrollo (`app/scripts/dev.py`)
+## Script de Desarrollo (`backend/app/scripts/dev.py`)
 
-El script `app/scripts/dev.py` automatiza el inicio de ambos servidores en desarrollo:
+El script `backend/app/scripts/dev.py` automatiza el inicio de ambos servidores en desarrollo:
 
 **Características:**
-- Inicia Flask en puerto 5000 primero
+- Inicia Flask en el puerto configurado por `FLASK_PORT` (por defecto 5000)
 - Espera confirmación de que Flask está listo
 - Inicia Vite en puerto 5173
 - Captura salida en tiempo real con prefijos `[Flask]` y `[Vite]`
@@ -209,7 +218,7 @@ El script `app/scripts/dev.py` automatiza el inicio de ambos servidores en desar
 
 **Uso:**
 ```bash
-python app/scripts/dev.py
+python backend/app/scripts/dev.py
 ```
 
 Presiona `Ctrl+C` para detener ambos servidores.

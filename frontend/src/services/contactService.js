@@ -8,6 +8,10 @@ export const contactService = {
   create(contact) {
     return api.post('/contacts', contact);
   },
+
+  delete(id) {
+    return api.delete(`/contacts/${id}`);
+  },
 };
 
 export default contactService;

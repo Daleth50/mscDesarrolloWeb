@@ -109,7 +109,7 @@ def create_contact():
 
 @api_bp.route("/orders", methods=["GET"])
 def get_orders():
-    """Listar todas las órdenes"""
+    """Listar todas las Ventas"""
     try:
         orders = OrderViewModel.get_all_orders()
         return jsonify(orders), 200

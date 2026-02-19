@@ -25,7 +25,6 @@ const StyledFooter = styled(Box)(({ theme }) => ({
 }));
 
 function App() {
-  console.log(import.meta.env); // Para verificar que las variables de entorno se están cargando correctamente
   return (
     <BrowserRouter>
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -89,7 +88,7 @@ function App() {
                     '&:hover': { color: 'primary.main' },
                   }}
                 >
-                  Órdenes
+                  Ventas
                 </Button>
               </Box>
             </Toolbar>

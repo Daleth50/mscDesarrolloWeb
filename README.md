@@ -123,7 +123,7 @@ appWeb/
 │   │   │   ├── ProductDetailPage.jsx
 │   │   │   ├── ContactsPage.jsx    # Listado de contactos
 │   │   │   ├── ContactFormPage.jsx # Crear contacto
-│   │   │   ├── OrdersPage.jsx      # Listado de órdenes
+│   │   │   ├── OrdersPage.jsx      # Listado de Ventas
 │   │   │   └── OrderFormPage.jsx   # Crear orden
 │   │   └── services/
 │   │       ├── api.js           # Cliente HTTP para API
@@ -152,8 +152,8 @@ appWeb/
 - `GET /api/contacts` - Listar todos los contactos
 - `POST /api/contacts` - Crear nuevo contacto
 
-### Órdenes
-- `GET /api/orders` - Listar todas las órdenes
+### Ventas
+- `GET /api/orders` - Listar todas las Ventas
 - `POST /api/orders` - Crear nueva orden
 
 ### Salud

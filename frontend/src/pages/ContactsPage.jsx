@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Container,
+  Box,
+  Button,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Alert,
+  CircularProgress,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import { contactService } from '../services/contactService';
 
 export default function ContactsPage() {
@@ -27,59 +43,64 @@ export default function ContactsPage() {
 
   if (loading) {
     return (
-      <div className="bg-white border border-slate-200 rounded-lg p-6">
-        <p className="text-slate-600">Cargando contactos...</p>
-      </div>
+      <Container maxWidth="lg">
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+        </Box>
+      </Container>
     );
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">Contactos</h2>
-        <Link to="/contacts/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h2" sx={{ fontWeight: 600 }}>
+          Contactos
+        </Typography>
+        <Button
+          component={Link}
+          to="/contacts/new"
+          variant="contained"
+          startIcon={<AddIcon />}
+        >
           Crear contacto
-        </Link>
-      </div>
+        </Button>
+      </Box>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-slate-200 text-sm">
-          <thead className="bg-slate-100">
-            <tr>
-              <th className="px-4 py-2 text-left border-b border-slate-200">ID</th>
-              <th className="px-4 py-2 text-left border-b border-slate-200">Nombre</th>
-              <th className="px-4 py-2 text-left border-b border-slate-200">Email</th>
-              <th className="px-4 py-2 text-left border-b border-slate-200">Teléfono</th>
-              <th className="px-4 py-2 text-left border-b border-slate-200">Dirección</th>
-            </tr>
-          </thead>
-          <tbody>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Nombre</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Teléfono</TableCell>
+              <TableCell>Dirección</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {contacts.length > 0 ? (
               contacts.map(contact => (
-                <tr key={contact.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-2 border-b border-slate-200">{contact.id}</td>
-                  <td className="px-4 py-2 border-b border-slate-200">{contact.name}</td>
-                  <td className="px-4 py-2 border-b border-slate-200">{contact.email || '-'}</td>
-                  <td className="px-4 py-2 border-b border-slate-200">{contact.phone || '-'}</td>
-                  <td className="px-4 py-2 border-b border-slate-200">{contact.address || '-'}</td>
-                </tr>
+                <TableRow key={contact.id} hover>
+                  <TableCell>{contact.id}</TableCell>
+                  <TableCell>{contact.name}</TableCell>
+                  <TableCell>{contact.email || '-'}</TableCell>
+                  <TableCell>{contact.phone || '-'}</TableCell>
+                  <TableCell>{contact.address || '-'}</TableCell>
+                </TableRow>
               ))
             ) : (
-              <tr>
-                <td className="px-4 py-4 text-slate-500 text-center" colSpan="5">
-                  No hay contactos aún.
-                </td>
-              </tr>
+              <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                  <Typography color="textSecondary">No hay contactos aún.</Typography>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Container>
   );
 }

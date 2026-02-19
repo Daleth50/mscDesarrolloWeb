@@ -1,6 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Container,
+  Box,
+  Button,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Alert,
+  CircularProgress,
+  Chip,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import { orderService } from '../services/orderService';
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'completed':
+      return 'success';
+    case 'pending':
+      return 'warning';
+    case 'cancelled':
+      return 'error';
+    default:
+      return 'default';
+  }
+};
+
+const getPaymentColor = (status) => {
+  switch (status) {
+    case 'paid':
+      return 'success';
+    case 'unpaid':
+      return 'error';
+    case 'partial':
+      return 'warning';
+    default:
+      return 'default';
+  }
+};
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -27,59 +70,78 @@ export default function OrdersPage() {
 
   if (loading) {
     return (
-      <div className="bg-white border border-slate-200 rounded-lg p-6">
-        <p className="text-slate-600">Cargando órdenes...</p>
-      </div>
+      <Container maxWidth="lg">
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+        </Box>
+      </Container>
     );
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">Órdenes</h2>
-        <Link to="/orders/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h2" sx={{ fontWeight: 600 }}>
+          Órdenes
+        </Typography>
+        <Button
+          component={Link}
+          to="/orders/new"
+          variant="contained"
+          startIcon={<AddIcon />}
+        >
           Crear orden
-        </Link>
-      </div>
+        </Button>
+      </Box>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-slate-200 text-sm">
-          <thead className="bg-slate-100">
-            <tr>
-              <th className="px-4 py-2 text-left border-b border-slate-200">ID</th>
-              <th className="px-4 py-2 text-left border-b border-slate-200">Contacto</th>
-              <th className="px-4 py-2 text-left border-b border-slate-200">Total</th>
-              <th className="px-4 py-2 text-left border-b border-slate-200">Estado</th>
-              <th className="px-4 py-2 text-left border-b border-slate-200">Pago</th>
-            </tr>
-          </thead>
-          <tbody>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Contacto</TableCell>
+              <TableCell align="right">Total</TableCell>
+              <TableCell>Estado</TableCell>
+              <TableCell>Pago</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {orders.length > 0 ? (
               orders.map(order => (
-                <tr key={order.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-2 border-b border-slate-200">{order.id}</td>
-                  <td className="px-4 py-2 border-b border-slate-200">{order.contact_id || '-'}</td>
-                  <td className="px-4 py-2 border-b border-slate-200">${order.total}</td>
-                  <td className="px-4 py-2 border-b border-slate-200">{order.status || '-'}</td>
-                  <td className="px-4 py-2 border-b border-slate-200">{order.payment_status || '-'}</td>
-                </tr>
+                <TableRow key={order.id} hover>
+                  <TableCell>{order.id}</TableCell>
+                  <TableCell>{order.contact_id || '-'}</TableCell>
+                  <TableCell align="right">${order.total}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={order.status || '-'}
+                      color={getStatusColor(order.status)}
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={order.payment_status || '-'}
+                      color={getPaymentColor(order.payment_status)}
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                </TableRow>
               ))
             ) : (
-              <tr>
-                <td className="px-4 py-4 text-slate-500 text-center" colSpan="5">
-                  No hay órdenes aún.
-                </td>
-              </tr>
+              <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                  <Typography color="textSecondary">No hay órdenes aún.</Typography>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Container>
   );
 }

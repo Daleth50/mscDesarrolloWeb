@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+  Container,
+  Box,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Button,
+  CircularProgress,
+  Alert,
+  Stack,
+  Typography,
+  Paper,
+} from '@mui/material';
 import { productService, categoryService } from '../services/productService';
 
 export default function ProductFormPage() {
@@ -83,150 +98,123 @@ export default function ProductFormPage() {
 
   if (loading) {
     return (
-      <div className="bg-white border border-slate-200 rounded-lg p-6 max-w-2xl">
-        <p className="text-slate-600">Cargando...</p>
-      </div>
+      <Container maxWidth="sm">
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+        </Box>
+      </Container>
     );
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6 max-w-2xl">
-      <h2 className="text-2xl font-semibold mb-4">
-        {isEdit ? 'Editar producto' : 'Crear producto'}
-      </h2>
+    <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Paper elevation={2} sx={{ p: 4 }}>
+        <Typography variant="h4" component="h2" sx={{ mb: 3, fontWeight: 600 }}>
+          {isEdit ? 'Editar producto' : 'Crear producto'}
+        </Typography>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Nombre */}
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-1">
-            Nombre del producto *
-          </label>
-          <input
-            type="text"
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <TextField
+            label="Nombre del producto"
             id="name"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            fullWidth
+            variant="outlined"
           />
-        </div>
-
-        {/* SKU */}
-        <div>
-          <label htmlFor="sku" className="block text-sm font-medium mb-1">
-            SKU
-          </label>
-          <input
-            type="text"
+          <TextField
+            label="SKU"
             id="sku"
             name="sku"
             value={formData.sku}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            fullWidth
+            variant="outlined"
           />
-        </div>
-
-        {/* Precio */}
-        <div>
-          <label htmlFor="price" className="block text-sm font-medium mb-1">
-            Precio *
-          </label>
-          <input
-            type="number"
+          <TextField
+            label="Precio"
             id="price"
             name="price"
-            step="0.01"
-            min="0"
+            type="number"
+            inputProps={{ step: '0.01', min: '0' }}
             value={formData.price}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            fullWidth
+            variant="outlined"
           />
-        </div>
-
-        {/* Costo */}
-        <div>
-          <label htmlFor="cost" className="block text-sm font-medium mb-1">
-            Costo *
-          </label>
-          <input
-            type="number"
+          <TextField
+            label="Costo"
             id="cost"
             name="cost"
-            step="0.01"
-            min="0"
+            type="number"
+            inputProps={{ step: '0.01', min: '0' }}
             value={formData.cost}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            fullWidth
+            variant="outlined"
           />
-        </div>
-
-        {/* Categoría */}
-        <div>
-          <label htmlFor="taxonomy_id" className="block text-sm font-medium mb-1">
-            Categoría
-          </label>
-          <select
-            id="taxonomy_id"
-            name="taxonomy_id"
-            value={formData.taxonomy_id}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Sin categoría</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>
-                {cat.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Tasa de impuesto */}
-        <div>
-          <label htmlFor="tax_rate" className="block text-sm font-medium mb-1">
-            Tasa de impuesto *
-          </label>
-          <select
-            id="tax_rate"
-            name="tax_rate"
-            value={formData.tax_rate}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="0">0%</option>
-            <option value="8">8%</option>
-            <option value="16">16%</option>
-          </select>
-        </div>
-
-        {/* Botones */}
-        <div className="flex gap-2 justify-end pt-4">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 border border-slate-300 rounded-md hover:bg-slate-50"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            {isEdit ? 'Guardar cambios' : 'Crear producto'}
-          </button>
-        </div>
-      </form>
-    </div>
+          <FormControl fullWidth>
+            <InputLabel id="taxonomy_id-label">Categoría</InputLabel>
+            <Select
+              labelId="taxonomy_id-label"
+              id="taxonomy_id"
+              name="taxonomy_id"
+              value={formData.taxonomy_id}
+              onChange={handleChange}
+              label="Categoría"
+            >
+              <MenuItem value="">Sin categoría</MenuItem>
+              {categories.map(cat => (
+                <MenuItem key={cat.id} value={cat.id}>
+                  {cat.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="tax_rate-label">Tasa de impuesto</InputLabel>
+            <Select
+              labelId="tax_rate-label"
+              id="tax_rate"
+              name="tax_rate"
+              value={formData.tax_rate}
+              onChange={handleChange}
+              label="Tasa de impuesto"
+              required
+            >
+              <MenuItem value="0">0%</MenuItem>
+              <MenuItem value="8">8%</MenuItem>
+              <MenuItem value="16">16%</MenuItem>
+            </Select>
+          </FormControl>
+          <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end', pt: 2 }}>
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={() => navigate(-1)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+            >
+              {isEdit ? 'Guardar cambios' : 'Crear producto'}
+            </Button>
+          </Stack>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
 

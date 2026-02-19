@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import {
+  Container,
+  Box,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  Grid,
+  Typography,
+  CircularProgress,
+  Alert,
+  Divider,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { productService } from '../services/productService';
 
 export default function ProductDetailPage() {
@@ -44,78 +60,127 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="bg-white border border-slate-200 rounded-lg p-6">
-        <p className="text-slate-600">Cargando...</p>
-      </div>
+      <Container maxWidth="sm">
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+        </Box>
+      </Container>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="bg-white border border-slate-200 rounded-lg p-6">
-        <p className="text-red-600">{error || 'Producto no encontrado'}</p>
-        <Link to="/products" className="text-blue-600 hover:underline mt-4 block">
+      <Container maxWidth="sm">
+        <Alert severity="error" sx={{ mt: 3, mb: 2 }}>
+          {error || 'Producto no encontrado'}
+        </Alert>
+        <Button
+          component={Link}
+          to="/products"
+          startIcon={<ArrowBackIcon />}
+          variant="outlined"
+        >
           Volver a productos
-        </Link>
-      </div>
+        </Button>
+      </Container>
     );
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6 max-w-2xl">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold">{product.name}</h2>
-        <div className="flex gap-2">
-          <Link
-            to={`/products/${product.id}/edit`}
-            className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
-          >
-            Editar
-          </Link>
-          <button
-            onClick={handleDelete}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Eliminar
-          </button>
-        </div>
-      </div>
+    <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Card elevation={2}>
+        <CardContent>
+          <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Typography variant="h4" component="h2" sx={{ fontWeight: 600 }}>
+              {product.name}
+            </Typography>
+          </Box>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div>
-          <p className="text-slate-600 text-sm">SKU</p>
-          <p className="text-lg font-semibold">{product.sku || '-'}</p>
-        </div>
-        <div>
-          <p className="text-slate-600 text-sm">Categoría</p>
-          <p className="text-lg font-semibold">{product.category || '-'}</p>
-        </div>
-        <div>
-          <p className="text-slate-600 text-sm">Precio</p>
-          <p className="text-lg font-semibold text-green-600">${product.price}</p>
-        </div>
-        <div>
-          <p className="text-slate-600 text-sm">Costo</p>
-          <p className="text-lg font-semibold">${product.cost}</p>
-        </div>
-        <div>
-          <p className="text-slate-600 text-sm">Margen</p>
-          <p className="text-lg font-semibold">
-            ${(product.price - product.cost).toFixed(2)}
-          </p>
-        </div>
-        <div>
-          <p className="text-slate-600 text-sm">Tasa de impuesto</p>
-          <p className="text-lg font-semibold">{product.tax_rate}%</p>
-        </div>
-      </div>
+          <Divider sx={{ my: 2 }} />
 
-      <Link
-        to="/products"
-        className="text-blue-600 hover:underline"
-      >
-        ← Volver a productos
-      </Link>
-    </div>
+          <Grid container spacing={3} sx={{ my: 2 }}>
+            <Grid item xs={6}>
+              <Typography variant="caption" color="textSecondary" display="block">
+                SKU
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {product.sku || '-'}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="caption" color="textSecondary" display="block">
+                Categoría
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {product.category || '-'}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="caption" color="textSecondary" display="block">
+                Precio
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 600, color: 'success.main' }}>
+                ${product.price}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="caption" color="textSecondary" display="block">
+                Costo
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                ${product.cost}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="caption" color="textSecondary" display="block">
+                Margen
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                ${(product.price - product.cost).toFixed(2)}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="caption" color="textSecondary" display="block">
+                Tasa de impuesto
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {product.tax_rate}%
+              </Typography>
+            </Grid>
+          </Grid>
+        </CardContent>
+        <Divider />
+        <CardActions sx={{ gap: 1, justifyContent: 'space-between' }}>
+          <Button
+            component={Link}
+            to="/products"
+            startIcon={<ArrowBackIcon />}
+            variant="outlined"
+          >
+            Volver
+          </Button>
+          <Box>
+            <Button
+              component={Link}
+              to={`/products/${product.id}/edit`}
+              startIcon={<EditIcon />}
+              variant="contained"
+              color="warning"
+              sx={{ mr: 1 }}
+            >
+              Editar
+            </Button>
+            <Button
+              onClick={handleDelete}
+              startIcon={<DeleteIcon />}
+              variant="contained"
+              color="error"
+            >
+              Eliminar
+            </Button>
+          </Box>
+        </CardActions>
+      </Card>
+    </Container>
   );
 }

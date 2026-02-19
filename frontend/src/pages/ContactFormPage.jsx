@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Container,
+  Box,
+  TextField,
+  Button,
+  Alert,
+  Stack,
+  Typography,
+  Paper,
+} from '@mui/material';
 import { contactService } from '../services/contactService';
 
 export default function ContactFormPage() {
@@ -32,94 +42,78 @@ export default function ContactFormPage() {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6 max-w-2xl">
-      <h2 className="text-2xl font-semibold mb-4">Crear contacto</h2>
+    <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Paper elevation={2} sx={{ p: 4 }}>
+        <Typography variant="h4" component="h2" sx={{ mb: 3, fontWeight: 600 }}>
+          Crear contacto
+        </Typography>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Nombre */}
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-1">
-            Nombre *
-          </label>
-          <input
-            type="text"
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <TextField
+            label="Nombre"
             id="name"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            fullWidth
+            variant="outlined"
           />
-        </div>
 
-        {/* Email */}
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-1">
-            Email
-          </label>
-          <input
-            type="email"
+          <TextField
+            label="Email"
             id="email"
             name="email"
+            type="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            fullWidth
+            variant="outlined"
           />
-        </div>
 
-        {/* Teléfono */}
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium mb-1">
-            Teléfono
-          </label>
-          <input
-            type="tel"
+          <TextField
+            label="Teléfono"
             id="phone"
             name="phone"
+            type="tel"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            fullWidth
+            variant="outlined"
           />
-        </div>
 
-        {/* Dirección */}
-        <div>
-          <label htmlFor="address" className="block text-sm font-medium mb-1">
-            Dirección
-          </label>
-          <textarea
+          <TextField
+            label="Dirección"
             id="address"
             name="address"
             value={formData.address}
             onChange={handleChange}
-            rows="4"
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            fullWidth
+            variant="outlined"
+            multiline
+            rows={4}
           />
-        </div>
 
-        {/* Botones */}
-        <div className="flex gap-2 justify-end pt-4">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 border border-slate-300 rounded-md hover:bg-slate-50"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Crear contacto
-          </button>
-        </div>
-      </form>
-    </div>
+          <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end', pt: 2 }}>
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={() => navigate(-1)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+            >
+              Crear contacto
+            </Button>
+          </Stack>
+        </Box>
+      </Paper>
+    </Container>
   );
 }

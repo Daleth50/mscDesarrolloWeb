@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Container,
+  Box,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Button,
+  Alert,
+  Stack,
+  Typography,
+  Paper,
+  Grid,
+} from '@mui/material';
 import { orderService } from '../services/orderService';
 
 export default function OrderFormPage() {
@@ -38,172 +53,147 @@ export default function OrderFormPage() {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6 max-w-2xl">
-      <h2 className="text-2xl font-semibold mb-4">Crear orden</h2>
+    <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Paper elevation={2} sx={{ p: 4 }}>
+        <Typography variant="h4" component="h2" sx={{ mb: 3, fontWeight: 600 }}>
+          Crear orden
+        </Typography>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Contacto */}
-        <div>
-          <label htmlFor="contact_id" className="block text-sm font-medium mb-1">
-            Contacto
-          </label>
-          <input
-            type="text"
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <TextField
+            label="Contacto ID"
             id="contact_id"
             name="contact_id"
             value={formData.contact_id}
             onChange={handleChange}
-            placeholder="ID del contacto"
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            fullWidth
+            variant="outlined"
           />
-        </div>
 
-        {/* Subtotal */}
-        <div>
-          <label htmlFor="subtotal" className="block text-sm font-medium mb-1">
-            Subtotal
-          </label>
-          <input
-            type="number"
-            id="subtotal"
-            name="subtotal"
-            step="0.01"
-            min="0"
-            value={formData.subtotal}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Subtotal"
+                id="subtotal"
+                name="subtotal"
+                type="number"
+                inputProps={{ step: '0.01', min: '0' }}
+                value={formData.subtotal}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Impuesto"
+                id="tax"
+                name="tax"
+                type="number"
+                inputProps={{ step: '0.01', min: '0' }}
+                value={formData.tax}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Descuento"
+                id="discount"
+                name="discount"
+                type="number"
+                inputProps={{ step: '0.01', min: '0' }}
+                value={formData.discount}
+                onChange={handleChange}
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Total"
+                id="total"
+                name="total"
+                type="number"
+                inputProps={{ step: '0.01', min: '0' }}
+                value={formData.total}
+                onChange={handleChange}
+                required
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+          </Grid>
 
-        {/* Impuesto */}
-        <div>
-          <label htmlFor="tax" className="block text-sm font-medium mb-1">
-            Impuesto
-          </label>
-          <input
-            type="number"
-            id="tax"
-            name="tax"
-            step="0.01"
-            min="0"
-            value={formData.tax}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <FormControl fullWidth>
+            <InputLabel id="status-label">Estado</InputLabel>
+            <Select
+              labelId="status-label"
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              label="Estado"
+            >
+              <MenuItem value="pending">Pendiente</MenuItem>
+              <MenuItem value="completed">Completada</MenuItem>
+              <MenuItem value="cancelled">Cancelada</MenuItem>
+            </Select>
+          </FormControl>
 
-        {/* Descuento */}
-        <div>
-          <label htmlFor="discount" className="block text-sm font-medium mb-1">
-            Descuento
-          </label>
-          <input
-            type="number"
-            id="discount"
-            name="discount"
-            step="0.01"
-            min="0"
-            value={formData.discount}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <FormControl fullWidth>
+            <InputLabel id="payment_status-label">Estado de pago</InputLabel>
+            <Select
+              labelId="payment_status-label"
+              id="payment_status"
+              name="payment_status"
+              value={formData.payment_status}
+              onChange={handleChange}
+              label="Estado de pago"
+            >
+              <MenuItem value="unpaid">No pagada</MenuItem>
+              <MenuItem value="paid">Pagada</MenuItem>
+              <MenuItem value="partial">Parcial</MenuItem>
+            </Select>
+          </FormControl>
 
-        {/* Total */}
-        <div>
-          <label htmlFor="total" className="block text-sm font-medium mb-1">
-            Total *
-          </label>
-          <input
-            type="number"
-            id="total"
-            name="total"
-            step="0.01"
-            min="0"
-            value={formData.total}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+          <FormControl fullWidth>
+            <InputLabel id="payment_method-label">Método de pago</InputLabel>
+            <Select
+              labelId="payment_method-label"
+              id="payment_method"
+              name="payment_method"
+              value={formData.payment_method}
+              onChange={handleChange}
+              label="Método de pago"
+            >
+              <MenuItem value="cash">Efectivo</MenuItem>
+              <MenuItem value="card">Tarjeta</MenuItem>
+              <MenuItem value="transfer">Transferencia</MenuItem>
+            </Select>
+          </FormControl>
 
-        {/* Estado */}
-        <div>
-          <label htmlFor="status" className="block text-sm font-medium mb-1">
-            Estado
-          </label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="pending">Pendiente</option>
-            <option value="completed">Completada</option>
-            <option value="cancelled">Cancelada</option>
-          </select>
-        </div>
-
-        {/* Estado de pago */}
-        <div>
-          <label htmlFor="payment_status" className="block text-sm font-medium mb-1">
-            Estado de pago
-          </label>
-          <select
-            id="payment_status"
-            name="payment_status"
-            value={formData.payment_status}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="unpaid">No pagada</option>
-            <option value="paid">Pagada</option>
-            <option value="partial">Parcial</option>
-          </select>
-        </div>
-
-        {/* Método de pago */}
-        <div>
-          <label htmlFor="payment_method" className="block text-sm font-medium mb-1">
-            Método de pago
-          </label>
-          <select
-            id="payment_method"
-            name="payment_method"
-            value={formData.payment_method}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="cash">Efectivo</option>
-            <option value="card">Tarjeta</option>
-            <option value="transfer">Transferencia</option>
-          </select>
-        </div>
-
-        {/* Botones */}
-        <div className="flex gap-2 justify-end pt-4">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 border border-slate-300 rounded-md hover:bg-slate-50"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Crear orden
-          </button>
-        </div>
-      </form>
-    </div>
+          <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end', pt: 2 }}>
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={() => navigate(-1)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+            >
+              Crear orden
+            </Button>
+          </Stack>
+        </Box>
+      </Paper>
+    </Container>
   );
 }

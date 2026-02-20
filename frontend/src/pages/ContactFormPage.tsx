@@ -9,9 +9,11 @@ import {
   Typography,
   Paper,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { useContactForm } from '../view_models/useContactForm';
 
 export default function ContactFormPage() {
+  const navigate = useNavigate();
   const { error, formData, handleChange, handleSubmit } = useContactForm();
 
   return (

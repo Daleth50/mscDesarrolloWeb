@@ -38,7 +38,7 @@ export function useProductDetail() {
       setError('Id de producto no encontrado');
       return;
     }
-    navigate(`/products/edit/${id}`);
+    navigate(`/products/${id}/edit`);
   };
 
   const handleDelete = async () => {

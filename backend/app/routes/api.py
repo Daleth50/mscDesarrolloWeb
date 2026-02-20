@@ -80,6 +80,47 @@ def get_categories():
         return jsonify({"error": str(e)}), 500
 
 
+@api_bp.route("/categories", methods=["POST"])
+def create_category():
+    """Crear nueva categoría"""
+    try:
+        data = request.get_json() or {}
+        new_category = ProductViewModel.create_category(data)
+        return jsonify(new_category), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/categories/<string:category_id>", methods=["PUT"])
+def update_category(category_id):
+    """Actualizar categoría"""
+    try:
+        data = request.get_json() or {}
+        updated_category = ProductViewModel.update_category(category_id, data)
+        return jsonify(updated_category), 200
+    except ValueError as e:
+        status_code = 404 if str(e) == "Category not found" else 400
+        return jsonify({"error": str(e)}), status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/categories/<string:category_id>", methods=["DELETE"])
+def delete_category(category_id):
+    """Eliminar categoría"""
+    try:
+        ProductViewModel.delete_category(category_id)
+        return jsonify({"message": "Category deleted"}), 200
+    except ValueError as e:
+        error = str(e)
+        status_code = 404 if error == "Category not found" else 400
+        return jsonify({"error": error}), status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ==================== CONTACTS ====================
 
 @api_bp.route("/contacts", methods=["GET"])

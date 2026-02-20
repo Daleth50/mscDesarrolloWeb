@@ -10,6 +10,7 @@ import { styled } from '@mui/material/styles';
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import ContactFormPage from './pages/ContactFormPage';
 import ContactsPage from './pages/ContactsPage';
+import CategoriesPage from './pages/CategoriesPage';
 import HomePage from './pages/HomePage';
 import OrderFormPage from './pages/OrderFormPage';
 import OrdersPage from './pages/OrdersPage';
@@ -70,6 +71,17 @@ function App() {
                 </Button>
                 <Button
                   component={Link}
+                  to="/categories"
+                  color="inherit"
+                  sx={{
+                    textDecoration: 'none',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  Categorías
+                </Button>
+                <Button
+                  component={Link}
                   to="/contacts"
                   color="inherit"
                   sx={{
@@ -106,6 +118,9 @@ function App() {
               <Route path="/products/new" element={<ProductFormPage />} />
               <Route path="/products/:id" element={<ProductDetailPage />} />
               <Route path="/products/:id/edit" element={<ProductFormPage />} />
+
+              {/* Categories */}
+              <Route path="/categories" element={<CategoriesPage />} />
 
               {/* Contacts */}
               <Route path="/contacts" element={<ContactsPage />} />

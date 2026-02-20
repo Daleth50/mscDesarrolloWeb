@@ -22,10 +22,4 @@ export const productService = {
   },
 };
 
-export const categoryService = {
-  getAll() {
-    return api.get('/categories');
-  },
-};
-
 export default productService;

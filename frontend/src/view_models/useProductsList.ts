@@ -32,7 +32,7 @@ export function useProductsList() {
   };
 
   const handleEdit = (id: UUID) => {
-    navigate(`/products/edit/${id}`);
+    navigate(`/products/${id}/edit`);
   };
 
   const handleDelete = async (id: UUID) => {

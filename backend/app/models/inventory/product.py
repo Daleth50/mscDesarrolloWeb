@@ -25,9 +25,7 @@ class Product(db.Model):
     sku = db.Column(db.String(100), nullable=True)
     price = db.Column(db.Numeric(18, 4), nullable=True)
     cost = db.Column(db.Numeric(18, 4), nullable=True)
-    category = db.Column(db.String(100), nullable=True)
     tax_rate = db.Column(db.Numeric(5, 2), nullable=True)
-    taxonomy_id = db.Column(db.String(36), db.ForeignKey("taxonomies.id"), nullable=True)
     attribute_combinations = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.current_timestamp())
     updated_at = db.Column(
@@ -46,9 +44,7 @@ class Product(db.Model):
             "sku": self.sku,
             "price": float(self.price) if self.price is not None else None,
             "cost": float(self.cost) if self.cost is not None else None,
-            "category": self.category,
             "tax_rate": float(self.tax_rate) if self.tax_rate is not None else None,
-            "taxonomy_id": self.taxonomy_id,
             "attribute_combinations": self.attribute_combinations,
         }
 

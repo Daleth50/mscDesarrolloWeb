@@ -1,30 +1,42 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 import {
-  Container,
+  Alert,
   Box,
   Button,
-  Typography,
+  CircularProgress,
+  Container,
+  IconButton,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Alert,
-  CircularProgress,
-  Stack,
-  IconButton,
+  Typography,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import AddIcon from '@mui/icons-material/Add';
-import { useProductsList } from '../view_models/useProductsList';
+import { useCategoriesList } from '../view_models/useCategoriesList';
+import CategoryFormDialog from '../components/CategoryFormDialog';
 
-export default function ProductsPage() {
-  const { products, loading, error, handleView, handleEdit, handleDelete } = useProductsList();
+export default function CategoriesPage() {
+  const {
+    categories,
+    loading,
+    saving,
+    error,
+    isModalOpen,
+    editingCategoryId,
+    formData,
+    openCreateModal,
+    openEditModal,
+    closeModal,
+    handleChange,
+    handleSave,
+    handleDelete,
+  } = useCategoriesList();
 
   if (loading) {
     return (
@@ -40,15 +52,10 @@ export default function ProductsPage() {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" component="h2" sx={{ fontWeight: 600 }}>
-          Productos
+          Categorías
         </Typography>
-        <Button
-          component={Link}
-          to="/products/new"
-          variant="contained"
-          startIcon={<AddIcon />}
-        >
-          Crear producto
+        <Button variant="contained" startIcon={<AddIcon />} onClick={openCreateModal}>
+          Crear categoría
         </Button>
       </Box>
 
@@ -56,37 +63,21 @@ export default function ProductsPage() {
 
       <TableContainer component={Paper}>
         <Table>
-          <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+          <TableHead>
             <TableRow>
               <TableCell>Nombre</TableCell>
-              <TableCell>SKU</TableCell>
-              <TableCell align="right">Precio</TableCell>
-              <TableCell align="right">Costo</TableCell>
-              <TableCell>Categoría</TableCell>
               <TableCell align="center">Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {products.length > 0 ? (
-              products.map(product => (
-                <TableRow key={product.id} hover>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.sku || '-'}</TableCell>
-                  <TableCell align="right">${product.price}</TableCell>
-                  <TableCell align="right">${product.cost}</TableCell>
-                  <TableCell>{product.category_name || '-'}</TableCell>
+            {categories.length > 0 ? (
+              categories.map((category) => (
+                <TableRow key={category.id} hover>
+                  <TableCell>{category.name || category.label}</TableCell>
                   <TableCell align="center">
                     <Stack direction="row" spacing={1} justifyContent="center">
                       <IconButton
-                        onClick={() => handleView(product.id)}
-                        size="small"
-                        color="primary"
-                        title="Ver"
-                      >
-                        <VisibilityIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleEdit(product.id)}
+                        onClick={() => openEditModal(category)}
                         size="small"
                         color="warning"
                         title="Editar"
@@ -94,7 +85,7 @@ export default function ProductsPage() {
                         <EditIcon fontSize="small" />
                       </IconButton>
                       <IconButton
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => handleDelete(category.id)}
                         size="small"
                         color="error"
                         title="Eliminar"
@@ -107,14 +98,25 @@ export default function ProductsPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
-                  <Typography color="textSecondary">No hay productos aún.</Typography>
+                <TableCell colSpan={2} align="center" sx={{ py: 3 }}>
+                  <Typography color="textSecondary">No hay categorías aún.</Typography>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </TableContainer>
+
+      <CategoryFormDialog
+        open={isModalOpen}
+        title={editingCategoryId ? 'Editar categoría' : 'Crear categoría'}
+        confirmLabel={editingCategoryId ? 'Guardar cambios' : 'Crear categoría'}
+        value={formData.name}
+        saving={saving}
+        onClose={closeModal}
+        onChange={handleChange}
+        onConfirm={handleSave}
+      />
     </Container>
   );
 }

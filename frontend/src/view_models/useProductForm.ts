@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { productService, categoryService } from '../services/productService';
+import { productService } from '../services/productService';
+import { categoryService } from '../services/categoryService';
 import { getErrorMessage } from '../utils/error';
 import type { Category, UUID } from '../types/models';
 
@@ -10,7 +11,7 @@ type ProductFormData = {
   price: number;
   cost: number;
   tax_rate: number;
-  taxonomy_id: UUID;
+  category_id: UUID;
 };
 
 type ProductFormChangeEvent = {
@@ -34,13 +35,16 @@ export function useProductForm() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [savingCategory, setSavingCategory] = useState(false);
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     sku: '',
     price: 0,
     cost: 0,
     tax_rate: 0,
-    taxonomy_id: '',
+    category_id: '',
   });
 
   useEffect(() => {
@@ -67,7 +71,7 @@ export function useProductForm() {
             price: product.price || 0,
             cost: product.cost || 0,
             tax_rate: product.tax_rate || 0,
-            taxonomy_id: product.taxonomy_id || '',
+            category_id: product.category_id || '',
           });
         }
       }
@@ -112,13 +116,60 @@ export function useProductForm() {
     }
   };
 
+  const openCategoryModal = () => {
+    setNewCategoryName('');
+    setCategoryModalOpen(true);
+  };
+
+  const closeCategoryModal = () => {
+    setCategoryModalOpen(false);
+    setNewCategoryName('');
+  };
+
+  const handleNewCategoryChange = (value: string) => {
+    setNewCategoryName(value);
+  };
+
+  const handleCreateCategory = async () => {
+    const name = newCategoryName.trim();
+    if (!name) {
+      setError('El nombre de la categoría es requerido');
+      return;
+    }
+
+    try {
+      setSavingCategory(true);
+      const createdCategory = await categoryService.create({ name });
+      const cats = await categoryService.getAll();
+      setCategories(cats);
+      setFormData(prev => ({
+        ...prev,
+        category_id: createdCategory.id,
+      }));
+      closeCategoryModal();
+      setError(null);
+    } catch (err) {
+      setError(getErrorMessage(err));
+      console.error(err);
+    } finally {
+      setSavingCategory(false);
+    }
+  };
+
   return {
     categories,
     loading,
     error,
     formData,
     isEdit,
+    categoryModalOpen,
+    newCategoryName,
+    savingCategory,
     handleChange,
     handleSubmit,
+    openCategoryModal,
+    closeCategoryModal,
+    handleNewCategoryChange,
+    handleCreateCategory,
   };
 }

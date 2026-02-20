@@ -10,7 +10,9 @@ export interface Contact {
 
 export interface Category {
   id: UUID;
+  name?: string;
   label: string;
+  value?: string | null;
 }
 
 export interface Product {
@@ -20,8 +22,8 @@ export interface Product {
   price: number;
   cost: number;
   tax_rate?: number | null;
-  category?: string | null;
-  taxonomy_id?: UUID | null;
+  category_name?: string | null;
+  category_id?: UUID | null;
 }
 
 export type OrderStatus = 'pending' | 'completed' | 'cancelled';

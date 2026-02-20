@@ -5,6 +5,7 @@ import {
   CircularProgress,
   Container,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Paper,
@@ -13,8 +14,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import { useProductForm } from '../view_models/useProductForm';
+import CategoryFormDialog from '../components/CategoryFormDialog';
 
 export default function ProductFormPage() {
   const navigate = useNavigate();
@@ -24,8 +27,15 @@ export default function ProductFormPage() {
     error,
     formData,
     isEdit,
+    categoryModalOpen,
+    newCategoryName,
+    savingCategory,
     handleChange,
     handleSubmit,
+    openCategoryModal,
+    closeCategoryModal,
+    handleNewCategoryChange,
+    handleCreateCategory,
   } = useProductForm();
 
   if (loading) {
@@ -94,31 +104,36 @@ export default function ProductFormPage() {
             fullWidth
             variant="outlined"
           />
-          <FormControl fullWidth>
-            <InputLabel id="taxonomy_id-label">Categoría</InputLabel>
-            <Select
-              labelId="taxonomy_id-label"
-              id="taxonomy_id"
-              name="taxonomy_id"
-              value={formData.taxonomy_id}
-              onChange={handleChange}
-              label="Categoría"
-            >
-              <MenuItem value="">Sin categoría</MenuItem>
-              {categories.map(cat => (
-                <MenuItem key={cat.id} value={cat.id}>
-                  {cat.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Box display="flex" gap={2} flexDirection={'row'}>
+            <FormControl fullWidth>
+              <InputLabel id="category_id-label">Categoría</InputLabel>
+              <Select
+                labelId="category_id-label"
+                id="category_id"
+                name="category_id"
+                value={formData.category_id}
+                onChange={handleChange}
+                label="Categoría"
+              >
+                <MenuItem value="">Sin categoría</MenuItem>
+                {categories.map(cat => (
+                  <MenuItem key={cat.id} value={cat.id}>
+                    {cat.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <IconButton onClick={openCategoryModal} title="Crear categoría">
+              <AddIcon />
+            </IconButton>
+          </Box>
           <FormControl fullWidth>
             <InputLabel id="tax_rate-label">Tasa de impuesto</InputLabel>
             <Select
               labelId="tax_rate-label"
               id="tax_rate"
               name="tax_rate"
-              value={formData.tax_rate}
+              value={String(formData.tax_rate)}
               onChange={handleChange}
               label="Tasa de impuesto"
               required
@@ -145,6 +160,17 @@ export default function ProductFormPage() {
             </Button>
           </Stack>
         </Box>
+
+        <CategoryFormDialog
+          open={categoryModalOpen}
+          title="Crear categoría"
+          confirmLabel="Crear categoría"
+          value={newCategoryName}
+          saving={savingCategory}
+          onClose={closeCategoryModal}
+          onChange={handleNewCategoryChange}
+          onConfirm={handleCreateCategory}
+        />
       </Paper>
     </Container>
   );

@@ -72,7 +72,7 @@ export default function ProductDetailPage() {
                 Categoría
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                {product.category || '-'}
+                {product.category_name || '-'}
               </Typography>
             </Grid>
             <Grid item xs={6}>

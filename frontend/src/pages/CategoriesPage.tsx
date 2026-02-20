@@ -111,7 +111,7 @@ export default function CategoriesPage() {
         open={isModalOpen}
         title={editingCategoryId ? 'Editar categoría' : 'Crear categoría'}
         confirmLabel={editingCategoryId ? 'Guardar cambios' : 'Crear categoría'}
-        value={formData.name}
+        formData={formData}
         saving={saving}
         onClose={closeModal}
         onChange={handleChange}

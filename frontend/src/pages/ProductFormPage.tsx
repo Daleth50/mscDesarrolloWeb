@@ -28,13 +28,13 @@ export default function ProductFormPage() {
     formData,
     isEdit,
     categoryModalOpen,
-    newCategoryName,
+    categoryFormData,
     savingCategory,
     handleChange,
     handleSubmit,
     openCategoryModal,
     closeCategoryModal,
-    handleNewCategoryChange,
+    handleCategoryFormChange,
     handleCreateCategory,
   } = useProductForm();
 
@@ -165,10 +165,10 @@ export default function ProductFormPage() {
           open={categoryModalOpen}
           title="Crear categoría"
           confirmLabel="Crear categoría"
-          value={newCategoryName}
+          formData={categoryFormData}
           saving={savingCategory}
           onClose={closeCategoryModal}
-          onChange={handleNewCategoryChange}
+          onChange={handleCategoryFormChange}
           onConfirm={handleCreateCategory}
         />
       </Paper>

@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -7,14 +8,20 @@ import {
   TextField,
 } from '@mui/material';
 
+type CategoryFormData = {
+  name: string;
+  ordering: number | null;
+  color: string;
+};
+
 type CategoryFormDialogProps = {
   open: boolean;
   title: string;
   confirmLabel: string;
-  value: string;
+  formData: CategoryFormData;
   saving: boolean;
   onClose: () => void;
-  onChange: (value: string) => void;
+  onChange: (field: keyof CategoryFormData, value: string | number | null) => void;
   onConfirm: () => void;
 };
 
@@ -22,7 +29,7 @@ export default function CategoryFormDialog({
   open,
   title,
   confirmLabel,
-  value,
+  formData,
   saving,
   onClose,
   onChange,
@@ -32,17 +39,39 @@ export default function CategoryFormDialog({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          id="category-name"
-          label="Nombre"
-          type="text"
-          fullWidth
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          required
-        />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+          <TextField
+            autoFocus
+            id="category-name"
+            label="Nombre"
+            type="text"
+            fullWidth
+            value={formData.name}
+            onChange={(event) => onChange('name', event.target.value)}
+            required
+          />
+          <TextField
+            id="category-ordering"
+            label="Orden"
+            type="number"
+            fullWidth
+            value={formData.ordering ?? ''}
+            onChange={(event) => 
+              onChange('ordering', event.target.value ? parseInt(event.target.value) : null)
+            }
+          />
+          <TextField
+            id="category-color"
+            label="Color"
+            type="color"
+            fullWidth
+            value={formData.color}
+            onChange={(event) => onChange('color', event.target.value)}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={saving}>
@@ -51,7 +80,7 @@ export default function CategoryFormDialog({
         <Button
           onClick={onConfirm}
           variant="contained"
-          disabled={saving || !value.trim()}
+          disabled={saving || !formData.name.trim()}
         >
           {confirmLabel}
         </Button>

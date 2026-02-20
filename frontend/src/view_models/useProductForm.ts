@@ -27,6 +27,12 @@ const numericFields = new Set<keyof ProductFormData>([
   'tax_rate',
 ]);
 
+type CategoryFormData = {
+  name: string;
+  ordering: number | null;
+  color: string;
+};
+
 export function useProductForm() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -36,7 +42,11 @@ export function useProductForm() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState('');
+  const [categoryFormData, setCategoryFormData] = useState<CategoryFormData>({
+    name: '',
+    ordering: null,
+    color: '#000000',
+  });
   const [savingCategory, setSavingCategory] = useState(false);
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -117,21 +127,32 @@ export function useProductForm() {
   };
 
   const openCategoryModal = () => {
-    setNewCategoryName('');
+    setCategoryFormData({
+      name: '',
+      ordering: null,
+      color: '#000000',
+    });
     setCategoryModalOpen(true);
   };
 
   const closeCategoryModal = () => {
     setCategoryModalOpen(false);
-    setNewCategoryName('');
+    setCategoryFormData({
+      name: '',
+      ordering: null,
+      color: '#000000',
+    });
   };
 
-  const handleNewCategoryChange = (value: string) => {
-    setNewCategoryName(value);
+  const handleCategoryFormChange = (field: keyof CategoryFormData, value: string | number | null) => {
+    setCategoryFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const handleCreateCategory = async () => {
-    const name = newCategoryName.trim();
+    const name = categoryFormData.name.trim();
     if (!name) {
       setError('El nombre de la categoría es requerido');
       return;
@@ -139,7 +160,7 @@ export function useProductForm() {
 
     try {
       setSavingCategory(true);
-      const createdCategory = await categoryService.create({ name });
+      const createdCategory = await categoryService.create(categoryFormData);
       const cats = await categoryService.getAll();
       setCategories(cats);
       setFormData(prev => ({
@@ -163,13 +184,13 @@ export function useProductForm() {
     formData,
     isEdit,
     categoryModalOpen,
-    newCategoryName,
+    categoryFormData,
     savingCategory,
     handleChange,
     handleSubmit,
     openCategoryModal,
     closeCategoryModal,
-    handleNewCategoryChange,
+    handleCategoryFormChange,
     handleCreateCategory,
   };
 }

@@ -80,7 +80,7 @@ export default function ProductDetailPage() {
                 Precio
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 600, color: 'success.main' }}>
-                ${product.price}
+                ${(product.price ?? 0).toFixed(2)}
               </Typography>
             </Grid>
             <Grid item xs={6}>
@@ -88,7 +88,7 @@ export default function ProductDetailPage() {
                 Costo
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                ${product.cost}
+                ${(product.cost ?? 0).toFixed(2)}
               </Typography>
             </Grid>
             <Grid item xs={6}>
@@ -96,7 +96,7 @@ export default function ProductDetailPage() {
                 Margen
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                ${(product.price - product.cost).toFixed(2)}
+                ${((product.price ?? 0) - (product.cost ?? 0)).toFixed(2)}
               </Typography>
             </Grid>
             <Grid item xs={6}>

@@ -72,8 +72,8 @@ export default function ProductsPage() {
                 <TableRow key={product.id} hover>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.sku || '-'}</TableCell>
-                  <TableCell align="right">${product.price}</TableCell>
-                  <TableCell align="right">${product.cost}</TableCell>
+                  <TableCell align="right">${(product.price ?? 0).toFixed(2)}</TableCell>
+                  <TableCell align="right">${(product.cost ?? 0).toFixed(2)}</TableCell>
                   <TableCell>{product.category_name || '-'}</TableCell>
                   <TableCell align="center">
                     <Stack direction="row" spacing={1} justifyContent="center">

@@ -13,6 +13,8 @@ export interface Category {
   name?: string;
   label: string;
   value?: string | null;
+  ordering?: number | null;
+  color?: string | null;
 }
 
 export interface Product {

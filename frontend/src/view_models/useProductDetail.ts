@@ -18,15 +18,23 @@ export function useProductDetail() {
   const loadProduct = async () => {
     if (!id) {
       setError('Id de producto no encontrado');
+      setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
+      setError(null);
       const data = await productService.getById(id);
-      setProduct(data);
+      if (!data) {
+        setError('Producto no encontrado');
+        setProduct(null);
+      } else {
+        setProduct(data);
+      }
     } catch (err) {
       setError(getErrorMessage(err));
+      setProduct(null);
       console.error(err);
     } finally {
       setLoading(false);

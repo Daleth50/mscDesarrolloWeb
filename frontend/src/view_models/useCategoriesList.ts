@@ -5,6 +5,8 @@ import type { Category, UUID } from '../types/models';
 
 type CategoryFormData = {
   name: string;
+  ordering: number | null;
+  color: string;
 };
 
 export function useCategoriesList() {
@@ -14,7 +16,11 @@ export function useCategoriesList() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState<UUID | null>(null);
-  const [formData, setFormData] = useState<CategoryFormData>({ name: '' });
+  const [formData, setFormData] = useState<CategoryFormData>({ 
+    name: '',
+    ordering: null,
+    color: '#000000',
+  });
 
   useEffect(() => {
     loadCategories();
@@ -36,33 +42,53 @@ export function useCategoriesList() {
 
   const openCreateModal = () => {
     setEditingCategoryId(null);
-    setFormData({ name: '' });
+    setFormData({ 
+      name: '',
+      ordering: null,
+      color: '#000000',
+    });
     setIsModalOpen(true);
   };
 
   const openEditModal = (category: Category) => {
     setEditingCategoryId(category.id);
-    setFormData({ name: category.name || category.label || '' });
+    setFormData({ 
+      name: category.name || category.label || '',
+      ordering: category.ordering ?? null,
+      color: category.color ?? '#000000',
+    });
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingCategoryId(null);
-    setFormData({ name: '' });
+    setFormData({ 
+      name: '',
+      ordering: null,
+      color: '#000000',
+    });
   };
 
-  const handleChange = (value: string) => {
-    setFormData({ name: value });
+  const handleChange = (field: keyof CategoryFormData, value: string | number | null) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const handleSave = async () => {
     try {
       setSaving(true);
+      const dataToSave = {
+        name: formData.name,
+        ordering: formData.ordering,
+        color: formData.color,
+      };
       if (editingCategoryId) {
-        await categoryService.update(editingCategoryId, formData);
+        await categoryService.update(editingCategoryId, dataToSave);
       } else {
-        await categoryService.create(formData);
+        await categoryService.create(dataToSave);
       }
       await loadCategories();
       closeModal();

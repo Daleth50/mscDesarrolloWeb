@@ -5,7 +5,6 @@ import {
   CircularProgress,
   Container,
   FormControl,
-  FormControlLabel,
   InputLabel,
   MenuItem,
   Paper,

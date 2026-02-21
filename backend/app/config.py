@@ -8,6 +8,8 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-change-me')
+    AUTH_TOKEN_MAX_AGE = int(os.getenv('AUTH_TOKEN_MAX_AGE', '28800'))
 
 
 class DevelopmentConfig(Config):

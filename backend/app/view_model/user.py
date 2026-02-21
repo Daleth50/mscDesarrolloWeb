@@ -1,5 +1,6 @@
 from app.database import db
 from app.models.base import User
+from werkzeug.security import generate_password_hash
 
 
 class UserViewModel:
@@ -71,7 +72,7 @@ class UserViewModel:
             last_name=last_name,
             email=email,
             username=username,
-            password=password,
+            password=generate_password_hash(password),
             role=role,
         )
         db.session.add(new_user)
@@ -89,6 +90,7 @@ class UserViewModel:
         email = UserViewModel._clean_str(form_data.get("email", ""))
         username = UserViewModel._clean_str(form_data.get("username", ""))
         role = UserViewModel._clean_str(form_data.get("role", ""))
+        password = UserViewModel._clean_str(form_data.get("password", ""))
 
         if not first_name:
             raise ValueError("First name is required")
@@ -118,6 +120,45 @@ class UserViewModel:
         user.username = username
         if role:
             user.role = role
+        if password:
+            user.password = generate_password_hash(password)
+
+        db.session.commit()
+        return user.to_dict()
+
+    @staticmethod
+    def update_profile(user, form_data):
+        first_name = UserViewModel._clean_str(form_data.get("first_name", ""))
+        last_name = UserViewModel._clean_str(form_data.get("last_name", ""))
+        email = UserViewModel._clean_str(form_data.get("email", ""))
+        username = UserViewModel._clean_str(form_data.get("username", ""))
+        password = UserViewModel._clean_str(form_data.get("password", ""))
+
+        if not first_name:
+            raise ValueError("First name is required")
+        if not last_name:
+            raise ValueError("Last name is required")
+        if not email:
+            raise ValueError("Email is required")
+        if not username:
+            raise ValueError("Username is required")
+
+        if email != user.email:
+            existing_email = User.query.filter(User.email == email).first()
+            if existing_email:
+                raise ValueError("Email already exists")
+
+        if username != user.username:
+            existing_username = User.query.filter(User.username == username).first()
+            if existing_username:
+                raise ValueError("Username already exists")
+
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.username = username
+        if password:
+            user.password = generate_password_hash(password)
 
         db.session.commit()
         return user.to_dict()

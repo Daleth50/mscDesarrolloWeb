@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { userService } from '../services/userService';
 import { getErrorMessage } from '../utils/error';
-import type { User, UUID } from '../types/models';
 
 type UserFormData = {
   first_name: string;

@@ -19,6 +19,11 @@ import ProductFormPage from './pages/ProductFormPage';
 import ProductsPage from './pages/ProductsPage';
 import UsersPage from './pages/UsersPage';
 import UserFormPage from './pages/UserFormPage';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import AuthStatus from './components/AuthStatus';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import ProfilePage from './pages/ProfilePage';
 
 const StyledFooter = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -27,28 +32,30 @@ const StyledFooter = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3, 0),
 }));
 
-function App() {
+function AppLayout() {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <BrowserRouter>
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        {/* Header */}
-        <AppBar position="static" color="default" elevation={1}>
-          <Container maxWidth="lg">
-            <Toolbar disableGutters sx={{ justifyContent: 'space-between', gap: 2 }}>
-              <Link to="/" style={{ textDecoration: 'none' }}>
-                <Typography
-                  variant="h6"
-                  component="h1"
-                  sx={{
-                    fontWeight: 700,
-                    color: 'primary.main',
-                    fontSize: '1.25rem',
-                  }}
-                >
-                  AppWeb
-                </Typography>
-              </Link>
-              <Box sx={{ display: 'flex', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {/* Header */}
+      <AppBar position="static" color="default" elevation={1}>
+        <Container maxWidth="lg">
+          <Toolbar disableGutters sx={{ justifyContent: 'space-between', gap: 2 }}>
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <Typography
+                variant="h6"
+                component="h1"
+                sx={{
+                  fontWeight: 700,
+                  color: 'primary.main',
+                  fontSize: '1.25rem',
+                }}
+              >
+                AppWeb
+              </Typography>
+            </Link>
+            {isAuthenticated && (
+              <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
                 <Button
                   component={Link}
                   to="/"
@@ -115,38 +122,46 @@ function App() {
                 >
                   Usuarios
                 </Button>
+                <AuthStatus />
               </Box>
-            </Toolbar>
-          </Container>
-        </AppBar>
+            )}
+          </Toolbar>
+        </Container>
+      </AppBar>
 
         {/* Main content */}
         <Box component="main" sx={{ flex: 1 }}>
           <Container maxWidth="lg" sx={{ py: 6 }}>
             <Routes>
-              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<HomePage />} />
 
-              {/* Products */}
-              <Route path="/products" element={<ProductsPage />} />
-              <Route path="/products/new" element={<ProductFormPage />} />
-              <Route path="/products/:id" element={<ProductDetailPage />} />
-              <Route path="/products/:id/edit" element={<ProductFormPage />} />
+                {/* Products */}
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/products/new" element={<ProductFormPage />} />
+                <Route path="/products/:id" element={<ProductDetailPage />} />
+                <Route path="/products/:id/edit" element={<ProductFormPage />} />
 
-              {/* Categories */}
-              <Route path="/categories" element={<CategoriesPage />} />
+                {/* Categories */}
+                <Route path="/categories" element={<CategoriesPage />} />
 
-              {/* Contacts */}
-              <Route path="/contacts" element={<ContactsPage />} />
-              <Route path="/contacts/new" element={<ContactFormPage />} />
+                {/* Contacts */}
+                <Route path="/contacts" element={<ContactsPage />} />
+                <Route path="/contacts/new" element={<ContactFormPage />} />
 
-              {/* Orders */}
-              <Route path="/orders" element={<OrdersPage />} />
-              <Route path="/orders/new" element={<OrderFormPage />} />
+                {/* Orders */}
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/orders/new" element={<OrderFormPage />} />
 
-              {/* Users */}
-              <Route path="/users" element={<UsersPage />} />
-              <Route path="/users/new" element={<UserFormPage />} />
-              <Route path="/users/:id/edit" element={<UserFormPage />} />
+                {/* Users */}
+                <Route path="/users" element={<UsersPage />} />
+                <Route path="/users/new" element={<UserFormPage />} />
+                <Route path="/users/:id/edit" element={<UserFormPage />} />
+
+                {/* Profile */}
+                <Route path="/profile" element={<ProfilePage />} />
+              </Route>
             </Routes>
           </Container>
         </Box>
@@ -159,8 +174,17 @@ function App() {
             </Typography>
           </Container>
         </StyledFooter>
-      </Box>
-    </BrowserRouter>
+    </Box>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppLayout />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

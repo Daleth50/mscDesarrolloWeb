@@ -43,3 +43,17 @@ export interface Order {
   discount?: number | null;
   total?: number | null;
 }
+
+export type UserRole = 'admin' | 'seller';
+
+export interface User {
+  id: UUID;
+  first_name: string;
+  last_name: string;
+  email: string;
+  username: string;
+  role: UserRole;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}

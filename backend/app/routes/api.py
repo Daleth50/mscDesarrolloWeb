@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from app.view_model.product.main import ProductViewModel
 from app.view_model.contact.main import ContactViewModel
 from app.view_model.order.main import OrderViewModel
+from app.view_model.user import UserViewModel
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -167,5 +168,67 @@ def create_order():
         return jsonify(new_order), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ==================== USERS ====================
+
+@api_bp.route("/users", methods=["GET"])
+def get_users():
+    """Listar todos los usuarios"""
+    try:
+        users = UserViewModel.get_all_users()
+        return jsonify(users), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/users/<string:user_id>", methods=["GET"])
+def get_user(user_id):
+    """Obtener detalle de un usuario"""
+    try:
+        user = UserViewModel.get_user_by_id(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        return jsonify(user), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/users", methods=["POST"])
+def create_user():
+    """Crear nuevo usuario"""
+    try:
+        data = request.get_json()
+        new_user = UserViewModel.create_user(data)
+        return jsonify(new_user), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/users/<string:user_id>", methods=["PUT"])
+def update_user(user_id):
+    """Actualizar usuario"""
+    try:
+        data = request.get_json()
+        updated_user = UserViewModel.update_user(user_id, data)
+        return jsonify(updated_user), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/users/<string:user_id>", methods=["DELETE"])
+def delete_user(user_id):
+    """Eliminar usuario"""
+    try:
+        UserViewModel.delete_user(user_id)
+        return jsonify({"message": "User deleted"}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -17,6 +17,8 @@ import OrdersPage from './pages/OrdersPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import ProductFormPage from './pages/ProductFormPage';
 import ProductsPage from './pages/ProductsPage';
+import UsersPage from './pages/UsersPage';
+import UserFormPage from './pages/UserFormPage';
 
 const StyledFooter = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -102,6 +104,17 @@ function App() {
                 >
                   Ventas
                 </Button>
+                <Button
+                  component={Link}
+                  to="/users"
+                  color="inherit"
+                  sx={{
+                    textDecoration: 'none',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  Usuarios
+                </Button>
               </Box>
             </Toolbar>
           </Container>
@@ -129,6 +142,11 @@ function App() {
               {/* Orders */}
               <Route path="/orders" element={<OrdersPage />} />
               <Route path="/orders/new" element={<OrderFormPage />} />
+
+              {/* Users */}
+              <Route path="/users" element={<UsersPage />} />
+              <Route path="/users/new" element={<UserFormPage />} />
+              <Route path="/users/:id/edit" element={<UserFormPage />} />
             </Routes>
           </Container>
         </Box>

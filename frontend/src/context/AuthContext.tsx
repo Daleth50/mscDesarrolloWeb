@@ -5,6 +5,9 @@ import type { User } from '../types/models';
 type AuthContextValue = {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
+  canEditProducts: boolean;
+  canManageUsers: boolean;
   loading: boolean;
   login: (identifier: string, password: string) => Promise<void>;
   logout: () => void;
@@ -62,6 +65,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       isAuthenticated: Boolean(user),
+      isAdmin: user?.role === 'admin',
+      canEditProducts: user?.role === 'admin',
+      canManageUsers: user?.role === 'admin',
       loading,
       login,
       logout,

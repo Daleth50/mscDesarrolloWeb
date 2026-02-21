@@ -15,9 +15,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useProductDetail } from '../view_models/useProductDetail';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProductDetailPage() {
   const { product, loading, error, handleEdit, handleDelete, handleBack } = useProductDetail();
+  const { canEditProducts } = useAuth();
 
   if (loading) {
     return (
@@ -119,23 +121,27 @@ export default function ProductDetailPage() {
             Volver
           </Button>
           <Box>
-            <Button
-              onClick={handleEdit}
-              startIcon={<EditIcon />}
-              variant="contained"
-              color="warning"
-              sx={{ mr: 1 }}
-            >
-              Editar
-            </Button>
-            <Button
-              onClick={handleDelete}
-              startIcon={<DeleteIcon />}
-              variant="contained"
-              color="error"
-            >
-              Eliminar
-            </Button>
+            {canEditProducts && (
+              <>
+                <Button
+                  onClick={handleEdit}
+                  startIcon={<EditIcon />}
+                  variant="contained"
+                  color="warning"
+                  sx={{ mr: 1 }}
+                >
+                  Editar
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  startIcon={<DeleteIcon />}
+                  variant="contained"
+                  color="error"
+                >
+                  Eliminar
+                </Button>
+              </>
+            )}
           </Box>
         </CardActions>
       </Card>

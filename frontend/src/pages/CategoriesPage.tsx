@@ -20,8 +20,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useCategoriesList } from '../view_models/useCategoriesList';
 import CategoryFormDialog from '../components/CategoryFormDialog';
+import { useAuth } from '../context/AuthContext';
 
 export default function CategoriesPage() {
+  const { isAdmin } = useAuth();
   const {
     categories,
     loading,
@@ -89,6 +91,7 @@ export default function CategoriesPage() {
                         size="small"
                         color="error"
                         title="Eliminar"
+                        disabled={!isAdmin}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>

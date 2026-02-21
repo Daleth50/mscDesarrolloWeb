@@ -22,6 +22,7 @@ import UserFormPage from './pages/UserFormPage';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthStatus from './components/AuthStatus';
+import RoleRoute from './components/RoleRoute';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProfilePage from './pages/ProfilePage';
 
@@ -33,7 +34,7 @@ const StyledFooter = styled(Box)(({ theme }) => ({
 }));
 
 function AppLayout() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, canManageUsers } = useAuth();
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -111,17 +112,19 @@ function AppLayout() {
                 >
                   Ventas
                 </Button>
-                <Button
-                  component={Link}
-                  to="/users"
-                  color="inherit"
-                  sx={{
-                    textDecoration: 'none',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  Usuarios
-                </Button>
+                {canManageUsers && (
+                  <Button
+                    component={Link}
+                    to="/users"
+                    color="inherit"
+                    sx={{
+                      textDecoration: 'none',
+                      '&:hover': { color: 'primary.main' },
+                    }}
+                  >
+                    Usuarios
+                  </Button>
+                )}
                 <AuthStatus />
               </Box>
             )}
@@ -139,9 +142,11 @@ function AppLayout() {
 
                 {/* Products */}
                 <Route path="/products" element={<ProductsPage />} />
-                <Route path="/products/new" element={<ProductFormPage />} />
                 <Route path="/products/:id" element={<ProductDetailPage />} />
-                <Route path="/products/:id/edit" element={<ProductFormPage />} />
+                <Route element={<RoleRoute allow={['admin']} />}>
+                  <Route path="/products/new" element={<ProductFormPage />} />
+                  <Route path="/products/:id/edit" element={<ProductFormPage />} />
+                </Route>
 
                 {/* Categories */}
                 <Route path="/categories" element={<CategoriesPage />} />
@@ -155,9 +160,11 @@ function AppLayout() {
                 <Route path="/orders/new" element={<OrderFormPage />} />
 
                 {/* Users */}
-                <Route path="/users" element={<UsersPage />} />
-                <Route path="/users/new" element={<UserFormPage />} />
-                <Route path="/users/:id/edit" element={<UserFormPage />} />
+                <Route element={<RoleRoute allow={['admin']} />}>
+                  <Route path="/users" element={<UsersPage />} />
+                  <Route path="/users/new" element={<UserFormPage />} />
+                  <Route path="/users/:id/edit" element={<UserFormPage />} />
+                </Route>
 
                 {/* Profile */}
                 <Route path="/profile" element={<ProfilePage />} />

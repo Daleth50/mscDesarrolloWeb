@@ -22,9 +22,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
 import { useProductsList } from '../view_models/useProductsList';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProductsPage() {
   const { products, loading, error, handleView, handleEdit, handleDelete } = useProductsList();
+  const { canEditProducts } = useAuth();
 
   if (loading) {
     return (
@@ -42,14 +44,16 @@ export default function ProductsPage() {
         <Typography variant="h4" component="h2" sx={{ fontWeight: 600 }}>
           Productos
         </Typography>
-        <Button
-          component={Link}
-          to="/products/new"
-          variant="contained"
-          startIcon={<AddIcon />}
-        >
-          Crear producto
-        </Button>
+        {canEditProducts && (
+          <Button
+            component={Link}
+            to="/products/new"
+            variant="contained"
+            startIcon={<AddIcon />}
+          >
+            Crear producto
+          </Button>
+        )}
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -90,6 +94,7 @@ export default function ProductsPage() {
                         size="small"
                         color="warning"
                         title="Editar"
+                        disabled={!canEditProducts}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
@@ -98,6 +103,7 @@ export default function ProductsPage() {
                         size="small"
                         color="error"
                         title="Eliminar"
+                        disabled={!canEditProducts}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>

@@ -244,6 +244,93 @@ def create_order():
         return jsonify({"error": str(e)}), 500
 
 
+# ==================== POS (CART) ====================
+
+@api_bp.route("/pos/products", methods=["GET"])
+def get_pos_products():
+    """Listar productos para POS con stock"""
+    try:
+        products = OrderViewModel.list_pos_products()
+        return jsonify(products), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route("/pos/cart", methods=["POST"])
+def create_cart():
+    """Crear carrito en estado inicial"""
+    try:
+        data = request.get_json() or {}
+        cart = OrderViewModel.create_cart(data)
+        return jsonify(cart), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pos/cart/<string:cart_id>", methods=["GET"])
+def get_cart(cart_id):
+    """Obtener carrito con items"""
+    try:
+        cart = OrderViewModel.get_cart(cart_id)
+        return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pos/cart/<string:cart_id>", methods=["PUT"])
+def update_cart(cart_id):
+    """Actualizar datos del carrito"""
+    try:
+        data = request.get_json() or {}
+        cart = OrderViewModel.update_cart(cart_id, data)
+        return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pos/cart/<string:cart_id>/items", methods=["POST"])
+def add_cart_item(cart_id):
+    """Agregar producto al carrito"""
+    try:
+        data = request.get_json() or {}
+        cart = OrderViewModel.add_cart_item(cart_id, data)
+        return jsonify(cart), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pos/cart/<string:cart_id>/items/<string:item_id>", methods=["PUT"])
+def update_cart_item(cart_id, item_id):
+    """Editar cantidad de item del carrito"""
+    try:
+        data = request.get_json() or {}
+        cart = OrderViewModel.update_cart_item(cart_id, item_id, data)
+        return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pos/cart/<string:cart_id>/items/<string:item_id>", methods=["DELETE"])
+def remove_cart_item(cart_id, item_id):
+    """Eliminar item del carrito"""
+    try:
+        cart = OrderViewModel.remove_cart_item(cart_id, item_id)
+        return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ==================== USERS ====================
 
 @api_bp.route("/users", methods=["GET"])

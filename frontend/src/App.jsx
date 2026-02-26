@@ -14,6 +14,7 @@ import CategoriesPage from './pages/CategoriesPage';
 import HomePage from './pages/HomePage';
 import OrderFormPage from './pages/OrderFormPage';
 import OrdersPage from './pages/OrdersPage';
+import PosPage from './pages/PosPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import ProductFormPage from './pages/ProductFormPage';
 import ProductsPage from './pages/ProductsPage';
@@ -103,6 +104,17 @@ function AppLayout() {
                 </Button>
                 <Button
                   component={Link}
+                  to="/pos"
+                  color="inherit"
+                  sx={{
+                    textDecoration: 'none',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  Punto de venta
+                </Button>
+                <Button
+                  component={Link}
                   to="/orders"
                   color="inherit"
                   sx={{
@@ -158,6 +170,7 @@ function AppLayout() {
                 {/* Orders */}
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/orders/new" element={<OrderFormPage />} />
+                <Route path="/pos" element={<PosPage />} />
 
                 {/* Users */}
                 <Route element={<RoleRoute allow={['admin']} />}>

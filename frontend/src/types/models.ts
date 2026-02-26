@@ -30,6 +30,26 @@ export interface Product {
 
 export type OrderStatus = 'pending' | 'completed' | 'cancelled';
 export type PaymentStatus = 'pending' | 'unpaid' | 'paid' | 'partial';
+export type OrderType = 'cart' | 'sale' | 'quote' | string;
+
+export interface CartItem {
+  id: UUID;
+  order_id: UUID;
+  product_id: UUID;
+  product_name?: string | null;
+  quantity: number;
+  price: number;
+  total: number;
+  stock_available?: number | null;
+}
+
+export interface PosProduct {
+  id: UUID;
+  name: string;
+  sku?: string | null;
+  price: number;
+  stock_available: number;
+}
 
 export interface Order {
   id: UUID;
@@ -38,10 +58,12 @@ export interface Order {
   quantity?: number | null;
   status?: OrderStatus | null;
   payment_status?: PaymentStatus | null;
+  type?: OrderType | null;
   subtotal?: number | null;
   tax?: number | null;
   discount?: number | null;
   total?: number | null;
+  items?: CartItem[];
 }
 
 export type UserRole = 'admin' | 'seller';

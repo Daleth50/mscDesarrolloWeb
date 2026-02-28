@@ -68,6 +68,7 @@ export interface Order {
 }
 
 export type BillAccountType = 'cash' | 'debt';
+export type PaymentMethod = 'cash' | 'transfer';
 
 export interface BillAccount {
   id: UUID;

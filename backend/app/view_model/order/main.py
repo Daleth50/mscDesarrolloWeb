@@ -1,11 +1,12 @@
 from app.database import db
 from sqlalchemy import func
 from app.models.inventory.product import Product
-from app.models.pos import Contact, Inventory, Order, OrderItem
+from app.models.pos import BillAccount, Contact, Inventory, Order, OrderBillAccount, OrderItem
 
 
 class OrderViewModel:
     ALLOWED_PAYMENT_STATUSES = {"pending", "unpaid", "paid", "partial"}
+    ALLOWED_POS_PAYMENT_METHODS = {"cash", "transfer"}
 
     @staticmethod
     def _clean_str(value):
@@ -81,6 +82,29 @@ class OrderViewModel:
         if contact.kind != "supplier":
             raise ValueError("Selected contact is not a supplier")
         return contact
+
+    @staticmethod
+    def _validate_pos_payment_method(payment_method):
+        normalized = OrderViewModel._clean_str(payment_method).lower()
+        if not normalized:
+            raise ValueError("Payment method is required")
+        if normalized not in OrderViewModel.ALLOWED_POS_PAYMENT_METHODS:
+            raise ValueError("Payment method must be 'cash' or 'transfer'")
+        return normalized
+
+    @staticmethod
+    def _validate_bill_account_for_payment(bill_account_id, payment_method):
+        if not bill_account_id:
+            raise ValueError("Bill account is required")
+
+        account = BillAccount.query.get(bill_account_id)
+        if not account:
+            raise ValueError("Bill account not found")
+
+        expected_type = "cash" if payment_method == "cash" else "debt"
+        if account.type != expected_type:
+            raise ValueError(f"Bill account type must be '{expected_type}' for this payment method")
+        return account
 
     @staticmethod
     def _serialize_order_item(item, product_name=None, stock_available=None):
@@ -324,6 +348,56 @@ class OrderViewModel:
 
         db.session.delete(item)
         OrderViewModel._recalculate_cart_totals(cart)
+        db.session.commit()
+        return OrderViewModel._serialize_cart(cart)
+
+    @staticmethod
+    def complete_cart(cart_id, form_data):
+        form_data = form_data or {}
+        cart = OrderViewModel._get_cart_or_raise(cart_id)
+        OrderViewModel._recalculate_cart_totals(cart)
+
+        total = float(cart.total or 0)
+        if total <= 0:
+            raise ValueError("Sale total must be greater than 0")
+
+        items = OrderItem.query.filter(OrderItem.order_id == cart.id).all()
+        if not items:
+            raise ValueError("Cart has no items")
+
+        payment_method = OrderViewModel._validate_pos_payment_method(form_data.get("payment_method"))
+        bill_account_id = OrderViewModel._clean_str(form_data.get("bill_account_id", ""))
+        bill_account = OrderViewModel._validate_bill_account_for_payment(bill_account_id, payment_method)
+
+        for item in items:
+            stock_available = OrderViewModel._get_stock_available(item.product_id)
+            if int(item.quantity or 0) > stock_available:
+                raise ValueError("Insufficient stock to complete sale")
+
+        for item in items:
+            inventory_entry = Inventory(
+                warehouse_id=None,
+                product_id=item.product_id,
+                quantity=float(item.quantity or 0) * -1,
+            )
+            db.session.add(inventory_entry)
+
+        cart.type = "sale"
+        cart.status = "completed"
+        cart.payment_status = "paid"
+        cart.payment_method = payment_method
+
+        movement = OrderBillAccount(
+            order_id=cart.id,
+            bill_account_id=bill_account.id,
+            amount=total,
+            movement_type="in",
+        )
+        db.session.add(movement)
+
+        current_balance = float(bill_account.balance or 0)
+        bill_account.balance = current_balance + total
+
         db.session.commit()
         return OrderViewModel._serialize_cart(cart)
 

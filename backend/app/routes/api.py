@@ -351,6 +351,22 @@ def get_pos_products():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+@api_bp.route("/pos/bill-accounts", methods=["GET"])
+def get_pos_bill_accounts():
+    """Listar cuentas de banco para POS por tipo"""
+    try:
+        account_type = (request.args.get("type") or "").strip().lower()
+        if account_type:
+            accounts = BillAccountViewModel.get_bill_accounts_by_type(account_type)
+        else:
+            accounts = BillAccountViewModel.get_all_bill_accounts()
+        return jsonify(accounts), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @api_bp.route("/pos/cart", methods=["POST"])
 def create_cart():
     """Crear carrito en estado inicial"""
@@ -421,6 +437,19 @@ def remove_cart_item(cart_id, item_id):
     try:
         cart = OrderViewModel.remove_cart_item(cart_id, item_id)
         return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pos/cart/<string:cart_id>/complete", methods=["POST"])
+def complete_cart(cart_id):
+    """Completar venta POS"""
+    try:
+        data = request.get_json() or {}
+        sale = OrderViewModel.complete_cart(cart_id, data)
+        return jsonify(sale), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:

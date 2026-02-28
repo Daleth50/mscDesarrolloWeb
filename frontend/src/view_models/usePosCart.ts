@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { contactService } from '../services/contactService';
 import { posService } from '../services/posService';
 import { getErrorMessage } from '../utils/error';
-import type { CartItem, Contact, Order, PosProduct, UUID } from '../types/models';
+import type { BillAccount, CartItem, Contact, Order, PaymentMethod, PosProduct, UUID } from '../types/models';
 
 const DEFAULT_PAYMENT_STATUS = 'pending';
 
@@ -134,6 +134,30 @@ export function usePosCart() {
     }
   };
 
+  const getBillAccountsByPaymentMethod = async (paymentMethod: PaymentMethod): Promise<BillAccount[]> => {
+    const expectedType = paymentMethod === 'cash' ? 'cash' : 'debt';
+    return posService.getBillAccounts(expectedType);
+  };
+
+  const completeSale = async (paymentMethod: PaymentMethod, billAccountId: UUID) => {
+    if (!cart?.id) {
+      throw new Error('No hay carrito para completar');
+    }
+
+    const completed = await posService.completeCart(cart.id, {
+      payment_method: paymentMethod,
+      bill_account_id: billAccountId,
+    });
+    setCart(completed);
+    setSelectedContactId('');
+    return completed;
+  };
+
+  const resetCurrentSale = () => {
+    setCart(null);
+    setSelectedContactId('');
+  };
+
   return {
     loading,
     error,
@@ -147,5 +171,8 @@ export function usePosCart() {
     addProductToCart,
     updateItemQuantity,
     removeItem,
+    getBillAccountsByPaymentMethod,
+    completeSale,
+    resetCurrentSale,
   };
 }

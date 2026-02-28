@@ -44,6 +44,17 @@ class BillAccountViewModel:
         return [BillAccountViewModel._serialize(account) for account in accounts]
 
     @staticmethod
+    def get_bill_accounts_by_type(account_type):
+        normalized = BillAccountViewModel._normalize_type(account_type)
+        accounts = (
+            BillAccount.query
+            .filter(BillAccount.type == normalized)
+            .order_by(BillAccount.name.asc())
+            .all()
+        )
+        return [BillAccountViewModel._serialize(account) for account in accounts]
+
+    @staticmethod
     def get_bill_account_by_id(account_id):
         account = BillAccount.query.get(account_id)
         if not account:

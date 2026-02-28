@@ -5,6 +5,11 @@ export const posService = {
     return api.get('/pos/products');
   },
 
+  getBillAccounts(type) {
+    const query = type ? `?type=${encodeURIComponent(type)}` : '';
+    return api.get(`/pos/bill-accounts${query}`);
+  },
+
   createCart(payload) {
     return api.post('/pos/cart', payload);
   },
@@ -27,6 +32,10 @@ export const posService = {
 
   removeItem(cartId, itemId) {
     return api.delete(`/pos/cart/${cartId}/items/${itemId}`);
+  },
+
+  completeCart(cartId, payload) {
+    return api.post(`/pos/cart/${cartId}/complete`, payload);
   },
 };
 

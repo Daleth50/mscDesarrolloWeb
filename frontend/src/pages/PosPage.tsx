@@ -29,8 +29,9 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { getErrorMessage } from '../utils/error';
-import type { CartItem, PosProduct, UUID } from '../types/models';
+import type { BillAccount, CartItem, PaymentMethod, PosProduct, UUID } from '../types/models';
 import { usePosCart } from '../view_models/usePosCart';
 
 export default function PosPage() {
@@ -47,6 +48,9 @@ export default function PosPage() {
     addProductToCart,
     updateItemQuantity,
     removeItem,
+    getBillAccountsByPaymentMethod,
+    completeSale,
+    resetCurrentSale,
   } = usePosCart();
 
   const [isProductModalOpen, setProductModalOpen] = useState(false);
@@ -57,6 +61,13 @@ export default function PosPage() {
   const [selectedItem, setSelectedItem] = useState<CartItem | null>(null);
   const [quantityInput, setQuantityInput] = useState('1');
   const [dialogError, setDialogError] = useState<string | null>(null);
+  const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [billAccounts, setBillAccounts] = useState<BillAccount[]>([]);
+  const [selectedBillAccountId, setSelectedBillAccountId] = useState<UUID | ''>('');
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const filteredProducts = useMemo(() => {
     const term = productSearch.trim().toLowerCase();
@@ -142,6 +153,66 @@ export default function PosPage() {
     }
   };
 
+  const loadBillAccountsForMethod = async (method: PaymentMethod) => {
+    const accounts = await getBillAccountsByPaymentMethod(method);
+    setBillAccounts(accounts);
+    setSelectedBillAccountId(accounts[0]?.id || '');
+  };
+
+  const openCheckoutModal = async () => {
+    if (!cart || cartItems.length === 0) {
+      setCheckoutError('Agrega productos antes de completar la venta.');
+      return;
+    }
+    if ((summary.total || 0) <= 0) {
+      setCheckoutError('El total de venta debe ser mayor a 0.');
+      return;
+    }
+
+    try {
+      setCheckoutError(null);
+      setSuccessMessage(null);
+      setPaymentMethod('cash');
+      await loadBillAccountsForMethod('cash');
+      setCheckoutModalOpen(true);
+    } catch (err) {
+      setCheckoutError(getErrorMessage(err));
+      console.error(err);
+    }
+  };
+
+  const handleChangePaymentMethod = async (method: PaymentMethod) => {
+    try {
+      setPaymentMethod(method);
+      setCheckoutError(null);
+      await loadBillAccountsForMethod(method);
+    } catch (err) {
+      setCheckoutError(getErrorMessage(err));
+      console.error(err);
+    }
+  };
+
+  const handleConfirmCheckout = async () => {
+    if (!selectedBillAccountId) {
+      setCheckoutError('Selecciona una cuenta de banco para registrar la transacción.');
+      return;
+    }
+
+    try {
+      setCheckoutLoading(true);
+      await completeSale(paymentMethod, selectedBillAccountId);
+      setCheckoutModalOpen(false);
+      setSuccessMessage('Venta registrada correctamente.');
+      resetCurrentSale();
+      setCheckoutError(null);
+    } catch (err) {
+      setCheckoutError(getErrorMessage(err));
+      console.error(err);
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
@@ -175,6 +246,8 @@ export default function PosPage() {
       </Paper>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {checkoutError && <Alert severity="error" sx={{ mb: 2 }}>{checkoutError}</Alert>}
+      {successMessage && <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert>}
 
       <Paper elevation={1} sx={{ p: 2 }}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
@@ -238,6 +311,16 @@ export default function PosPage() {
             <Typography variant="caption" color="text.secondary">
               Estado pago carrito: {cart?.payment_status || 'pending'}
             </Typography>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<CheckCircleIcon />}
+              onClick={openCheckoutModal}
+              disabled={cartItems.length === 0 || summary.total <= 0}
+              sx={{ mt: 1 }}
+            >
+              Completar venta
+            </Button>
           </Stack>
         </Box>
       </Paper>
@@ -319,6 +402,52 @@ export default function PosPage() {
         <DialogActions>
           <Button onClick={closeQuantityDialog}>Cancelar</Button>
           <Button variant="contained" onClick={handleConfirmQuantity}>Confirmar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={checkoutModalOpen} onClose={() => setCheckoutModalOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Completar venta</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <FormControl fullWidth>
+              <InputLabel id="payment-method-label">Método de pago</InputLabel>
+              <Select
+                labelId="payment-method-label"
+                value={paymentMethod}
+                label="Método de pago"
+                onChange={(event) => handleChangePaymentMethod(event.target.value as PaymentMethod)}
+              >
+                <MenuItem value="cash">Efectivo</MenuItem>
+                <MenuItem value="transfer">Transferencia</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel id="bill-account-label">Cuenta de banco</InputLabel>
+              <Select
+                labelId="bill-account-label"
+                value={selectedBillAccountId}
+                label="Cuenta de banco"
+                onChange={(event) => setSelectedBillAccountId(event.target.value as UUID | '')}
+              >
+                {billAccounts.map((account) => (
+                  <MenuItem key={account.id} value={account.id}>
+                    {account.name} ({account.type})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Typography variant="body2" color="text.secondary">
+              Total de venta: ${summary.total.toFixed(2)}
+            </Typography>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCheckoutModalOpen(false)}>Cancelar</Button>
+          <Button variant="contained" onClick={handleConfirmCheckout} disabled={checkoutLoading}>
+            {checkoutLoading ? <CircularProgress size={20} /> : 'Confirmar venta'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>

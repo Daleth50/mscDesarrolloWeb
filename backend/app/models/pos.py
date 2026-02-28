@@ -10,6 +10,7 @@ class Contact(db.Model):
     email = db.Column(db.String(255), nullable=True)
     phone = db.Column(db.String(50), nullable=True)
     address = db.Column(db.Text, nullable=True)
+    kind = db.Column(db.String(20), nullable=False, default="customer", server_default="customer")
     created_at = db.Column(db.DateTime, server_default=db.func.current_timestamp())
     updated_at = db.Column(
         db.DateTime,
@@ -27,6 +28,7 @@ class Contact(db.Model):
             "email": self.email,
             "phone": self.phone,
             "address": self.address,
+            "kind": self.kind,
         }
 
 

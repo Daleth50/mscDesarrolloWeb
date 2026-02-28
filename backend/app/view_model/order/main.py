@@ -65,6 +65,24 @@ class OrderViewModel:
         return cart
 
     @staticmethod
+    def _get_purchase_cart_or_raise(cart_id):
+        cart = Order.query.filter(Order.id == cart_id, Order.type == "purchase_cart").first()
+        if not cart:
+            raise ValueError("Purchase cart not found")
+        return cart
+
+    @staticmethod
+    def _validate_supplier_contact(contact_id):
+        if not contact_id:
+            raise ValueError("Supplier is required")
+        contact = Contact.query.get(contact_id)
+        if not contact:
+            raise ValueError("Supplier not found")
+        if contact.kind != "supplier":
+            raise ValueError("Selected contact is not a supplier")
+        return contact
+
+    @staticmethod
     def _serialize_order_item(item, product_name=None, stock_available=None):
         return {
             "id": item.id,
@@ -111,6 +129,23 @@ class OrderViewModel:
                     "name": product.name,
                     "sku": product.sku,
                     "price": float(product.price) if product.price is not None else 0.0,
+                    "stock_available": OrderViewModel._get_stock_available(product.id),
+                }
+            )
+        return data
+
+    @staticmethod
+    def list_purchase_products():
+        products = Product.query.order_by(Product.name.asc()).all()
+        data = []
+        for product in products:
+            unit_cost = float(product.cost) if product.cost is not None else 0.0
+            data.append(
+                {
+                    "id": product.id,
+                    "name": product.name,
+                    "sku": product.sku,
+                    "price": unit_cost,
                     "stock_available": OrderViewModel._get_stock_available(product.id),
                 }
             )
@@ -288,6 +323,140 @@ class OrderViewModel:
             raise ValueError("Cart item not found")
 
         db.session.delete(item)
+        OrderViewModel._recalculate_cart_totals(cart)
+        db.session.commit()
+        return OrderViewModel._serialize_cart(cart)
+
+    @staticmethod
+    def create_purchase_cart(form_data):
+        form_data = form_data or {}
+        contact_id = OrderViewModel._clean_str(form_data.get("contact_id", "")) or None
+        payment_status = (
+            OrderViewModel._clean_str(form_data.get("payment_status", "pending")) or "pending"
+        )
+        OrderViewModel._validate_payment_status(payment_status)
+
+        if contact_id:
+            OrderViewModel._validate_supplier_contact(contact_id)
+
+        cart = Order(
+            contact_id=contact_id,
+            status="pending",
+            payment_status=payment_status,
+            type="purchase_cart",
+            subtotal=0.0,
+            tax=0.0,
+            discount=0.0,
+            total=0.0,
+        )
+        db.session.add(cart)
+        db.session.commit()
+        return OrderViewModel._serialize_cart(cart)
+
+    @staticmethod
+    def get_purchase_cart(cart_id):
+        cart = OrderViewModel._get_purchase_cart_or_raise(cart_id)
+        return OrderViewModel._serialize_cart(cart)
+
+    @staticmethod
+    def update_purchase_cart(cart_id, form_data):
+        form_data = form_data or {}
+        cart = OrderViewModel._get_purchase_cart_or_raise(cart_id)
+
+        if "contact_id" in form_data:
+            contact_id = OrderViewModel._clean_str(form_data.get("contact_id", "")) or None
+            if contact_id:
+                OrderViewModel._validate_supplier_contact(contact_id)
+            cart.contact_id = contact_id
+
+        if "payment_status" in form_data:
+            payment_status = OrderViewModel._clean_str(form_data.get("payment_status", ""))
+            OrderViewModel._validate_payment_status(payment_status)
+            cart.payment_status = payment_status
+
+        OrderViewModel._recalculate_cart_totals(cart)
+        db.session.commit()
+        return OrderViewModel._serialize_cart(cart)
+
+    @staticmethod
+    def add_purchase_item(cart_id, form_data):
+        form_data = form_data or {}
+        cart = OrderViewModel._get_purchase_cart_or_raise(cart_id)
+
+        product_id = OrderViewModel._clean_str(form_data.get("product_id", ""))
+        if not product_id:
+            raise ValueError("Product id is required")
+
+        product = Product.query.get(product_id)
+        if not product:
+            raise ValueError("Product not found")
+
+        quantity = OrderViewModel._parse_positive_int(form_data.get("quantity", 0), "Quantity")
+        unit_price = float(product.cost) if product.cost is not None else 0.0
+        item_total = unit_price * quantity
+        item = OrderItem(
+            order_id=cart.id,
+            product_id=product.id,
+            quantity=quantity,
+            price=unit_price,
+            total=item_total,
+        )
+        db.session.add(item)
+        OrderViewModel._recalculate_cart_totals(cart)
+        db.session.commit()
+        return OrderViewModel._serialize_cart(cart)
+
+    @staticmethod
+    def update_purchase_item(cart_id, item_id, form_data):
+        form_data = form_data or {}
+        cart = OrderViewModel._get_purchase_cart_or_raise(cart_id)
+
+        item = OrderItem.query.filter(OrderItem.id == item_id, OrderItem.order_id == cart.id).first()
+        if not item:
+            raise ValueError("Purchase cart item not found")
+
+        quantity = OrderViewModel._parse_positive_int(form_data.get("quantity", 0), "Quantity")
+        item.quantity = quantity
+        item.total = (float(item.price) if item.price is not None else 0.0) * quantity
+
+        OrderViewModel._recalculate_cart_totals(cart)
+        db.session.commit()
+        return OrderViewModel._serialize_cart(cart)
+
+    @staticmethod
+    def remove_purchase_item(cart_id, item_id):
+        cart = OrderViewModel._get_purchase_cart_or_raise(cart_id)
+        item = OrderItem.query.filter(OrderItem.id == item_id, OrderItem.order_id == cart.id).first()
+        if not item:
+            raise ValueError("Purchase cart item not found")
+
+        db.session.delete(item)
+        OrderViewModel._recalculate_cart_totals(cart)
+        db.session.commit()
+        return OrderViewModel._serialize_cart(cart)
+
+    @staticmethod
+    def complete_purchase_cart(cart_id):
+        cart = OrderViewModel._get_purchase_cart_or_raise(cart_id)
+        OrderViewModel._validate_supplier_contact(cart.contact_id)
+
+        items = OrderItem.query.filter(OrderItem.order_id == cart.id).all()
+        if not items:
+            raise ValueError("Purchase cart has no items")
+
+        for item in items:
+            inventory_entry = Inventory(
+                warehouse_id=None,
+                product_id=item.product_id,
+                quantity=float(item.quantity or 0),
+            )
+            db.session.add(inventory_entry)
+
+        cart.type = "purchase"
+        cart.status = "completed"
+        if not cart.payment_status:
+            cart.payment_status = "paid"
+
         OrderViewModel._recalculate_cart_totals(cart)
         db.session.commit()
         return OrderViewModel._serialize_cart(cart)

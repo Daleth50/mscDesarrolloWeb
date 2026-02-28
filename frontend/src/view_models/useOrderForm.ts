@@ -68,7 +68,7 @@ export function useOrderForm() {
       setLoading(true);
       const [productsData, contactsData] = await Promise.all([
         productService.getAll(),
-        contactService.getAll(),
+        contactService.getAll('customer'),
       ]);
       setProducts(productsData);
       setContacts(contactsData);

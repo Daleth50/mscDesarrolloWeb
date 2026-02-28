@@ -10,19 +10,24 @@ import { styled } from '@mui/material/styles';
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import ContactFormPage from './pages/ContactFormPage';
 import ContactsPage from './pages/ContactsPage';
+import SuppliersPage from './pages/SuppliersPage';
 import CategoriesPage from './pages/CategoriesPage';
 import HomePage from './pages/HomePage';
 import OrderFormPage from './pages/OrderFormPage';
 import OrdersPage from './pages/OrdersPage';
 import PosPage from './pages/PosPage';
+import PurchasesPage from './pages/PurchasesPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import ProductFormPage from './pages/ProductFormPage';
 import ProductsPage from './pages/ProductsPage';
 import UsersPage from './pages/UsersPage';
 import UserFormPage from './pages/UserFormPage';
+import BillAccountsPage from './pages/BillAccountsPage';
+import BillAccountFormPage from './pages/BillAccountFormPage';
 import LoginPage from './pages/LoginPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import SupplierFormPage from './pages/SupplierFormPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthStatus from './components/AuthStatus';
 import RoleRoute from './components/RoleRoute';
@@ -37,7 +42,7 @@ const StyledFooter = styled(Box)(({ theme }) => ({
 }));
 
 function AppLayout() {
-  const { isAuthenticated, canManageUsers } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -73,39 +78,6 @@ function AppLayout() {
                 </Button>
                 <Button
                   component={Link}
-                  to="/products"
-                  color="inherit"
-                  sx={{
-                    textDecoration: 'none',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  Productos
-                </Button>
-                <Button
-                  component={Link}
-                  to="/categories"
-                  color="inherit"
-                  sx={{
-                    textDecoration: 'none',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  Categorías
-                </Button>
-                <Button
-                  component={Link}
-                  to="/contacts"
-                  color="inherit"
-                  sx={{
-                    textDecoration: 'none',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  Contactos
-                </Button>
-                <Button
-                  component={Link}
                   to="/pos"
                   color="inherit"
                   sx={{
@@ -117,28 +89,26 @@ function AppLayout() {
                 </Button>
                 <Button
                   component={Link}
-                  to="/orders"
+                  to="/contacts"
                   color="inherit"
                   sx={{
                     textDecoration: 'none',
                     '&:hover': { color: 'primary.main' },
                   }}
                 >
-                  Ventas
+                  Clientes
                 </Button>
-                {canManageUsers && (
-                  <Button
-                    component={Link}
-                    to="/users"
-                    color="inherit"
-                    sx={{
-                      textDecoration: 'none',
-                      '&:hover': { color: 'primary.main' },
-                    }}
-                  >
-                    Usuarios
-                  </Button>
-                )}
+                <Button
+                  component={Link}
+                  to="/products"
+                  color="inherit"
+                  sx={{
+                    textDecoration: 'none',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  Productos
+                </Button>
                 <AuthStatus />
               </Box>
             )}
@@ -171,16 +141,24 @@ function AppLayout() {
                 <Route path="/contacts" element={<ContactsPage />} />
                 <Route path="/contacts/new" element={<ContactFormPage />} />
 
+                {/* Suppliers */}
+                <Route path="/suppliers" element={<SuppliersPage />} />
+                <Route path="/suppliers/new" element={<SupplierFormPage />} />
+
                 {/* Orders */}
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/orders/new" element={<OrderFormPage />} />
                 <Route path="/pos" element={<PosPage />} />
+                <Route path="/purchases" element={<PurchasesPage />} />
 
                 {/* Users */}
                 <Route element={<RoleRoute allow={['admin']} />}>
                   <Route path="/users" element={<UsersPage />} />
                   <Route path="/users/new" element={<UserFormPage />} />
                   <Route path="/users/:id/edit" element={<UserFormPage />} />
+                  <Route path="/bill-accounts" element={<BillAccountsPage />} />
+                  <Route path="/bill-accounts/new" element={<BillAccountFormPage />} />
+                  <Route path="/bill-accounts/:id/edit" element={<BillAccountFormPage />} />
                 </Route>
 
                 {/* Profile */}

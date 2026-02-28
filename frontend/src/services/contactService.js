@@ -1,8 +1,9 @@
 import api from './api';
 
 export const contactService = {
-  getAll() {
-    return api.get('/contacts');
+  getAll(kind) {
+    const query = kind ? `?kind=${encodeURIComponent(kind)}` : '';
+    return api.get(`/contacts${query}`);
   },
 
   create(contact) {

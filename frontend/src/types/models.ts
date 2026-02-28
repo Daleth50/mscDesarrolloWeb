@@ -6,6 +6,7 @@ export interface Contact {
   email?: string | null;
   phone?: string | null;
   address?: string | null;
+  kind?: 'customer' | 'supplier';
 }
 
 export interface Category {
@@ -64,6 +65,15 @@ export interface Order {
   discount?: number | null;
   total?: number | null;
   items?: CartItem[];
+}
+
+export type BillAccountType = 'cash' | 'debt';
+
+export interface BillAccount {
+  id: UUID;
+  name: string;
+  type: BillAccountType;
+  balance: number;
 }
 
 export type UserRole = 'admin' | 'seller';

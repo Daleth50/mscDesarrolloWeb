@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { contactService } from '../services/contactService';
-import { posService } from '../services/posService';
+import { purchaseService } from '../services/purchaseService';
 import { getErrorMessage } from '../utils/error';
 import type { CartItem, Contact, Order, PosProduct, UUID } from '../types/models';
 
 const DEFAULT_PAYMENT_STATUS = 'pending';
 
-export function usePosCart() {
+export function usePurchaseCart() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [suppliers, setSuppliers] = useState<Contact[]>([]);
   const [products, setProducts] = useState<PosProduct[]>([]);
   const [cart, setCart] = useState<Order | null>(null);
-  const [selectedContactId, setSelectedContactId] = useState<UUID | ''>('');
+  const [selectedSupplierId, setSelectedSupplierId] = useState<UUID | ''>('');
 
   const cartItems = cart?.items || [];
 
@@ -31,12 +31,12 @@ export function usePosCart() {
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      const [contactsData, posProducts] = await Promise.all([
-        contactService.getAll('customer'),
-        posService.getProducts(),
+      const [suppliersData, purchaseProducts] = await Promise.all([
+        contactService.getAll('supplier'),
+        purchaseService.getProducts(),
       ]);
-      setContacts(contactsData);
-      setProducts(posProducts);
+      setSuppliers(suppliersData);
+      setProducts(purchaseProducts);
     } catch (err) {
       setError(getErrorMessage(err));
       console.error(err);
@@ -50,16 +50,16 @@ export function usePosCart() {
       return cart.id;
     }
 
-    const created = await posService.createCart({
-      contact_id: selectedContactId || null,
+    const created = await purchaseService.createCart({
+      contact_id: selectedSupplierId || null,
       payment_status: DEFAULT_PAYMENT_STATUS,
     });
     setCart(created);
     return created.id;
   };
 
-  const handleSelectContact = async (contactId: UUID | '') => {
-    setSelectedContactId(contactId);
+  const handleSelectSupplier = async (supplierId: UUID | '') => {
+    setSelectedSupplierId(supplierId);
 
     if (!cart?.id) {
       return;
@@ -67,8 +67,8 @@ export function usePosCart() {
 
     try {
       setLoading(true);
-      const updated = await posService.updateCart(cart.id, {
-        contact_id: contactId || null,
+      const updated = await purchaseService.updateCart(cart.id, {
+        contact_id: supplierId || null,
       });
       setCart(updated);
       setError(null);
@@ -84,7 +84,7 @@ export function usePosCart() {
     try {
       setLoading(true);
       const cartId = await ensureCart();
-      const updated = await posService.addItem(cartId, { product_id: productId, quantity });
+      const updated = await purchaseService.addItem(cartId, { product_id: productId, quantity });
       setCart(updated);
       setError(null);
     } catch (err) {
@@ -103,7 +103,7 @@ export function usePosCart() {
 
     try {
       setLoading(true);
-      const updated = await posService.updateItem(cart.id, item.id, { quantity });
+      const updated = await purchaseService.updateItem(cart.id, item.id, { quantity });
       setCart(updated);
       setError(null);
     } catch (err) {
@@ -122,7 +122,7 @@ export function usePosCart() {
 
     try {
       setLoading(true);
-      const updated = await posService.removeItem(cart.id, item.id);
+      const updated = await purchaseService.removeItem(cart.id, item.id);
       setCart(updated);
       setError(null);
     } catch (err) {
@@ -134,18 +134,35 @@ export function usePosCart() {
     }
   };
 
+  const completePurchase = async () => {
+    if (!cart?.id) {
+      throw new Error('No hay compra para completar');
+    }
+    const completed = await purchaseService.complete(cart.id);
+    setCart(completed);
+    setSelectedSupplierId('');
+    return completed;
+  };
+
+  const resetCurrentPurchase = () => {
+    setCart(null);
+    setSelectedSupplierId('');
+  };
+
   return {
     loading,
     error,
-    contacts,
+    suppliers,
     products,
     cart,
     cartItems,
-    selectedContactId,
+    selectedSupplierId,
     summary,
-    handleSelectContact,
+    handleSelectSupplier,
     addProductToCart,
     updateItemQuantity,
     removeItem,
+    completePurchase,
+    resetCurrentPurchase,
   };
 }

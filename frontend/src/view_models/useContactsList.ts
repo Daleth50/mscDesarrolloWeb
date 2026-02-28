@@ -17,7 +17,7 @@ export function useContactsList() {
   const loadContacts = async () => {
     try {
       setLoading(true);
-      const data = await contactService.getAll();
+      const data = await contactService.getAll('customer');
       setContacts(data);
     } catch (err) {
       setError(getErrorMessage(err));

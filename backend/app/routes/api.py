@@ -4,6 +4,7 @@ from app.view_model.product.main import ProductViewModel
 from app.view_model.contact.main import ContactViewModel
 from app.view_model.order.main import OrderViewModel
 from app.view_model.user import UserViewModel
+from app.view_model.bill_account import BillAccountViewModel
 from app.auth import (
     generate_token,
     get_authenticated_user,
@@ -12,6 +13,15 @@ from app.database import db
 from app.models.base import User
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
+
+
+def _require_admin_user():
+    user = get_authenticated_user()
+    if not user:
+        raise PermissionError("Unauthorized")
+    if user.role != "admin":
+        raise PermissionError("Admin role required")
+    return user
 
 
 @api_bp.before_request
@@ -258,8 +268,11 @@ def delete_category(category_id):
 def get_contacts():
     """Listar todos los contactos"""
     try:
-        contacts = ContactViewModel.get_all_contacts()
+        kind = request.args.get("kind")
+        contacts = ContactViewModel.get_contacts_by_kind(kind)
         return jsonify(contacts), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -268,9 +281,34 @@ def get_contacts():
 def create_contact():
     """Crear nuevo contacto"""
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
         new_contact = ContactViewModel.create_contact(data)
         return jsonify(new_contact), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/suppliers", methods=["GET"])
+def get_suppliers():
+    """Listar proveedores"""
+    try:
+        suppliers = ContactViewModel.get_contacts_by_kind("supplier")
+        return jsonify(suppliers), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/suppliers", methods=["POST"])
+def create_supplier():
+    """Crear nuevo proveedor"""
+    try:
+        data = request.get_json() or {}
+        new_supplier = ContactViewModel.create_supplier(data)
+        return jsonify(new_supplier), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -389,6 +427,106 @@ def remove_cart_item(cart_id, item_id):
         return jsonify({"error": str(e)}), 500
 
 
+# ==================== PURCHASES (CART) ====================
+
+@api_bp.route("/purchases/products", methods=["GET"])
+def get_purchase_products():
+    """Listar productos para compras"""
+    try:
+        products = OrderViewModel.list_purchase_products()
+        return jsonify(products), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/purchases/cart", methods=["POST"])
+def create_purchase_cart():
+    """Crear carrito de compra"""
+    try:
+        data = request.get_json() or {}
+        cart = OrderViewModel.create_purchase_cart(data)
+        return jsonify(cart), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/purchases/cart/<string:cart_id>", methods=["GET"])
+def get_purchase_cart(cart_id):
+    """Obtener carrito de compra"""
+    try:
+        cart = OrderViewModel.get_purchase_cart(cart_id)
+        return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/purchases/cart/<string:cart_id>", methods=["PUT"])
+def update_purchase_cart(cart_id):
+    """Actualizar carrito de compra"""
+    try:
+        data = request.get_json() or {}
+        cart = OrderViewModel.update_purchase_cart(cart_id, data)
+        return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/purchases/cart/<string:cart_id>/items", methods=["POST"])
+def add_purchase_item(cart_id):
+    """Agregar producto al carrito de compra"""
+    try:
+        data = request.get_json() or {}
+        cart = OrderViewModel.add_purchase_item(cart_id, data)
+        return jsonify(cart), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/purchases/cart/<string:cart_id>/items/<string:item_id>", methods=["PUT"])
+def update_purchase_item(cart_id, item_id):
+    """Editar cantidad de item del carrito de compra"""
+    try:
+        data = request.get_json() or {}
+        cart = OrderViewModel.update_purchase_item(cart_id, item_id, data)
+        return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/purchases/cart/<string:cart_id>/items/<string:item_id>", methods=["DELETE"])
+def remove_purchase_item(cart_id, item_id):
+    """Eliminar item del carrito de compra"""
+    try:
+        cart = OrderViewModel.remove_purchase_item(cart_id, item_id)
+        return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/purchases/cart/<string:cart_id>/complete", methods=["POST"])
+def complete_purchase_cart(cart_id):
+    """Completar compra y actualizar stock"""
+    try:
+        cart = OrderViewModel.complete_purchase_cart(cart_id)
+        return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ==================== USERS ====================
 
 @api_bp.route("/users", methods=["GET"])
@@ -445,6 +583,89 @@ def delete_user(user_id):
     try:
         UserViewModel.delete_user(user_id)
         return jsonify({"message": "User deleted"}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ==================== BILL ACCOUNTS ====================
+
+@api_bp.route("/bill-accounts", methods=["GET"])
+def get_bill_accounts():
+    """Listar cuentas de banco"""
+    try:
+        _require_admin_user()
+        accounts = BillAccountViewModel.get_all_bill_accounts()
+        return jsonify(accounts), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/bill-accounts/<string:account_id>", methods=["GET"])
+def get_bill_account(account_id):
+    """Obtener cuenta de banco"""
+    try:
+        _require_admin_user()
+        account = BillAccountViewModel.get_bill_account_by_id(account_id)
+        if not account:
+            return jsonify({"error": "Bill account not found"}), 404
+        return jsonify(account), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/bill-accounts", methods=["POST"])
+def create_bill_account():
+    """Crear cuenta de banco"""
+    try:
+        _require_admin_user()
+        data = request.get_json() or {}
+        account = BillAccountViewModel.create_bill_account(data)
+        return jsonify(account), 201
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/bill-accounts/<string:account_id>", methods=["PUT"])
+def update_bill_account(account_id):
+    """Actualizar cuenta de banco"""
+    try:
+        _require_admin_user()
+        data = request.get_json() or {}
+        account = BillAccountViewModel.update_bill_account(account_id, data)
+        return jsonify(account), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except ValueError as e:
+        status = 404 if str(e) == "Bill account not found" else 400
+        return jsonify({"error": str(e)}), status
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/bill-accounts/<string:account_id>", methods=["DELETE"])
+def delete_bill_account(account_id):
+    """Eliminar cuenta de banco"""
+    try:
+        _require_admin_user()
+        BillAccountViewModel.delete_bill_account(account_id)
+        return jsonify({"message": "Bill account deleted"}), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:

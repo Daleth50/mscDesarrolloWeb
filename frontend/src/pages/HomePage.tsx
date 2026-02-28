@@ -13,22 +13,30 @@ import {
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import GroupIcon from '@mui/icons-material/Group';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import SearchIcon from '@mui/icons-material/Search';
+import CategoryIcon from '@mui/icons-material/Category';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import { useAuth } from '../context/AuthContext';
 
 export default function HomePage() {
+  const { canManageUsers } = useAuth();
+
   const modules = [
     {
-      title: 'Productos',
-      description: 'Gestiona tu catálogo',
-      href: '/products',
-      icon: ShoppingCartIcon,
-      color: 'primary',
+      title: 'Proveedores',
+      description: 'Administra proveedores',
+      href: '/suppliers',
+      icon: SearchIcon,
+      color: 'warning',
     },
     {
-      title: 'Contactos',
-      description: 'Administra clientes',
-      href: '/contacts',
-      icon: GroupIcon,
-      color: 'success',
+      title: 'Categorías',
+      description: 'Organiza tus productos',
+      href: '/categories',
+      icon: CategoryIcon,
+      color: 'secondary',
     },
     {
       title: 'Ventas',
@@ -37,7 +45,45 @@ export default function HomePage() {
       icon: AssignmentIcon,
       color: 'info',
     },
+    {
+      title: 'Compras',
+      description: 'Registra compras a proveedores',
+      href: '/purchases',
+      icon: Inventory2Icon,
+      color: 'primary',
+    },
+    {
+      title: 'Punto de venta',
+      description: 'Registra ventas rápidas',
+      href: '/pos',
+      icon: ShoppingCartIcon,
+      color: 'primary',
+    },
+    {
+      title: 'Clientes',
+      description: 'Administra clientes',
+      href: '/contacts',
+      icon: GroupIcon,
+      color: 'success',
+    },
   ];
+
+  if (canManageUsers) {
+    modules.push({
+      title: 'Usuarios',
+      description: 'Administra cuentas del sistema',
+      href: '/users',
+      icon: ManageAccountsIcon,
+      color: 'error',
+    });
+    modules.push({
+      title: 'Cuentas banco',
+      description: 'Administra cuentas cash y debt',
+      href: '/bill-accounts',
+      icon: AccountBalanceIcon,
+      color: 'secondary',
+    });
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -46,7 +92,7 @@ export default function HomePage() {
           Bienvenido a AppWeb
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          Sistema de gestión de productos, contactos y Ventas.
+          Selecciona un módulo para gestionar la operación del sistema.
         </Typography>
       </Box>
 

@@ -19,7 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Link } from 'react-router-dom';
-import { useUsersList } from '../view_models/useUsersList';
+import { useUsersList } from '../controllers/useUsersListController';
 
 export default function UsersPage() {
   const { users, loading, error, handleDelete } = useUsersList();

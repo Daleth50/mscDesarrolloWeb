@@ -35,6 +35,13 @@ class ContactViewModel:
         return [contact.to_dict() for contact in contacts]
 
     @staticmethod
+    def get_contact_by_id(contact_id):
+        contact = Contact.query.get(contact_id)
+        if not contact:
+            return None
+        return contact.to_dict()
+
+    @staticmethod
     def create_contact(form_data):
         form_data = form_data or {}
         name = form_data.get("name", "").strip()
@@ -64,3 +71,41 @@ class ContactViewModel:
         data = dict(form_data or {})
         data["kind"] = "supplier"
         return ContactViewModel.create_contact(data)
+
+    @staticmethod
+    def update_contact(contact_id, form_data):
+        form_data = form_data or {}
+        contact = Contact.query.get(contact_id)
+        if not contact:
+            raise ValueError("Contact not found")
+
+        name = (form_data.get("name") or "").strip()
+        email = (form_data.get("email") or "").strip() or None
+        phone = (form_data.get("phone") or "").strip() or None
+        address = (form_data.get("address") or "").strip() or None
+
+        if not name:
+            raise ValueError("Name is required")
+
+        kind = ContactViewModel.normalize_kind(form_data.get("kind") or contact.kind)
+        if kind not in ContactViewModel.ALLOWED_KINDS:
+            raise ValueError("Kind must be 'customer' or 'supplier'")
+
+        contact.name = name
+        contact.email = email
+        contact.phone = phone
+        contact.address = address
+        contact.kind = kind
+
+        db.session.commit()
+        return contact.to_dict()
+
+    @staticmethod
+    def delete_contact(contact_id):
+        contact = Contact.query.get(contact_id)
+        if not contact:
+            raise ValueError("Contact not found")
+
+        db.session.delete(contact)
+        db.session.commit()
+        return True

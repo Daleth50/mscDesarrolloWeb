@@ -18,7 +18,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useCategoriesList } from '../view_models/useCategoriesList';
+import { useCategoriesList } from '../controllers/useCategoriesListController';
 import CategoryFormDialog from '../components/CategoryFormDialog';
 import { useAuth } from '../context/AuthContext';
 

@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useUserForm } from '../view_models/useUserForm';
+import { useUserForm } from '../controllers/useUserFormController';
 
 export default function UserFormPage() {
   const navigate = useNavigate();

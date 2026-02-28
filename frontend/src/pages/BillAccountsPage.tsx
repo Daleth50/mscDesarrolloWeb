@@ -19,7 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Link } from 'react-router-dom';
-import { useBillAccountsList } from '../view_models/useBillAccountsList';
+import { useBillAccountsList } from '../controllers/useBillAccountsListController';
 
 export default function BillAccountsPage() {
   const { billAccounts, loading, error, handleDelete } = useBillAccountsList();

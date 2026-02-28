@@ -140,6 +140,7 @@ function AppLayout() {
                 {/* Contacts */}
                 <Route path="/contacts" element={<ContactsPage />} />
                 <Route path="/contacts/new" element={<ContactFormPage />} />
+                <Route path="/contacts/:id/edit" element={<ContactFormPage />} />
 
                 {/* Suppliers */}
                 <Route path="/suppliers" element={<SuppliersPage />} />

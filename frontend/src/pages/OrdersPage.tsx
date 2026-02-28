@@ -21,7 +21,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useOrdersList } from '../view_models/useOrdersList';
+import { useOrdersList } from '../controllers/useOrdersListController';
 
 const getStatusColor = (status) => {
   switch (status) {

@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
-import { useProductForm } from '../view_models/useProductForm';
+import { useProductForm } from '../controllers/useProductFormController';
 import CategoryFormDialog from '../components/CategoryFormDialog';
 
 export default function ProductFormPage() {

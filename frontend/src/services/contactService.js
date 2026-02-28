@@ -6,8 +6,16 @@ export const contactService = {
     return api.get(`/contacts${query}`);
   },
 
+  getById(id) {
+    return api.get(`/contacts/${id}`);
+  },
+
   create(contact) {
     return api.post('/contacts', contact);
+  },
+
+  update(id, contact) {
+    return api.put(`/contacts/${id}`, contact);
   },
 
   delete(id) {

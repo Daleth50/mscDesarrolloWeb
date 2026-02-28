@@ -20,7 +20,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useContactsList } from '../view_models/useContactsList';
+import { useContactsList } from '../controllers/useContactsListController';
 
 export default function ContactsPage() {
   const { contacts, loading, error, handleEdit, handleDelete } = useContactsList();

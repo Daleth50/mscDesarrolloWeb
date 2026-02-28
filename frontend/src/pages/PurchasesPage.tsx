@@ -32,7 +32,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { getErrorMessage } from '../utils/error';
 import type { CartItem, PosProduct, UUID } from '../types/models';
-import { usePurchaseCart } from '../view_models/usePurchaseCart';
+import { usePurchaseCart } from '../controllers/usePurchaseCartController';
 
 export default function PurchasesPage() {
   const {

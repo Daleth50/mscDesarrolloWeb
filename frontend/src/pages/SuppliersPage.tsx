@@ -16,7 +16,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useSuppliersList } from '../view_models/useSuppliersList';
+import { useSuppliersList } from '../controllers/useSuppliersListController';
 
 export default function SuppliersPage() {
   const { suppliers, loading, error } = useSuppliersList();

@@ -21,7 +21,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
-import { useProductsList } from '../view_models/useProductsList';
+import { useProductsList } from '../controllers/useProductsListController';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProductsPage() {

@@ -14,7 +14,7 @@ import {
   Paper,
   Grid,
 } from '@mui/material';
-import { useOrderForm } from '../view_models/useOrderForm';
+import { useOrderForm } from '../controllers/useOrderFormController';
 
 export default function OrderFormPage() {
   const { error, formData, handleChange, handleSubmit } = useOrderForm();

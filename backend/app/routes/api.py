@@ -290,6 +290,44 @@ def create_contact():
         return jsonify({"error": str(e)}), 500
 
 
+@api_bp.route("/contacts/<string:contact_id>", methods=["GET"])
+def get_contact(contact_id):
+    """Obtener contacto por id"""
+    try:
+        contact = ContactViewModel.get_contact_by_id(contact_id)
+        if not contact:
+            return jsonify({"error": "Contact not found"}), 404
+        return jsonify(contact), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/contacts/<string:contact_id>", methods=["PUT"])
+def update_contact(contact_id):
+    """Actualizar contacto"""
+    try:
+        data = request.get_json() or {}
+        updated_contact = ContactViewModel.update_contact(contact_id, data)
+        return jsonify(updated_contact), 200
+    except ValueError as e:
+        status_code = 404 if str(e) == "Contact not found" else 400
+        return jsonify({"error": str(e)}), status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/contacts/<string:contact_id>", methods=["DELETE"])
+def delete_contact(contact_id):
+    """Eliminar contacto"""
+    try:
+        ContactViewModel.delete_contact(contact_id)
+        return jsonify({"message": "Contact deleted"}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @api_bp.route("/suppliers", methods=["GET"])
 def get_suppliers():
     """Listar proveedores"""

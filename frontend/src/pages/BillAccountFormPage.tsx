@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useBillAccountForm } from '../view_models/useBillAccountForm';
+import { useBillAccountForm } from '../controllers/useBillAccountFormController';
 
 export default function BillAccountFormPage() {
   const navigate = useNavigate();

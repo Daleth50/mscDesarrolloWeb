@@ -14,7 +14,7 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import { useProductDetail } from '../view_models/useProductDetail';
+import { useProductDetail } from '../controllers/useProductDetailController';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProductDetailPage() {

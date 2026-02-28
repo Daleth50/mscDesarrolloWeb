@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Container,
   Box,
+  CircularProgress,
   TextField,
   Button,
   Alert,
@@ -10,17 +11,27 @@ import {
   Paper,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useContactForm } from '../view_models/useContactForm';
+import { useContactForm } from '../controllers/useContactFormController';
 
 export default function ContactFormPage() {
   const navigate = useNavigate();
-  const { error, formData, handleChange, handleSubmit } = useContactForm();
+  const { loading, error, formData, isEdit, handleChange, handleSubmit } = useContactForm();
+
+  if (loading && isEdit) {
+    return (
+      <Container maxWidth="sm">
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
       <Paper elevation={2} sx={{ p: 4 }}>
         <Typography variant="h4" component="h2" sx={{ mb: 3, fontWeight: 600 }}>
-          Crear contacto
+          {isEdit ? 'Editar cliente' : 'Crear cliente'}
         </Typography>
 
         {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -84,7 +95,7 @@ export default function ContactFormPage() {
               variant="contained"
               color="primary"
             >
-              Crear contacto
+              {isEdit ? 'Guardar cambios' : 'Crear cliente'}
             </Button>
           </Stack>
         </Box>

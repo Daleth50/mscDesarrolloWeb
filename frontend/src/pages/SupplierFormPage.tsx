@@ -10,7 +10,7 @@ import {
   Paper,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useSupplierForm } from '../view_models/useSupplierForm';
+import { useSupplierForm } from '../controllers/useSupplierFormController';
 
 export default function SupplierFormPage() {
   const navigate = useNavigate();

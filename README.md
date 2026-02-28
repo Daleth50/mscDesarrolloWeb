@@ -52,6 +52,7 @@ DB_PASSWORD=your_password
 DB_NAME=swipall_pos
 FLASK_PORT=5000
 VITE_API_URL=http://localhost:5000/api
+FRONTEND_URL=http://localhost:5173
 ```
 
 ### 4. Configurar la base de datos MySQL
@@ -139,6 +140,12 @@ appWeb/
 ```
 
 ## API REST Endpoints
+
+### Autenticación
+- `POST /api/auth/login` - Iniciar sesión
+- `GET /api/auth/me` - Obtener usuario autenticado
+- `POST /api/auth/password/forgot` - Validar usuario/email para restauración (modo prueba)
+- `POST /api/auth/password/reset` - Restaurar contraseña por usuario/email (modo prueba)
 
 ### Productos
 - `GET /api/products` - Listar todos los productos
@@ -251,6 +258,7 @@ En producción, restringe con dominios específicos.
 | `DB_NAME` | Nombre de base de datos | swipall_pos |
 | `FLASK_ENV` | Entorno (development/production) | development |
 | `VITE_API_URL` | URL de la API (frontend) | http://localhost:5000/api |
+| `FRONTEND_URL` | URL del frontend para enlaces de restauración | http://localhost:5173 |
 
 ## Stack Tecnológico
 

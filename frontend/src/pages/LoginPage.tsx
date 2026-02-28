@@ -4,12 +4,13 @@ import {
   Button,
   CircularProgress,
   Container,
+  Link,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { getErrorMessage } from '../utils/error';
 import { useAuth } from '../context/AuthContext';
 
@@ -91,6 +92,9 @@ export default function LoginPage() {
           >
             {loading ? <CircularProgress size={20} /> : 'Entrar'}
           </Button>
+          <Link component={RouterLink} to="/forgot-password" underline="hover" sx={{ textAlign: 'center' }}>
+            ¿Olvidaste tu contraseña?
+          </Link>
         </Box>
       </Paper>
     </Container>

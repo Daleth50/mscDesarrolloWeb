@@ -1,10 +1,15 @@
 from flask import Blueprint, jsonify, request
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from app.view_model.product.main import ProductViewModel
 from app.view_model.contact.main import ContactViewModel
 from app.view_model.order.main import OrderViewModel
 from app.view_model.user import UserViewModel
-from app.auth import generate_token, get_authenticated_user
+from app.auth import (
+    generate_token,
+    get_authenticated_user,
+)
+from app.database import db
+from app.models.base import User
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -13,7 +18,12 @@ api_bp = Blueprint("api", __name__, url_prefix="/api")
 def require_authentication():
     if request.method == "OPTIONS":
         return None
-    if request.path in {"/api/auth/login", "/api/auth/me"}:
+    if request.path in {
+        "/api/auth/login",
+        "/api/auth/me",
+        "/api/auth/password/forgot",
+        "/api/auth/password/reset",
+    }:
         return None
 
     user = get_authenticated_user()
@@ -58,6 +68,54 @@ def me():
         if not user:
             return jsonify({"error": "Unauthorized"}), 401
         return jsonify({"user": user.to_dict()}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/auth/password/forgot", methods=["POST"])
+def forgot_password():
+    """Solicitar restauración de contraseña (flujo de prueba sin token)"""
+    try:
+        data = request.get_json() or {}
+        identifier = (data.get("identifier") or data.get("email") or "").strip()
+        if not identifier:
+            return jsonify({"error": "Identifier is required"}), 400
+
+        user = UserViewModel.get_user_by_email(identifier)
+        if not user:
+            user = UserViewModel.get_user_by_username(identifier)
+
+        if not user or not user.is_active:
+            return jsonify({"error": "User not found or inactive"}), 404
+
+        return jsonify({"message": "Solicitud aceptada", "identifier": identifier}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/auth/password/reset", methods=["POST"])
+def reset_password():
+    """Restaurar contraseña por identificador (flujo de prueba sin token)"""
+    try:
+        data = request.get_json() or {}
+        identifier = (data.get("identifier") or data.get("email") or "").strip()
+        new_password = data.get("new_password") or ""
+
+        if not identifier:
+            return jsonify({"error": "Identifier is required"}), 400
+        if not new_password or len(new_password) < 6:
+            return jsonify({"error": "New password must have at least 6 characters"}), 400
+
+        user = UserViewModel.get_user_by_email(identifier)
+        if not user:
+            user = UserViewModel.get_user_by_username(identifier)
+        if not user or not user.is_active:
+            return jsonify({"error": "User not found or inactive"}), 404
+
+        user.password = generate_password_hash(new_password)
+        db.session.commit()
+
+        return jsonify({"message": "Password updated successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

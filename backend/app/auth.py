@@ -3,6 +3,10 @@ from flask import current_app, request
 from app.models.base import User
 
 
+AUTH_TOKEN_SALT = "auth-token"
+PASSWORD_RESET_TOKEN_SALT = "password-reset"
+
+
 def _get_serializer():
     secret_key = current_app.config.get("SECRET_KEY")
     return URLSafeTimedSerializer(secret_key)
@@ -10,14 +14,38 @@ def _get_serializer():
 
 def generate_token(user_id):
     serializer = _get_serializer()
-    return serializer.dumps({"user_id": user_id})
+    return serializer.dumps({"user_id": user_id}, salt=AUTH_TOKEN_SALT)
 
 
 def verify_token(token, max_age_seconds):
     serializer = _get_serializer()
     try:
-        data = serializer.loads(token, max_age=max_age_seconds)
+        data = serializer.loads(token, salt=AUTH_TOKEN_SALT, max_age=max_age_seconds)
     except (BadSignature, SignatureExpired):
+        return None
+    return data.get("user_id")
+
+
+def generate_password_reset_token(user_id):
+    serializer = _get_serializer()
+    return serializer.dumps(
+        {"user_id": user_id, "type": "password_reset"},
+        salt=PASSWORD_RESET_TOKEN_SALT,
+    )
+
+
+def verify_password_reset_token(token, max_age_seconds):
+    serializer = _get_serializer()
+    try:
+        data = serializer.loads(
+            token,
+            salt=PASSWORD_RESET_TOKEN_SALT,
+            max_age=max_age_seconds,
+        )
+    except (BadSignature, SignatureExpired):
+        return None
+
+    if data.get("type") != "password_reset":
         return None
     return data.get("user_id")
 

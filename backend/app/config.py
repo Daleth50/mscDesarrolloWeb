@@ -10,6 +10,8 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-change-me')
     AUTH_TOKEN_MAX_AGE = int(os.getenv('AUTH_TOKEN_MAX_AGE', '28800'))
+    PASSWORD_RESET_TOKEN_MAX_AGE = int(os.getenv('PASSWORD_RESET_TOKEN_MAX_AGE', '3600'))
+    FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
 
 class DevelopmentConfig(Config):

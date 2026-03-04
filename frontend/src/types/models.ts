@@ -56,6 +56,7 @@ export interface PosProduct {
 export interface Order {
   id: UUID;
   contact_id?: UUID | null;
+  contact_name?: string | null;
   product_id?: UUID | null;
   quantity?: number | null;
   status?: OrderStatus | null;
@@ -70,12 +71,22 @@ export interface Order {
 
 export type BillAccountType = 'cash' | 'debt';
 export type PaymentMethod = 'cash' | 'transfer';
+export type BillAccountMovementType = 'in' | 'out';
 
 export interface BillAccount {
   id: UUID;
   name: string;
   type: BillAccountType;
   balance: number;
+}
+
+export interface BillAccountMovement {
+  id: UUID;
+  order_id?: UUID | null;
+  bill_account_id: UUID;
+  amount: number;
+  movement_type: BillAccountMovementType;
+  created_at?: string | null;
 }
 
 export type UserRole = 'admin' | 'seller';

@@ -85,6 +85,8 @@ export default function BillAccountFormPage() {
             type="number"
             value={formData.balance}
             onChange={handleChange}
+            disabled={isEdit}
+            helperText={isEdit ? 'El balance se ajusta desde movimientos de cuenta.' : undefined}
             fullWidth
             variant="outlined"
           />

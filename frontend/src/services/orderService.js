@@ -5,6 +5,10 @@ export const orderService = {
     return api.get('/orders');
   },
 
+  getSales() {
+    return api.get('/orders/sales');
+  },
+
   getById(id) {
     return api.get(`/orders/${id}`);
   },

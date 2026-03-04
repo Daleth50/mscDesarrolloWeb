@@ -181,8 +181,66 @@ class OrderViewModel:
 
     @staticmethod
     def get_all_orders():
-        orders = Order.query.all()
-        return [order.to_dict() for order in orders]
+        rows = (
+            db.session.query(Order, Contact.name)
+            .outerjoin(Contact, Contact.id == Order.contact_id)
+            .all()
+        )
+
+        payload = []
+        for order, contact_name in rows:
+            serialized = order.to_dict()
+            serialized["contact_name"] = contact_name
+            payload.append(serialized)
+
+        return payload
+
+    @staticmethod
+    def get_sales_orders():
+        rows = (
+            db.session.query(Order, Contact.name)
+            .outerjoin(Contact, Contact.id == Order.contact_id)
+            .filter(Order.type == "sale")
+            .order_by(Order.created_at.desc())
+            .all()
+        )
+
+        payload = []
+        for order, contact_name in rows:
+            serialized = order.to_dict()
+            serialized["contact_name"] = contact_name
+            payload.append(serialized)
+
+        return payload
+
+    @staticmethod
+    def get_order_by_id(order_id):
+        row = (
+            db.session.query(Order, Contact.name)
+            .outerjoin(Contact, Contact.id == Order.contact_id)
+            .filter(Order.id == order_id)
+            .first()
+        )
+        if not row:
+            return None
+
+        order, contact_name = row
+        payload = order.to_dict()
+        payload["contact_name"] = contact_name
+
+        items_rows = (
+            db.session.query(OrderItem, Product)
+            .join(Product, Product.id == OrderItem.product_id)
+            .filter(OrderItem.order_id == order.id)
+            .all()
+        )
+
+        payload["items"] = [
+            OrderViewModel._serialize_order_item(item, product_name=product.name)
+            for item, product in items_rows
+        ]
+
+        return payload
 
     @staticmethod
     def create_order(form_data):

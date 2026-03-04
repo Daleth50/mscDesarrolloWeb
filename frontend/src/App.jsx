@@ -12,8 +12,8 @@ import ContactsPage from './pages/ContactsPage';
 import SuppliersPage from './pages/SuppliersPage';
 import CategoriesPage from './pages/CategoriesPage';
 import HomePage from './pages/HomePage';
-import OrderFormPage from './pages/OrderFormPage';
 import OrdersPage from './pages/OrdersPage';
+import OrderDetailPage from './pages/OrderDetailPage';
 import PosPage from './pages/PosPage';
 import PurchasesPage from './pages/PurchasesPage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -23,6 +23,7 @@ import UsersPage from './pages/UsersPage';
 import UserFormPage from './pages/UserFormPage';
 import BillAccountsPage from './pages/BillAccountsPage';
 import BillAccountFormPage from './pages/BillAccountFormPage';
+import BillAccountMovementsPage from './pages/BillAccountMovementsPage';
 import LoginPage from './pages/LoginPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -139,7 +140,7 @@ function AppLayout() {
 
             {/* Orders */}
             <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/orders/new" element={<OrderFormPage />} />
+            <Route path="/orders/:id" element={<OrderDetailPage />} />
             <Route path="/pos" element={<PosPage />} />
             <Route path="/purchases" element={<PurchasesPage />} />
 
@@ -151,6 +152,7 @@ function AppLayout() {
               <Route path="/bill-accounts" element={<BillAccountsPage />} />
               <Route path="/bill-accounts/new" element={<BillAccountFormPage />} />
               <Route path="/bill-accounts/:id/edit" element={<BillAccountFormPage />} />
+              <Route path="/bill-accounts/:id/movements" element={<BillAccountMovementsPage />} />
             </Route>
 
             {/* Profile */}

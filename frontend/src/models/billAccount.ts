@@ -6,6 +6,11 @@ export type BillAccountFormData = {
   balance: string;
 };
 
+export type BillAccountMovementFormData = {
+  movementType: 'in' | 'out';
+  amount: string;
+};
+
 export function validateBillAccountForm(formData: BillAccountFormData): string | null {
   if (!formData.name.trim()) {
     return 'El nombre es requerido';
@@ -24,5 +29,25 @@ export function buildBillAccountPayload(formData: BillAccountFormData) {
     name: formData.name.trim(),
     type: formData.type,
     balance: Number(formData.balance),
+  };
+}
+
+export function validateBillAccountMovementForm(formData: BillAccountMovementFormData): string | null {
+  if (!['in', 'out'].includes(formData.movementType)) {
+    return "El tipo de movimiento debe ser 'in' o 'out'";
+  }
+
+  const amount = Number(formData.amount);
+  if (Number.isNaN(amount) || amount <= 0) {
+    return 'El monto debe ser mayor a 0';
+  }
+
+  return null;
+}
+
+export function buildBillAccountMovementPayload(formData: BillAccountMovementFormData) {
+  return {
+    movement_type: formData.movementType,
+    amount: Number(formData.amount),
   };
 }

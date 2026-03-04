@@ -15,15 +15,11 @@ import {
   Alert,
   CircularProgress,
   Chip,
-  Stack,
-  IconButton,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useOrdersList } from '../controllers/useOrdersListController';
 
-const getStatusColor = (status) => {
+const getStatusColor = (status?: string | null) => {
   switch (status) {
     case 'completed':
       return 'success';
@@ -36,7 +32,20 @@ const getStatusColor = (status) => {
   }
 };
 
-const getPaymentColor = (status) => {
+const getStatusLabel = (status?: string | null) => {
+  switch (status) {
+    case 'completed':
+      return 'Completada';
+    case 'pending':
+      return 'Pendiente';
+    case 'cancelled':
+      return 'Cancelada';
+    default:
+      return '-';
+  }
+};
+
+const getPaymentColor = (status?: string | null) => {
   switch (status) {
     case 'paid':
       return 'success';
@@ -49,8 +58,23 @@ const getPaymentColor = (status) => {
   }
 };
 
+const getPaymentLabel = (status?: string | null) => {
+  switch (status) {
+    case 'paid':
+      return 'Pagado';
+    case 'unpaid':
+      return 'No pagado';
+    case 'partial':
+      return 'Parcial';
+    case 'pending':
+      return 'Pendiente';
+    default:
+      return '-';
+  }
+};
+
 export default function OrdersPage() {
-  const { orders, loading, error, handleEdit, handleDelete } = useOrdersList();
+  const { orders, loading, error } = useOrdersList();
 
   if (loading) {
     return (
@@ -70,11 +94,11 @@ export default function OrdersPage() {
         </Typography>
         <Button
           component={Link}
-          to="/orders/new"
+          to="/pos"
           variant="contained"
           startIcon={<AddIcon />}
         >
-          Crear orden
+          Crear venta
         </Button>
       </Box>
 
@@ -84,24 +108,22 @@ export default function OrdersPage() {
         <Table>
           <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
             <TableRow>
-              <TableCell>ID</TableCell>
               <TableCell>Contacto</TableCell>
               <TableCell align="right">Total</TableCell>
               <TableCell>Estado</TableCell>
               <TableCell>Pago</TableCell>
-              <TableCell align="center">Acciones</TableCell>
+              <TableCell align="center">Detalle</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {orders.length > 0 ? (
               orders.map(order => (
                 <TableRow key={order.id} hover>
-                  <TableCell>{order.id}</TableCell>
-                  <TableCell>{order.contact_id || '-'}</TableCell>
+                  <TableCell>{order.contact_name || '-'}</TableCell>
                   <TableCell align="right">${order.total}</TableCell>
                   <TableCell>
                     <Chip
-                      label={order.status || '-'}
+                      label={getStatusLabel(order.status)}
                       color={getStatusColor(order.status)}
                       size="small"
                       variant="outlined"
@@ -109,31 +131,16 @@ export default function OrdersPage() {
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={order.payment_status || '-'}
+                      label={getPaymentLabel(order.payment_status)}
                       color={getPaymentColor(order.payment_status)}
                       size="small"
                       variant="outlined"
                     />
                   </TableCell>
                   <TableCell align="center">
-                    <Stack direction="row" spacing={1} justifyContent="center">
-                      <IconButton
-                        onClick={() => handleEdit(order.id)}
-                        size="small"
-                        color="warning"
-                        title="Editar"
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(order.id)}
-                        size="small"
-                        color="error"
-                        title="Eliminar"
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
+                    <Button component={Link} to={`/orders/${order.id}`} size="small" variant="outlined">
+                      Ver detalle
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))

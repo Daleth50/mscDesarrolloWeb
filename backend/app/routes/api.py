@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.view_model.product.main import ProductViewModel
-from app.view_model.contact.main import ContactViewModel
-from app.view_model.order.main import OrderViewModel
-from app.view_model.user import UserViewModel
-from app.view_model.bill_account import BillAccountViewModel
+from app.controllers.product.main import ProductViewModel
+from app.controllers.contact.main import ContactViewModel
+from app.controllers.order.main import OrderViewModel
+from app.controllers.user import UserViewModel
+from app.controllers.bill_account import BillAccountViewModel
 from app.auth import (
     generate_token,
     get_authenticated_user,
@@ -378,6 +378,28 @@ def create_order():
         return jsonify({"error": str(e)}), 500
 
 
+@api_bp.route("/orders/sales", methods=["GET"])
+def get_sales_orders():
+    """Listar ventas (excluye compras y carritos pendientes)"""
+    try:
+        orders = OrderViewModel.get_sales_orders()
+        return jsonify(orders), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/orders/<string:order_id>", methods=["GET"])
+def get_order(order_id):
+    """Obtener detalle de venta"""
+    try:
+        order = OrderViewModel.get_order_by_id(order_id)
+        if not order:
+            return jsonify({"error": "Order not found"}), 404
+        return jsonify(order), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ==================== POS (CART) ====================
 
 @api_bp.route("/pos/products", methods=["GET"])
@@ -683,6 +705,41 @@ def get_bill_account(account_id):
         return jsonify(account), 200
     except PermissionError as e:
         status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/bill-accounts/<string:account_id>/movements", methods=["GET"])
+def get_bill_account_movements(account_id):
+    """Listar movimientos de una cuenta de banco"""
+    try:
+        _require_admin_user()
+        movements = BillAccountViewModel.get_bill_account_movements(account_id)
+        return jsonify(movements), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except ValueError as e:
+        status = 404 if str(e) == "Bill account not found" else 400
+        return jsonify({"error": str(e)}), status
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/bill-accounts/<string:account_id>/movements", methods=["POST"])
+def create_bill_account_movement(account_id):
+    """Crear movimiento manual en una cuenta de banco"""
+    try:
+        _require_admin_user()
+        data = request.get_json() or {}
+        result = BillAccountViewModel.create_bill_account_movement(account_id, data)
+        return jsonify(result), 201
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except ValueError as e:
+        status = 404 if str(e) == "Bill account not found" else 400
         return jsonify({"error": str(e)}), status
     except Exception as e:
         return jsonify({"error": str(e)}), 500

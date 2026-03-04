@@ -88,7 +88,7 @@ appWeb/
 │   │   │   ├── __init__.py
 │   │   │   ├── main.py          # Health check endpoint
 │   │   │   └── api.py           # REST API endpoints
-│   │   ├── view_model/          # ViewModels (lógica de presentación)
+│   │   ├── controllers/         # Controladores (lógica de presentación)
 │   │   │   ├── product/
 │   │   │   │   ├── main.py      # ProductViewModel
 │   │   │   │   └── list.py

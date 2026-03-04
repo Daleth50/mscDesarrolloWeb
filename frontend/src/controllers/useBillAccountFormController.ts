@@ -73,11 +73,13 @@ export function useBillAccountForm() {
 
 		try {
 			setLoading(true);
-			const payload = buildBillAccountPayload(formData);
-
 			if (isEdit) {
-				await billAccountService.update(id!, payload);
+				await billAccountService.update(id!, {
+					name: formData.name.trim(),
+					type: formData.type,
+				});
 			} else {
+				const payload = buildBillAccountPayload(formData);
 				await billAccountService.create(payload);
 			}
 			navigate('/bill-accounts');

@@ -18,6 +18,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Link } from 'react-router-dom';
 import { useBillAccountsList } from '../controllers/useBillAccountsListController';
 
@@ -71,6 +72,15 @@ export default function BillAccountsPage() {
                   <TableCell align="right">${Number(account.balance || 0).toFixed(2)}</TableCell>
                   <TableCell align="center">
                     <Stack direction="row" spacing={1} justifyContent="center">
+                      <IconButton
+                        component={Link}
+                        to={`/bill-accounts/${account.id}/movements`}
+                        size="small"
+                        color="primary"
+                        title="Movimientos"
+                      >
+                        <VisibilityIcon fontSize="small" />
+                      </IconButton>
                       <IconButton
                         component={Link}
                         to={`/bill-accounts/${account.id}/edit`}

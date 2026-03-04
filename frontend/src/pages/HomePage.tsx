@@ -78,7 +78,7 @@ export default function HomePage() {
     });
     modules.push({
       title: 'Cuentas banco',
-      description: 'Administra cuentas cash y debt',
+      description: 'Administra cuentas bancarias',
       href: '/bill-accounts',
       icon: AccountBalanceIcon,
       color: 'secondary',

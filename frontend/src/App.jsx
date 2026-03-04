@@ -6,7 +6,7 @@ import {
   Toolbar,
   Typography
 } from '@mui/material';
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
 import ContactFormPage from './pages/ContactFormPage';
 import ContactsPage from './pages/ContactsPage';
 import SuppliersPage from './pages/SuppliersPage';
@@ -42,9 +42,11 @@ const NAV_ITEMS = [
 
 function AppLayout() {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const isPosRoute = location.pathname === '/pos';
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       {/* Header */}
       <AppBar position="sticky" color="transparent" elevation={0}>
         <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
@@ -98,7 +100,16 @@ function AppLayout() {
       </AppBar>
 
       {/* Main content */}
-      <Box component="main" sx={{ flex: 1, width: '100%', py: { xs: 2, md: 4 } }}>
+      <Box
+        component="main"
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          width: '100%',
+          py: isPosRoute ? 0 : { xs: 2, md: 4 },
+          overflow: isPosRoute ? 'hidden' : 'auto',
+        }}
+      >
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />

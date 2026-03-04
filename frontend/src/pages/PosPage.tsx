@@ -41,8 +41,10 @@ export default function PosPage() {
     filteredProducts,
     cart,
     cartItems,
+    pendingCarts,
     selectedContactId,
     summary,
+    activeCartId,
 
     isProductModalOpen,
     setProductModalOpen,
@@ -62,6 +64,11 @@ export default function PosPage() {
     checkoutError,
     checkoutLoading,
     successMessage,
+    quickCustomerDialogOpen,
+    quickCustomerForm,
+    quickCustomerError,
+    quickCustomerLoading,
+    pendingCartLoadingId,
 
     handleSelectContact,
     openAddQuantityDialog,
@@ -72,11 +79,30 @@ export default function PosPage() {
     openCheckoutModal,
     handleChangePaymentMethod,
     handleConfirmCheckout,
+    openQuickCustomerDialog,
+    closeQuickCustomerDialog,
+    handleQuickCustomerFieldChange,
+    handleCreateQuickCustomer,
+    handleLoadPendingCart,
+    handleStartNewCart,
   } = usePosController();
 
+  const getContactNameById = (contactId?: UUID | null) => (
+    contacts.find((contact) => contact.id === contactId)?.name || 'Sin cliente'
+  );
+
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        py: 0,
+      }}
+    >
+      <Paper elevation={2} sx={{ p: 3, mb: 2, flexShrink: 0 }}>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }}>
           <FormControl fullWidth>
             <InputLabel id="pos-contact-label">Cliente</InputLabel>
@@ -95,76 +121,175 @@ export default function PosPage() {
             </Select>
           </FormControl>
 
-          <Button
-            variant="contained"
-            startIcon={<SearchIcon />}
-            onClick={() => setProductModalOpen(true)}
-            sx={{ minWidth: 220 }}
-          >
-            Buscar productos
-          </Button>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={openQuickCustomerDialog}
+              sx={{ minWidth: 220 }}
+            >
+              Alta rápida cliente
+            </Button>
+
+            <Button
+              variant="contained"
+              startIcon={<SearchIcon />}
+              onClick={() => setProductModalOpen(true)}
+              sx={{ minWidth: 220 }}
+            >
+              Buscar productos
+            </Button>
+          </Stack>
         </Stack>
       </Paper>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {checkoutError && <Alert severity="error" sx={{ mb: 2 }}>{checkoutError}</Alert>}
-      {successMessage && <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert>}
+      <Box sx={{ flexShrink: 0 }}>
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {checkoutError && <Alert severity="error" sx={{ mb: 2 }}>{checkoutError}</Alert>}
+        {successMessage && <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert>}
+      </Box>
 
-      <Paper elevation={1} sx={{ p: 2 }}>
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-          Productos en carrito
-        </Typography>
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          display: 'grid',
+          gap: 2,
+          alignItems: 'stretch',
+          gridTemplateColumns: { xs: '1fr', lg: '280px minmax(0, 1fr) 320px' },
+        }}
+      >
+        <Paper
+          elevation={1}
+          sx={{ p: 2, display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%', overflow: 'hidden' }}
+        >
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Carritos pendientes
+          </Typography>
 
-        {loading && cartItems.length === 0 ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight={140}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Producto</TableCell>
-                  <TableCell align="right">Precio</TableCell>
-                  <TableCell align="right">Cantidad</TableCell>
-                  <TableCell align="right">Total</TableCell>
-                  <TableCell align="center">Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {cartItems.length > 0 ? (
-                  cartItems.map(item => (
-                    <TableRow key={item.id} hover>
-                      <TableCell>{item.product_name || item.product_id}</TableCell>
-                      <TableCell align="right">${item.price.toFixed(2)}</TableCell>
-                      <TableCell align="right">{item.quantity}</TableCell>
-                      <TableCell align="right">${item.total.toFixed(2)}</TableCell>
-                      <TableCell align="center">
-                        <Stack direction="row" spacing={1} justifyContent="center">
-                          <IconButton color="warning" size="small" onClick={() => openEditQuantityDialog(item)}>
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton color="error" size="small" onClick={() => handleRemoveItem(item)}>
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Stack>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleStartNewCart}
+            sx={{ mb: 1.5 }}
+          >
+            Nuevo carrito
+          </Button>
+
+          <Stack spacing={1} sx={{ flex: 1, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', pr: 0.5 }}>
+            {pendingCarts.length > 0 ? (
+              pendingCarts.map((pendingCart) => {
+                const isActive = activeCartId === pendingCart.id;
+                const isLoadingItem = pendingCartLoadingId === pendingCart.id;
+
+                return (
+                  <Button
+                    key={pendingCart.id}
+                    variant={isActive ? 'contained' : 'outlined'}
+                    color={isActive ? 'primary' : 'inherit'}
+                    onClick={() => handleLoadPendingCart(pendingCart.id)}
+                    disabled={isLoadingItem}
+                    sx={{
+                      justifyContent: 'flex-start',
+                      textTransform: 'none',
+                      px: 1.5,
+                      py: 1,
+                    }}
+                  >
+                    <Stack spacing={0.25} alignItems="flex-start">
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        Carrito {pendingCart.id.slice(0, 8)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Cliente: {getContactNameById(pendingCart.contact_id)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Total: ${(pendingCart.total || 0).toFixed(2)}
+                      </Typography>
+                      {isLoadingItem && <Typography variant="caption">Cargando carrito...</Typography>}
+                    </Stack>
+                  </Button>
+                );
+              })
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No hay carritos pendientes.
+              </Typography>
+            )}
+          </Stack>
+        </Paper>
+
+        <Paper
+          elevation={1}
+          sx={{ p: 2, display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%', overflow: 'hidden' }}
+        >
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Productos en carrito
+          </Typography>
+
+          {loading && cartItems.length === 0 ? (
+            <Box display="flex" justifyContent="center" alignItems="center" sx={{ flex: 1, minHeight: 140 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <TableContainer
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: 'auto',
+                overflowX: 'auto',
+                overscrollBehavior: 'contain',
+              }}
+            >
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Producto</TableCell>
+                    <TableCell align="right">Precio</TableCell>
+                    <TableCell align="right">Cantidad</TableCell>
+                    <TableCell align="right">Total</TableCell>
+                    <TableCell align="center">Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {cartItems.length > 0 ? (
+                    cartItems.map(item => (
+                      <TableRow key={item.id} hover>
+                        <TableCell>{item.product_name || item.product_id}</TableCell>
+                        <TableCell align="right">${item.price.toFixed(2)}</TableCell>
+                        <TableCell align="right">{item.quantity}</TableCell>
+                        <TableCell align="right">${item.total.toFixed(2)}</TableCell>
+                        <TableCell align="center">
+                          <Stack direction="row" spacing={1} justifyContent="center">
+                            <IconButton color="warning" size="small" onClick={() => openEditQuantityDialog(item)}>
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton color="error" size="small" onClick={() => handleRemoveItem(item)}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                        <Typography color="text.secondary">Aún no hay productos en el carrito.</Typography>
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                      <Typography color="text.secondary">Aún no hay productos en el carrito.</Typography>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Paper>
 
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-          <Stack spacing={0.5} sx={{ minWidth: 260 }}>
+        <Paper elevation={1} sx={{ p: 2, display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%' }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Resumen
+          </Typography>
+
+          <Stack spacing={1} sx={{ height: '100%' }}>
             <Typography variant="body2">Subtotal: ${summary.subtotal.toFixed(2)}</Typography>
             <Typography variant="body2">Impuestos: ${summary.tax.toFixed(2)}</Typography>
             <Typography variant="body2">Descuento: ${summary.discount.toFixed(2)}</Typography>
@@ -172,19 +297,69 @@ export default function PosPage() {
             <Typography variant="caption" color="text.secondary">
               Estado pago carrito: {cart?.payment_status || 'pending'}
             </Typography>
+
             <Button
               variant="contained"
               color="success"
               startIcon={<CheckCircleIcon />}
               onClick={openCheckoutModal}
               disabled={cartItems.length === 0 || summary.total <= 0}
-              sx={{ mt: 1 }}
+              fullWidth
+              sx={{ mt: 'auto' }}
             >
               Completar venta
             </Button>
           </Stack>
-        </Box>
-      </Paper>
+        </Paper>
+      </Box>
+
+      <Dialog open={quickCustomerDialogOpen} onClose={closeQuickCustomerDialog} fullWidth maxWidth="sm">
+        <DialogTitle>Alta rápida de cliente</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              autoFocus
+              fullWidth
+              label="Nombre"
+              required
+              value={quickCustomerForm.name}
+              onChange={(event) => handleQuickCustomerFieldChange('name', event.target.value)}
+            />
+
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              value={quickCustomerForm.email}
+              onChange={(event) => handleQuickCustomerFieldChange('email', event.target.value)}
+            />
+
+            <TextField
+              fullWidth
+              label="Teléfono"
+              value={quickCustomerForm.phone}
+              onChange={(event) => handleQuickCustomerFieldChange('phone', event.target.value)}
+            />
+
+            <TextField
+              fullWidth
+              label="Dirección"
+              multiline
+              minRows={2}
+              value={quickCustomerForm.address}
+              onChange={(event) => handleQuickCustomerFieldChange('address', event.target.value)}
+            />
+
+            {quickCustomerError && <Alert severity="error">{quickCustomerError}</Alert>}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeQuickCustomerDialog} disabled={quickCustomerLoading}>Cancelar</Button>
+          <Button variant="contained" onClick={handleCreateQuickCustomer} disabled={quickCustomerLoading}>
+            {quickCustomerLoading ? <CircularProgress size={20} /> : 'Guardar y seleccionar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={isProductModalOpen} onClose={() => setProductModalOpen(false)} fullWidth maxWidth="md">
         <DialogTitle>Buscar productos</DialogTitle>

@@ -1,8 +1,16 @@
 import { useMemo, useState } from 'react';
 import { usePosCart } from './usePosCartController';
 import { getErrorMessage } from '../utils/error';
+import { buildContactPayload, validateContactForm, type ContactFormData } from '../models/contact';
 import { filterPosProducts, parsePositiveInteger } from '../models/pos';
 import type { BillAccount, CartItem, PaymentMethod, PosProduct, UUID } from '../types/models';
+
+const INITIAL_QUICK_CUSTOMER_FORM: ContactFormData = {
+  name: '',
+  email: '',
+  phone: '',
+  address: '',
+};
 
 export function usePosController() {
   const {
@@ -12,14 +20,17 @@ export function usePosController() {
     products,
     cart,
     cartItems,
+    pendingCarts,
     selectedContactId,
     summary,
+    loadPendingCart,
     handleSelectContact,
     addProductToCart,
     updateItemQuantity,
     removeItem,
     getBillAccountsByPaymentMethod,
     completeSale,
+    createCustomer,
     resetCurrentSale,
   } = usePosCart();
 
@@ -38,6 +49,13 @@ export function usePosController() {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [quickCustomerDialogOpen, setQuickCustomerDialogOpen] = useState(false);
+  const [quickCustomerForm, setQuickCustomerForm] = useState<ContactFormData>(INITIAL_QUICK_CUSTOMER_FORM);
+  const [quickCustomerError, setQuickCustomerError] = useState<string | null>(null);
+  const [quickCustomerLoading, setQuickCustomerLoading] = useState(false);
+  const [pendingCartLoadingId, setPendingCartLoadingId] = useState<UUID | ''>('');
+
+  const activeCartId = cart?.id || '';
 
   const filteredProducts = useMemo(
     () => filterPosProducts(products, productSearch),
@@ -168,6 +186,76 @@ export function usePosController() {
     }
   };
 
+  const openQuickCustomerDialog = () => {
+    setQuickCustomerForm(INITIAL_QUICK_CUSTOMER_FORM);
+    setQuickCustomerError(null);
+    setQuickCustomerDialogOpen(true);
+  };
+
+  const closeQuickCustomerDialog = () => {
+    if (quickCustomerLoading) {
+      return;
+    }
+    setQuickCustomerDialogOpen(false);
+    setQuickCustomerError(null);
+  };
+
+  const handleQuickCustomerFieldChange = (field: keyof ContactFormData, value: string) => {
+    setQuickCustomerForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const handleCreateQuickCustomer = async () => {
+    const validationError = validateContactForm(quickCustomerForm);
+    if (validationError) {
+      setQuickCustomerError(validationError);
+      return;
+    }
+
+    try {
+      setQuickCustomerLoading(true);
+      setQuickCustomerError(null);
+
+      const payload = buildContactPayload(quickCustomerForm, 'customer');
+      await createCustomer(payload);
+
+      setQuickCustomerDialogOpen(false);
+      setSuccessMessage('Cliente creado y seleccionado en la venta actual.');
+    } catch (err) {
+      setQuickCustomerError(getErrorMessage(err));
+      console.error(err);
+    } finally {
+      setQuickCustomerLoading(false);
+    }
+  };
+
+  const handleLoadPendingCart = async (cartId: UUID) => {
+    if (!cartId || cartId === activeCartId) {
+      return;
+    }
+
+    try {
+      setPendingCartLoadingId(cartId);
+      setCheckoutError(null);
+      setSuccessMessage(null);
+      await loadPendingCart(cartId);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPendingCartLoadingId('');
+    }
+  };
+
+  const handleStartNewCart = () => {
+    setCheckoutModalOpen(false);
+    setCheckoutError(null);
+    setSuccessMessage(null);
+    setPendingCartLoadingId('');
+    resetCurrentSale();
+  };
+
   return {
     loading,
     error,
@@ -176,8 +264,10 @@ export function usePosController() {
     filteredProducts,
     cart,
     cartItems,
+    pendingCarts,
     selectedContactId,
     summary,
+    activeCartId,
 
     isProductModalOpen,
     setProductModalOpen,
@@ -197,6 +287,11 @@ export function usePosController() {
     checkoutError,
     checkoutLoading,
     successMessage,
+    quickCustomerDialogOpen,
+    quickCustomerForm,
+    quickCustomerError,
+    quickCustomerLoading,
+    pendingCartLoadingId,
 
     handleSelectContact,
     openAddQuantityDialog,
@@ -207,5 +302,11 @@ export function usePosController() {
     openCheckoutModal,
     handleChangePaymentMethod,
     handleConfirmCheckout,
+    openQuickCustomerDialog,
+    closeQuickCustomerDialog,
+    handleQuickCustomerFieldChange,
+    handleCreateQuickCustomer,
+    handleLoadPendingCart,
+    handleStartNewCart,
   };
 }

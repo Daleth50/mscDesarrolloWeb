@@ -6,7 +6,6 @@ import {
   Toolbar,
   Typography
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import ContactFormPage from './pages/ContactFormPage';
 import ContactsPage from './pages/ContactsPage';
@@ -34,12 +33,12 @@ import RoleRoute from './components/RoleRoute';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProfilePage from './pages/ProfilePage';
 
-const StyledFooter = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  borderTop: `1px solid ${theme.palette.divider}`,
-  marginTop: 'auto',
-  padding: theme.spacing(3, 0),
-}));
+const NAV_ITEMS = [
+  { label: 'Inicio', to: '/' },
+  { label: 'Punto de venta', to: '/pos' },
+  { label: 'Clientes', to: '/contacts' },
+  { label: 'Productos', to: '/products' },
+];
 
 function AppLayout() {
   const { isAuthenticated } = useAuth();
@@ -47,9 +46,18 @@ function AppLayout() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Header */}
-      <AppBar position="static" color="default" elevation={1}>
-        <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ justifyContent: 'space-between', gap: 2 }}>
+      <AppBar position="sticky" color="transparent" elevation={0}>
+        <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
+          <Toolbar
+            disableGutters
+            sx={{
+              minHeight: 72,
+              justifyContent: 'space-between',
+              gap: 1.5,
+              flexWrap: 'wrap',
+              py: 1,
+            }}
+          >
             <Link to="/" style={{ textDecoration: 'none' }}>
               <Typography
                 variant="h6"
@@ -57,58 +65,31 @@ function AppLayout() {
                 sx={{
                   fontWeight: 700,
                   color: 'primary.main',
-                  fontSize: '1.25rem',
+                  fontSize: '1.3rem',
+                  letterSpacing: '-0.02em',
                 }}
               >
                 AppWeb
               </Typography>
             </Link>
             {isAuthenticated && (
-              <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                <Button
-                  component={Link}
-                  to="/"
-                  color="inherit"
-                  sx={{
-                    textDecoration: 'none',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  Inicio
-                </Button>
-                <Button
-                  component={Link}
-                  to="/pos"
-                  color="inherit"
-                  sx={{
-                    textDecoration: 'none',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  Punto de venta
-                </Button>
-                <Button
-                  component={Link}
-                  to="/contacts"
-                  color="inherit"
-                  sx={{
-                    textDecoration: 'none',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  Clientes
-                </Button>
-                <Button
-                  component={Link}
-                  to="/products"
-                  color="inherit"
-                  sx={{
-                    textDecoration: 'none',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  Productos
-                </Button>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                {NAV_ITEMS.map((item) => (
+                  <Button
+                    key={item.to}
+                    component={Link}
+                    to={item.to}
+                    color="inherit"
+                    sx={{
+                      textDecoration: 'none',
+                      borderRadius: 2,
+                      px: 1.5,
+                      '&:hover': { color: 'primary.main', bgcolor: 'action.hover' },
+                    }}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
                 <AuthStatus />
               </Box>
             )}
@@ -116,67 +97,65 @@ function AppLayout() {
         </Container>
       </AppBar>
 
-        {/* Main content */}
-        <Box component="main" sx={{ flex: 1 }}>
-          <Container maxWidth="lg" sx={{ py: 6 }}>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<HomePage />} />
+      {/* Main content */}
+      <Box component="main" sx={{ flex: 1, width: '100%', py: { xs: 2, md: 4 } }}>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<HomePage />} />
 
-                {/* Products */}
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/products/:id" element={<ProductDetailPage />} />
-                <Route element={<RoleRoute allow={['admin']} />}>
-                  <Route path="/products/new" element={<ProductFormPage />} />
-                  <Route path="/products/:id/edit" element={<ProductFormPage />} />
-                </Route>
+            {/* Products */}
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/products/:id" element={<ProductDetailPage />} />
+            <Route element={<RoleRoute allow={['admin']} />}>
+              <Route path="/products/new" element={<ProductFormPage />} />
+              <Route path="/products/:id/edit" element={<ProductFormPage />} />
+            </Route>
 
-                {/* Categories */}
-                <Route path="/categories" element={<CategoriesPage />} />
+            {/* Categories */}
+            <Route path="/categories" element={<CategoriesPage />} />
 
-                {/* Contacts */}
-                <Route path="/contacts" element={<ContactsPage />} />
-                <Route path="/contacts/new" element={<ContactFormPage />} />
-                <Route path="/contacts/:id/edit" element={<ContactFormPage />} />
+            {/* Contacts */}
+            <Route path="/contacts" element={<ContactsPage />} />
+            <Route path="/contacts/new" element={<ContactFormPage />} />
+            <Route path="/contacts/:id/edit" element={<ContactFormPage />} />
 
-                {/* Suppliers */}
-                <Route path="/suppliers" element={<SuppliersPage />} />
-                <Route path="/suppliers/new" element={<SupplierFormPage />} />
+            {/* Suppliers */}
+            <Route path="/suppliers" element={<SuppliersPage />} />
+            <Route path="/suppliers/new" element={<SupplierFormPage />} />
 
-                {/* Orders */}
-                <Route path="/orders" element={<OrdersPage />} />
-                <Route path="/orders/new" element={<OrderFormPage />} />
-                <Route path="/pos" element={<PosPage />} />
-                <Route path="/purchases" element={<PurchasesPage />} />
+            {/* Orders */}
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/orders/new" element={<OrderFormPage />} />
+            <Route path="/pos" element={<PosPage />} />
+            <Route path="/purchases" element={<PurchasesPage />} />
 
-                {/* Users */}
-                <Route element={<RoleRoute allow={['admin']} />}>
-                  <Route path="/users" element={<UsersPage />} />
-                  <Route path="/users/new" element={<UserFormPage />} />
-                  <Route path="/users/:id/edit" element={<UserFormPage />} />
-                  <Route path="/bill-accounts" element={<BillAccountsPage />} />
-                  <Route path="/bill-accounts/new" element={<BillAccountFormPage />} />
-                  <Route path="/bill-accounts/:id/edit" element={<BillAccountFormPage />} />
-                </Route>
+            {/* Users */}
+            <Route element={<RoleRoute allow={['admin']} />}>
+              <Route path="/users" element={<UsersPage />} />
+              <Route path="/users/new" element={<UserFormPage />} />
+              <Route path="/users/:id/edit" element={<UserFormPage />} />
+              <Route path="/bill-accounts" element={<BillAccountsPage />} />
+              <Route path="/bill-accounts/new" element={<BillAccountFormPage />} />
+              <Route path="/bill-accounts/:id/edit" element={<BillAccountFormPage />} />
+            </Route>
 
-                {/* Profile */}
-                <Route path="/profile" element={<ProfilePage />} />
-              </Route>
-            </Routes>
-          </Container>
-        </Box>
+            {/* Profile */}
+            <Route path="/profile" element={<ProfilePage />} />
+          </Route>
+        </Routes>
+      </Box>
 
-        {/* Footer */}
-        <StyledFooter component="footer">
-          <Container maxWidth="lg">
-            <Typography variant="body2" color="textSecondary" align="center">
-              &copy; 2026 AppWeb. Todos los derechos reservados.
-            </Typography>
-          </Container>
-        </StyledFooter>
+      {/* Footer */}
+      <Box component="footer" sx={{ borderTop: '1px solid', borderColor: 'divider', py: 3, mt: 'auto' }}>
+        <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
+          <Typography variant="body2" color="text.secondary" align="center">
+            &copy; 2026 AppWeb. Todos los derechos reservados.
+          </Typography>
+        </Container>
+      </Box>
     </Box>
   );
 }

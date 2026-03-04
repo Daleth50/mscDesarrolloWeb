@@ -86,7 +86,7 @@ export default function HomePage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" sx={{ mb: 2, fontWeight: 700 }}>
           Bienvenido a AppWeb

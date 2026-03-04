@@ -84,6 +84,17 @@ class OrderViewModel:
         return contact
 
     @staticmethod
+    def _validate_customer_contact(contact_id):
+        if not contact_id:
+            raise ValueError("Customer is required")
+        contact = Contact.query.get(contact_id)
+        if not contact:
+            raise ValueError("Customer not found")
+        if contact.kind != "customer":
+            raise ValueError("Selected contact is not a customer")
+        return contact
+
+    @staticmethod
     def _validate_pos_payment_method(payment_method):
         normalized = OrderViewModel._clean_str(payment_method).lower()
         if not normalized:
@@ -422,6 +433,8 @@ class OrderViewModel:
         items = OrderItem.query.filter(OrderItem.order_id == cart.id).all()
         if not items:
             raise ValueError("Cart has no items")
+
+        OrderViewModel._validate_customer_contact(cart.contact_id)
 
         payment_method = OrderViewModel._validate_pos_payment_method(form_data.get("payment_method"))
         bill_account_id = OrderViewModel._clean_str(form_data.get("bill_account_id", ""))

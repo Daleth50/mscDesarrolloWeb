@@ -57,6 +57,10 @@ export function usePosController() {
 
   const activeCartId = cart?.id || '';
 
+  const getPaymentMethodLabel = (method: PaymentMethod) => (
+    method === 'cash' ? 'efectivo' : 'transferencia'
+  );
+
   const filteredProducts = useMemo(
     () => filterPosProducts(products, productSearch),
     [products, productSearch]
@@ -129,7 +133,19 @@ export function usePosController() {
   const loadBillAccountsForMethod = async (method: PaymentMethod) => {
     const accounts = await getBillAccountsByPaymentMethod(method);
     setBillAccounts(accounts);
-    setSelectedBillAccountId(accounts[0]?.id || '');
+    setSelectedBillAccountId((current) => {
+      if (accounts.length === 0) {
+        return '';
+      }
+      if (accounts.length === 1) {
+        return accounts[0].id;
+      }
+      if (current && accounts.some((account) => account.id === current)) {
+        return current;
+      }
+      return accounts[0].id;
+    });
+    return accounts;
   };
 
   const openCheckoutModal = async () => {
@@ -137,16 +153,26 @@ export function usePosController() {
       setCheckoutError('Agrega productos antes de completar la venta.');
       return;
     }
+
+    if (!selectedContactId) {
+      setCheckoutError('Selecciona un cliente antes de completar la venta.');
+      return;
+    }
+
     if ((summary.total || 0) <= 0) {
       setCheckoutError('El total de venta debe ser mayor a 0.');
       return;
     }
 
     try {
-      setCheckoutError(null);
       setSuccessMessage(null);
       setPaymentMethod('cash');
-      await loadBillAccountsForMethod('cash');
+      const accounts = await loadBillAccountsForMethod('cash');
+      if (accounts.length === 0) {
+        setCheckoutError('No hay cuentas de banco disponibles para efectivo.');
+      } else {
+        setCheckoutError(null);
+      }
       setCheckoutModalOpen(true);
     } catch (err) {
       setCheckoutError(getErrorMessage(err));
@@ -157,8 +183,12 @@ export function usePosController() {
   const handleChangePaymentMethod = async (method: PaymentMethod) => {
     try {
       setPaymentMethod(method);
-      setCheckoutError(null);
-      await loadBillAccountsForMethod(method);
+      const accounts = await loadBillAccountsForMethod(method);
+      if (accounts.length === 0) {
+        setCheckoutError(`No hay cuentas de banco disponibles para ${getPaymentMethodLabel(method)}.`);
+      } else {
+        setCheckoutError(null);
+      }
     } catch (err) {
       setCheckoutError(getErrorMessage(err));
       console.error(err);
@@ -166,6 +196,16 @@ export function usePosController() {
   };
 
   const handleConfirmCheckout = async () => {
+    if (!selectedContactId) {
+      setCheckoutError('Selecciona un cliente antes de completar la venta.');
+      return;
+    }
+
+    if (billAccounts.length === 0) {
+      setCheckoutError(`No hay cuentas de banco disponibles para ${getPaymentMethodLabel(paymentMethod)}.`);
+      return;
+    }
+
     if (!selectedBillAccountId) {
       setCheckoutError('Selecciona una cuenta de banco para registrar la transacción.');
       return;
@@ -282,6 +322,8 @@ export function usePosController() {
     setCheckoutModalOpen,
     paymentMethod,
     billAccounts,
+    hasSingleBillAccount: billAccounts.length === 1,
+    hasMultipleBillAccounts: billAccounts.length > 1,
     selectedBillAccountId,
     setSelectedBillAccountId,
     checkoutError,

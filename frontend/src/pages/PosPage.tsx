@@ -59,6 +59,8 @@ export default function PosPage() {
     setCheckoutModalOpen,
     paymentMethod,
     billAccounts,
+    hasSingleBillAccount,
+    hasMultipleBillAccounts,
     selectedBillAccountId,
     setSelectedBillAccountId,
     checkoutError,
@@ -303,12 +305,18 @@ export default function PosPage() {
               color="success"
               startIcon={<CheckCircleIcon />}
               onClick={openCheckoutModal}
-              disabled={cartItems.length === 0 || summary.total <= 0}
+              disabled={cartItems.length === 0 || summary.total <= 0 || !selectedContactId}
               fullWidth
               sx={{ mt: 'auto' }}
             >
               Completar venta
             </Button>
+
+            {!selectedContactId && (
+              <Typography variant="caption" color="error.main">
+                Debes seleccionar un cliente para completar la venta.
+              </Typography>
+            )}
           </Stack>
         </Paper>
       </Box>
@@ -458,21 +466,35 @@ export default function PosPage() {
               </Select>
             </FormControl>
 
-            <FormControl fullWidth>
-              <InputLabel id="bill-account-label">Cuenta de banco</InputLabel>
-              <Select
-                labelId="bill-account-label"
-                value={selectedBillAccountId}
-                label="Cuenta de banco"
-                onChange={(event) => setSelectedBillAccountId(event.target.value as UUID | '')}
-              >
-                {billAccounts.map((account) => (
-                  <MenuItem key={account.id} value={account.id}>
-                    {account.name} ({account.type})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            {hasMultipleBillAccounts && (
+              <FormControl fullWidth>
+                <InputLabel id="bill-account-label">Cuenta de banco</InputLabel>
+                <Select
+                  labelId="bill-account-label"
+                  value={selectedBillAccountId}
+                  label="Cuenta de banco"
+                  onChange={(event) => setSelectedBillAccountId(event.target.value as UUID | '')}
+                >
+                  {billAccounts.map((account) => (
+                    <MenuItem key={account.id} value={account.id}>
+                      {account.name} ({account.type})
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
+            {hasSingleBillAccount && billAccounts[0] && (
+              <Alert severity="info">
+                Se usará automáticamente la cuenta: {billAccounts[0].name} ({billAccounts[0].type})
+              </Alert>
+            )}
+
+            {billAccounts.length === 0 && (
+              <Alert severity="warning">
+                No hay cuentas de banco disponibles para este método de pago.
+              </Alert>
+            )}
 
             <Typography variant="body2" color="text.secondary">
               Total de venta: ${summary.total.toFixed(2)}
@@ -481,7 +503,11 @@ export default function PosPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCheckoutModalOpen(false)}>Cancelar</Button>
-          <Button variant="contained" onClick={handleConfirmCheckout} disabled={checkoutLoading}>
+          <Button
+            variant="contained"
+            onClick={handleConfirmCheckout}
+            disabled={checkoutLoading || !selectedContactId || billAccounts.length === 0 || !selectedBillAccountId}
+          >
             {checkoutLoading ? <CircularProgress size={20} /> : 'Confirmar venta'}
           </Button>
         </DialogActions>

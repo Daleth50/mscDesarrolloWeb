@@ -99,7 +99,7 @@ export default function PosPage() {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        py: 0,
+        py: 4,
       }}
     >
       <Paper elevation={2} sx={{ p: 3, mb: 2, flexShrink: 0 }}>

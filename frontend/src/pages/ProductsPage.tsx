@@ -66,6 +66,7 @@ export default function ProductsPage() {
               <TableCell>SKU</TableCell>
               <TableCell align="right">Precio</TableCell>
               <TableCell align="right">Costo</TableCell>
+              <TableCell align="right">Stock actual</TableCell>
               <TableCell>Categoría</TableCell>
               <TableCell align="center">Acciones</TableCell>
             </TableRow>
@@ -78,6 +79,7 @@ export default function ProductsPage() {
                   <TableCell>{product.sku || '-'}</TableCell>
                   <TableCell align="right">${(product.price ?? 0).toFixed(2)}</TableCell>
                   <TableCell align="right">${(product.cost ?? 0).toFixed(2)}</TableCell>
+                  <TableCell align="right">{(product.stock_available ?? 0).toFixed(2)}</TableCell>
                   <TableCell>{product.category_name || '-'}</TableCell>
                   <TableCell align="center">
                     <Stack direction="row" spacing={1} justifyContent="center">

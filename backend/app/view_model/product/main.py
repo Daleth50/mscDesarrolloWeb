@@ -1,5 +1,7 @@
+from sqlalchemy import func
 from app.database import db
 from app.models.inventory.product import Product, ProductTaxonomy, Taxonomy
+from app.models.pos import Inventory
 
 class ProductViewModel:
     @staticmethod
@@ -19,11 +21,31 @@ class ProductViewModel:
         }
 
     @staticmethod
+    def _get_stock_map(product_ids):
+        if not product_ids:
+            return {}
+
+        rows = (
+            db.session.query(
+                Inventory.product_id,
+                func.coalesce(func.sum(Inventory.quantity), 0),
+            )
+            .filter(Inventory.product_id.in_(product_ids))
+            .group_by(Inventory.product_id)
+            .all()
+        )
+
+        stock_map = {product_id: float(stock or 0) for product_id, stock in rows}
+        for product_id in product_ids:
+            stock_map.setdefault(product_id, 0.0)
+        return stock_map
+
+    @staticmethod
     def list_products():
         return ProductViewModel.get_all_products()
 
     @staticmethod
-    def _serialize_product(product, category=None):
+    def _serialize_product(product, category=None, stock_available=0.0):
         category_name = None
         category_id = None
         if category:
@@ -39,6 +61,7 @@ class ProductViewModel:
             "category_name": category_name,
             "tax_rate": float(product.tax_rate) if product.tax_rate is not None else None,
             "category_id": category_id,
+            "stock_available": float(stock_available) if stock_available is not None else 0.0,
             "attribute_combinations": product.attribute_combinations,
         }
 
@@ -80,11 +103,15 @@ class ProductViewModel:
     @staticmethod
     def get_all_products():
         products = Product.query.all()
-        category_map = ProductViewModel._get_product_category_map(
-            [product.id for product in products]
-        )
+        product_ids = [product.id for product in products]
+        category_map = ProductViewModel._get_product_category_map(product_ids)
+        stock_map = ProductViewModel._get_stock_map(product_ids)
         return [
-            ProductViewModel._serialize_product(product, category_map.get(product.id))
+            ProductViewModel._serialize_product(
+                product,
+                category_map.get(product.id),
+                stock_map.get(product.id, 0.0),
+            )
             for product in products
         ]
 
@@ -187,7 +214,12 @@ class ProductViewModel:
             return None
 
         category_map = ProductViewModel._get_product_category_map([product.id])
-        return ProductViewModel._serialize_product(product, category_map.get(product.id))
+        stock_map = ProductViewModel._get_stock_map([product.id])
+        return ProductViewModel._serialize_product(
+            product,
+            category_map.get(product.id),
+            stock_map.get(product.id, 0.0),
+        )
     
     @staticmethod
     def create_product(form_data):

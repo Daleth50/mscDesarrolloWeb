@@ -56,7 +56,6 @@ const theme = createTheme({
       },
       styleOverrides: {
         root: ({ theme: themeParam }) => ({
-          border: `1px solid ${alpha(themeParam.palette.divider, 0.9)}`,
           boxShadow: `0 10px 30px ${alpha(themeParam.palette.common.black, 0.05)}`,
           backgroundImage: 'none',
         }),
@@ -68,7 +67,6 @@ const theme = createTheme({
       },
       styleOverrides: {
         root: ({ theme: themeParam }) => ({
-          border: `1px solid ${alpha(themeParam.palette.divider, 0.9)}`,
           boxShadow: `0 10px 24px ${alpha(themeParam.palette.common.black, 0.05)}`,
         }),
       },
@@ -103,7 +101,6 @@ const theme = createTheme({
         root: ({ theme: themeParam }) => ({
           backgroundColor: alpha(themeParam.palette.background.paper, 0.9),
           backdropFilter: 'blur(8px)',
-          borderBottom: `1px solid ${themeParam.palette.divider}`,
         }),
       },
     },

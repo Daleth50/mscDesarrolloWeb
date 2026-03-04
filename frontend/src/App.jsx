@@ -43,7 +43,7 @@ const NAV_ITEMS = [
 function AppLayout() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
-  const isPosRoute = location.pathname === '/pos';
+  const isImmersiveRoute = location.pathname === '/pos' || location.pathname === '/purchases';
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
@@ -106,8 +106,8 @@ function AppLayout() {
           flex: 1,
           minHeight: 0,
           width: '100%',
-          py: isPosRoute ? 0 : { xs: 2, md: 4 },
-          overflow: isPosRoute ? 'hidden' : 'auto',
+          py: isImmersiveRoute ? 0 : { xs: 2, md: 4 },
+          overflow: isImmersiveRoute ? 'hidden' : 'auto',
         }}
       >
         <Routes>
@@ -160,7 +160,14 @@ function AppLayout() {
       </Box>
 
       {/* Footer */}
-      <Box component="footer" sx={{ borderTop: '1px solid', borderColor: 'divider', py: 3, mt: 'auto' }}>
+      <Box
+        component="footer"
+        sx={(theme) => ({
+          boxShadow: `inset 0 1px 0 ${theme.palette.action.selected}`,
+          py: 3,
+          mt: 'auto',
+        })}
+      >
         <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
           <Typography variant="body2" color="text.secondary" align="center">
             &copy; 2026 AppWeb. Todos los derechos reservados.

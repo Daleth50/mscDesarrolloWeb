@@ -24,6 +24,7 @@ export interface Product {
   sku?: string | null;
   price: number;
   cost: number;
+  stock_available?: number | null;
   tax_rate?: number | null;
   category_name?: string | null;
   category_id?: UUID | null;

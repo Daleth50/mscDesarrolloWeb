@@ -30,9 +30,17 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { buildContactPayload, validateContactForm, type ContactFormData } from '../models/contact';
 import { getErrorMessage } from '../utils/error';
 import type { CartItem, PosProduct, UUID } from '../types/models';
 import { usePurchaseCart } from '../controllers/usePurchaseCartController';
+
+const INITIAL_QUICK_SUPPLIER_FORM: ContactFormData = {
+  name: '',
+  email: '',
+  phone: '',
+  address: '',
+};
 
 export default function PurchasesPage() {
   const {
@@ -42,13 +50,16 @@ export default function PurchasesPage() {
     products,
     cart,
     cartItems,
+    pendingPurchaseCarts,
     selectedSupplierId,
     summary,
+    loadPendingCart,
     handleSelectSupplier,
     addProductToCart,
     updateItemQuantity,
     removeItem,
     completePurchase,
+    createSupplier,
     resetCurrentPurchase,
   } = usePurchaseCart();
 
@@ -61,6 +72,17 @@ export default function PurchasesPage() {
   const [quantityInput, setQuantityInput] = useState('1');
   const [dialogError, setDialogError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [pendingCartLoadingId, setPendingCartLoadingId] = useState<UUID | ''>('');
+  const [quickSupplierDialogOpen, setQuickSupplierDialogOpen] = useState(false);
+  const [quickSupplierForm, setQuickSupplierForm] = useState<ContactFormData>(INITIAL_QUICK_SUPPLIER_FORM);
+  const [quickSupplierError, setQuickSupplierError] = useState<string | null>(null);
+  const [quickSupplierLoading, setQuickSupplierLoading] = useState(false);
+
+  const activeCartId = cart?.id || '';
+
+  const getSupplierNameById = (supplierId?: UUID | null) => (
+    suppliers.find((supplier) => supplier.id === supplierId)?.name || 'Sin proveedor'
+  );
 
   const filteredProducts = useMemo(() => {
     const term = productSearch.trim().toLowerCase();
@@ -162,9 +184,90 @@ export default function PurchasesPage() {
     }
   };
 
+  const handleLoadPendingPurchaseCart = async (cartId: UUID) => {
+    if (!cartId || cartId === activeCartId) {
+      return;
+    }
+
+    try {
+      setPendingCartLoadingId(cartId);
+      setDialogError(null);
+      setSuccessMessage(null);
+      await loadPendingCart(cartId);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPendingCartLoadingId('');
+    }
+  };
+
+  const handleStartNewPurchaseCart = () => {
+    setProductModalOpen(false);
+    setQuantityDialogOpen(false);
+    setDialogError(null);
+    setSuccessMessage(null);
+    setPendingCartLoadingId('');
+    resetCurrentPurchase();
+  };
+
+  const openQuickSupplierDialog = () => {
+    setQuickSupplierForm(INITIAL_QUICK_SUPPLIER_FORM);
+    setQuickSupplierError(null);
+    setQuickSupplierDialogOpen(true);
+  };
+
+  const closeQuickSupplierDialog = () => {
+    if (quickSupplierLoading) {
+      return;
+    }
+    setQuickSupplierDialogOpen(false);
+    setQuickSupplierError(null);
+  };
+
+  const handleQuickSupplierFieldChange = (field: keyof ContactFormData, value: string) => {
+    setQuickSupplierForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const handleCreateQuickSupplier = async () => {
+    const validationError = validateContactForm(quickSupplierForm);
+    if (validationError) {
+      setQuickSupplierError(validationError);
+      return;
+    }
+
+    try {
+      setQuickSupplierLoading(true);
+      setQuickSupplierError(null);
+
+      const payload = buildContactPayload(quickSupplierForm, 'supplier');
+      await createSupplier(payload);
+
+      setQuickSupplierDialogOpen(false);
+      setDialogError(null);
+      setSuccessMessage('Proveedor creado y seleccionado en la compra actual.');
+    } catch (err) {
+      setQuickSupplierError(getErrorMessage(err));
+      console.error(err);
+    } finally {
+      setQuickSupplierLoading(false);
+    }
+  };
+
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        py: 0,
+      }}
+    >
+      <Paper elevation={2} sx={{ p: 3, mb: 2, flexShrink: 0 }}>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }}>
           <FormControl fullWidth>
             <InputLabel id="purchase-supplier-label">Proveedor</InputLabel>
@@ -183,93 +286,242 @@ export default function PurchasesPage() {
             </Select>
           </FormControl>
 
-          <Button
-            variant="contained"
-            startIcon={<SearchIcon />}
-            onClick={() => setProductModalOpen(true)}
-            sx={{ minWidth: 220 }}
-          >
-            Buscar productos
-          </Button>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={openQuickSupplierDialog}
+              sx={{ minWidth: 220 }}
+            >
+              Alta rápida proveedor
+            </Button>
 
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<CheckCircleIcon />}
-            onClick={handleCompletePurchase}
-            sx={{ minWidth: 260 }}
-          >
-            Registrar compra
-          </Button>
+            <Button
+              variant="contained"
+              startIcon={<SearchIcon />}
+              onClick={() => setProductModalOpen(true)}
+              sx={{ minWidth: 220 }}
+            >
+              Buscar productos
+            </Button>
+          </Stack>
         </Stack>
       </Paper>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {dialogError && <Alert severity="error" sx={{ mb: 2 }}>{dialogError}</Alert>}
-      {successMessage && <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert>}
+      <Box sx={{ flexShrink: 0 }}>
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {dialogError && <Alert severity="error" sx={{ mb: 2 }}>{dialogError}</Alert>}
+        {successMessage && <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert>}
+      </Box>
 
-      <Paper elevation={1} sx={{ p: 2 }}>
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-          Productos de la compra
-        </Typography>
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          display: 'grid',
+          gap: 2,
+          alignItems: 'stretch',
+          gridTemplateColumns: { xs: '1fr', lg: '280px minmax(0, 1fr) 320px' },
+        }}
+      >
+        <Paper
+          elevation={1}
+          sx={{ p: 2, display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%', overflow: 'hidden' }}
+        >
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Carritos de compra
+          </Typography>
 
-        {loading && cartItems.length === 0 ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight={140}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Producto</TableCell>
-                  <TableCell align="right">Costo</TableCell>
-                  <TableCell align="right">Cantidad</TableCell>
-                  <TableCell align="right">Total</TableCell>
-                  <TableCell align="center">Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {cartItems.length > 0 ? (
-                  cartItems.map((item) => (
-                    <TableRow key={item.id} hover>
-                      <TableCell>{item.product_name || item.product_id}</TableCell>
-                      <TableCell align="right">${item.price.toFixed(2)}</TableCell>
-                      <TableCell align="right">{item.quantity}</TableCell>
-                      <TableCell align="right">${item.total.toFixed(2)}</TableCell>
-                      <TableCell align="center">
-                        <Stack direction="row" spacing={1} justifyContent="center">
-                          <IconButton color="warning" size="small" onClick={() => openEditQuantityDialog(item)}>
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton color="error" size="small" onClick={() => handleRemoveItem(item)}>
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Stack>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleStartNewPurchaseCart}
+            sx={{ mb: 1.5 }}
+          >
+            Nuevo carrito
+          </Button>
+
+          <Stack spacing={1} sx={{ flex: 1, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', pr: 0.5 }}>
+            {pendingPurchaseCarts.length > 0 ? (
+              pendingPurchaseCarts.map((pendingCart) => {
+                const isActive = activeCartId === pendingCart.id;
+                const isLoadingItem = pendingCartLoadingId === pendingCart.id;
+
+                return (
+                  <Button
+                    key={pendingCart.id}
+                    variant={isActive ? 'contained' : 'outlined'}
+                    color={isActive ? 'primary' : 'inherit'}
+                    onClick={() => handleLoadPendingPurchaseCart(pendingCart.id)}
+                    disabled={isLoadingItem}
+                    sx={{
+                      justifyContent: 'flex-start',
+                      textTransform: 'none',
+                      px: 1.5,
+                      py: 1,
+                    }}
+                  >
+                    <Stack spacing={0.25} alignItems="flex-start">
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        Compra {pendingCart.id.slice(0, 8)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Proveedor: {getSupplierNameById(pendingCart.contact_id)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Total: ${(pendingCart.total || 0).toFixed(2)}
+                      </Typography>
+                      {isLoadingItem && <Typography variant="caption">Cargando carrito...</Typography>}
+                    </Stack>
+                  </Button>
+                );
+              })
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No hay carritos de compra pendientes.
+              </Typography>
+            )}
+          </Stack>
+        </Paper>
+
+        <Paper
+          elevation={1}
+          sx={{ p: 2, display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%', overflow: 'hidden' }}
+        >
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Productos de la compra
+          </Typography>
+
+          {loading && cartItems.length === 0 ? (
+            <Box display="flex" justifyContent="center" alignItems="center" sx={{ flex: 1, minHeight: 140 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <TableContainer
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: 'auto',
+                overflowX: 'auto',
+                overscrollBehavior: 'contain',
+              }}
+            >
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Producto</TableCell>
+                    <TableCell align="right">Costo</TableCell>
+                    <TableCell align="right">Cantidad</TableCell>
+                    <TableCell align="right">Total</TableCell>
+                    <TableCell align="center">Acciones</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {cartItems.length > 0 ? (
+                    cartItems.map((item) => (
+                      <TableRow key={item.id} hover>
+                        <TableCell>{item.product_name || item.product_id}</TableCell>
+                        <TableCell align="right">${item.price.toFixed(2)}</TableCell>
+                        <TableCell align="right">{item.quantity}</TableCell>
+                        <TableCell align="right">${item.total.toFixed(2)}</TableCell>
+                        <TableCell align="center">
+                          <Stack direction="row" spacing={1} justifyContent="center">
+                            <IconButton color="warning" size="small" onClick={() => openEditQuantityDialog(item)}>
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton color="error" size="small" onClick={() => handleRemoveItem(item)}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                        <Typography color="text.secondary">Aún no hay productos en la compra.</Typography>
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                      <Typography color="text.secondary">Aún no hay productos en la compra.</Typography>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Paper>
 
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-          <Stack spacing={0.5} sx={{ minWidth: 260 }}>
+        <Paper elevation={1} sx={{ p: 2, display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%' }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Resumen
+          </Typography>
+
+          <Stack spacing={1} sx={{ height: '100%' }}>
             <Typography variant="body2">Subtotal: ${summary.subtotal.toFixed(2)}</Typography>
             <Typography variant="body2">Impuestos: ${summary.tax.toFixed(2)}</Typography>
             <Typography variant="body2">Descuento: ${summary.discount.toFixed(2)}</Typography>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>Total: ${summary.total.toFixed(2)}</Typography>
+
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<CheckCircleIcon />}
+              onClick={handleCompletePurchase}
+              disabled={cartItems.length === 0}
+              fullWidth
+              sx={{ mt: 'auto' }}
+            >
+              Registrar compra
+            </Button>
           </Stack>
-        </Box>
-      </Paper>
+        </Paper>
+      </Box>
+
+      <Dialog open={quickSupplierDialogOpen} onClose={closeQuickSupplierDialog} fullWidth maxWidth="sm">
+        <DialogTitle>Alta rápida de proveedor</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              autoFocus
+              fullWidth
+              label="Nombre"
+              required
+              value={quickSupplierForm.name}
+              onChange={(event) => handleQuickSupplierFieldChange('name', event.target.value)}
+            />
+
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              value={quickSupplierForm.email}
+              onChange={(event) => handleQuickSupplierFieldChange('email', event.target.value)}
+            />
+
+            <TextField
+              fullWidth
+              label="Teléfono"
+              value={quickSupplierForm.phone}
+              onChange={(event) => handleQuickSupplierFieldChange('phone', event.target.value)}
+            />
+
+            <TextField
+              fullWidth
+              label="Dirección"
+              multiline
+              minRows={2}
+              value={quickSupplierForm.address}
+              onChange={(event) => handleQuickSupplierFieldChange('address', event.target.value)}
+            />
+
+            {quickSupplierError && <Alert severity="error">{quickSupplierError}</Alert>}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeQuickSupplierDialog} disabled={quickSupplierLoading}>Cancelar</Button>
+          <Button variant="contained" onClick={handleCreateQuickSupplier} disabled={quickSupplierLoading}>
+            {quickSupplierLoading ? <CircularProgress size={20} /> : 'Guardar y seleccionar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={isProductModalOpen} onClose={() => setProductModalOpen(false)} fullWidth maxWidth="md">
         <DialogTitle>Buscar productos</DialogTitle>

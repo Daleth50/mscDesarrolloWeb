@@ -35,24 +35,11 @@ export function useProductsList() {
 		navigate(`/products/${id}/edit`);
 	};
 
-	const handleDelete = async (id: UUID) => {
-		if (window.confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-			try {
-				await productService.delete(id);
-				loadProducts();
-			} catch (err) {
-				setError(getErrorMessage(err));
-				console.error(err);
-			}
-		}
-	};
-
 	return {
 		loading,
 		error,
 		products,
 		handleView,
 		handleEdit,
-		handleDelete,
 	};
 }

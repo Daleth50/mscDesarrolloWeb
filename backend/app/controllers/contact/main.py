@@ -106,6 +106,4 @@ class ContactViewModel:
         if not contact:
             raise ValueError("Contact not found")
 
-        db.session.delete(contact)
-        db.session.commit()
-        return True
+        raise ValueError("Definitive deletion of contacts is not allowed")

@@ -18,14 +18,13 @@ import {
   IconButton,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
 import { useProductsList } from '../controllers/useProductsListController';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProductsPage() {
-  const { products, loading, error, handleView, handleEdit, handleDelete } = useProductsList();
+  const { products, loading, error, handleView, handleEdit } = useProductsList();
   const { canEditProducts } = useAuth();
 
   if (loading) {
@@ -99,15 +98,6 @@ export default function ProductsPage() {
                         disabled={!canEditProducts}
                       >
                         <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(product.id)}
-                        size="small"
-                        color="error"
-                        title="Eliminar"
-                        disabled={!canEditProducts}
-                      >
-                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Stack>
                   </TableCell>

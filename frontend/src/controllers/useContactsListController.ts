@@ -31,23 +31,10 @@ export function useContactsList() {
 		navigate(`/contacts/${id}/edit`);
 	};
 
-	const handleDelete = async (id: UUID) => {
-		if (window.confirm('¿Estás seguro de que quieres eliminar este contacto?')) {
-			try {
-				await contactService.delete(id);
-				loadContacts();
-			} catch (err) {
-				setError(getErrorMessage(err));
-				console.error(err);
-			}
-		}
-	};
-
 	return {
 		loading,
 		error,
 		contacts,
 		handleEdit,
-		handleDelete,
 	};
 }

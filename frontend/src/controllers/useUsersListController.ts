@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { userService } from '../services/userService';
 import { getErrorMessage } from '../utils/error';
-import type { User, UUID } from '../types/models';
+import type { User } from '../types/models';
 
 export function useUsersList() {
 	const [users, setUsers] = useState<User[]>([]);
@@ -26,25 +26,10 @@ export function useUsersList() {
 		}
 	};
 
-	const handleDelete = async (id: UUID) => {
-		if (!window.confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
-			return;
-		}
-
-		try {
-			await userService.delete(id);
-			await loadUsers();
-		} catch (err) {
-			setError(getErrorMessage(err));
-			console.error(err);
-		}
-	};
-
 	return {
 		users,
 		loading,
 		error,
 		loadUsers,
-		handleDelete,
 	};
 }

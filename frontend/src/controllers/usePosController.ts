@@ -56,6 +56,9 @@ export function usePosController() {
   const [pendingCartLoadingId, setPendingCartLoadingId] = useState<UUID | ''>('');
 
   const activeCartId = cart?.id || '';
+  const editingStockAvailable = quantityDialogMode === 'edit'
+    ? (selectedItem?.stock_available ?? null)
+    : null;
 
   const getPaymentMethodLabel = (method: PaymentMethod) => (
     method === 'cash' ? 'efectivo' : 'transferencia'
@@ -315,6 +318,7 @@ export function usePosController() {
     setProductSearch,
     quantityDialogOpen,
     quantityDialogMode,
+    editingStockAvailable,
     quantityInput,
     setQuantityInput,
     dialogError,

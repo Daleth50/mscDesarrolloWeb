@@ -168,6 +168,10 @@ export default function PurchasesPage() {
       setDialogError('Agrega al menos un producto.');
       return;
     }
+    if ((summary.total || 0) <= 0) {
+      setDialogError('El total de compra debe ser mayor a 0.');
+      return;
+    }
 
     if (!window.confirm('¿Confirmar compra y actualizar inventario?')) {
       return;
@@ -465,12 +469,18 @@ export default function PurchasesPage() {
               color="success"
               startIcon={<CheckCircleIcon />}
               onClick={handleCompletePurchase}
-              disabled={cartItems.length === 0}
+              disabled={cartItems.length === 0 || !selectedSupplierId || summary.total <= 0}
               fullWidth
               sx={{ mt: 'auto' }}
             >
               Registrar compra
             </Button>
+
+            {!selectedSupplierId && (
+              <Typography variant="caption" color="error.main">
+                Debes seleccionar un proveedor para completar la compra.
+              </Typography>
+            )}
           </Stack>
         </Paper>
       </Box>

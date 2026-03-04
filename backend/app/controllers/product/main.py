@@ -325,9 +325,4 @@ class ProductViewModel:
         if not product:
             raise ValueError("Product not found")
 
-        ProductTaxonomy.query.filter(ProductTaxonomy.product_id == product_id).delete(
-            synchronize_session=False
-        )
-        db.session.delete(product)
-        db.session.commit()
-        return True
+        raise ValueError("Definitive deletion of products is not allowed")

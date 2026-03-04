@@ -52,6 +52,7 @@ export default function PosPage() {
     setProductSearch,
     quantityDialogOpen,
     quantityDialogMode,
+    editingStockAvailable,
     quantityInput,
     setQuantityInput,
     dialogError,
@@ -432,6 +433,11 @@ export default function PosPage() {
           {quantityDialogMode === 'add' ? 'Cantidad a agregar' : 'Editar cantidad'}
         </DialogTitle>
         <DialogContent>
+          {quantityDialogMode === 'edit' && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Stock disponible: {editingStockAvailable ?? '-'}
+            </Typography>
+          )}
           <TextField
             fullWidth
             margin="dense"

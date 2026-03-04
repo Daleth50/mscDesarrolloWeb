@@ -204,7 +204,8 @@ def delete_product(product_id):
         ProductViewModel.delete_product(product_id)
         return jsonify({"message": "Product deleted"}), 200
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        status_code = 404 if str(e) == "Product not found" else 400
+        return jsonify({"error": str(e)}), status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -323,7 +324,8 @@ def delete_contact(contact_id):
         ContactViewModel.delete_contact(contact_id)
         return jsonify({"message": "Contact deleted"}), 200
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        status_code = 404 if str(e) == "Contact not found" else 400
+        return jsonify({"error": str(e)}), status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -673,7 +675,8 @@ def delete_user(user_id):
         UserViewModel.delete_user(user_id)
         return jsonify({"message": "User deleted"}), 200
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        status_code = 404 if str(e) == "User not found" else 400
+        return jsonify({"error": str(e)}), status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

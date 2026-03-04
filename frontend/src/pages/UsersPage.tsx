@@ -17,12 +17,11 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { Link } from 'react-router-dom';
 import { useUsersList } from '../controllers/useUsersListController';
 
 export default function UsersPage() {
-  const { users, loading, error, handleDelete } = useUsersList();
+  const { users, loading, error } = useUsersList();
 
   if (loading) {
     return (
@@ -91,14 +90,6 @@ export default function UsersPage() {
                         title="Editar"
                       >
                         <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(user.id)}
-                        size="small"
-                        color="error"
-                        title="Eliminar"
-                      >
-                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Stack>
                   </TableCell>

@@ -169,6 +169,4 @@ class UserViewModel:
         if not user:
             raise ValueError("User not found")
 
-        db.session.delete(user)
-        db.session.commit()
-        return True
+        raise ValueError("Definitive deletion of users is not allowed")

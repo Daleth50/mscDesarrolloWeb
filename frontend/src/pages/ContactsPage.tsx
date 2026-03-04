@@ -19,11 +19,10 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useContactsList } from '../controllers/useContactsListController';
 
 export default function ContactsPage() {
-  const { contacts, loading, error, handleEdit, handleDelete } = useContactsList();
+  const { contacts, loading, error, handleEdit } = useContactsList();
 
   if (loading) {
     return (
@@ -81,14 +80,6 @@ export default function ContactsPage() {
                         title="Editar"
                       >
                         <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(contact.id)}
-                        size="small"
-                        color="error"
-                        title="Eliminar"
-                      >
-                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Stack>
                   </TableCell>

@@ -184,6 +184,12 @@ export function usePurchaseCart() {
 		if (!cart?.id) {
 			throw new Error('No hay compra para completar');
 		}
+
+		const supplierId = selectedSupplierId || cart.contact_id;
+		if (!supplierId) {
+			throw new Error('Debes seleccionar un proveedor antes de completar la compra.');
+		}
+
 		const completed = await purchaseService.complete(cart.id);
 		setCart(completed);
 		setSelectedSupplierId('');

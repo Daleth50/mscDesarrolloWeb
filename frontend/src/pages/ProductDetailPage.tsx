@@ -1,5 +1,4 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import {
   Alert,
@@ -18,7 +17,7 @@ import { useProductDetail } from '../controllers/useProductDetailController';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProductDetailPage() {
-  const { product, loading, error, handleEdit, handleDelete, handleBack } = useProductDetail();
+  const { product, loading, error, handleEdit, handleBack } = useProductDetail();
   const { canEditProducts } = useAuth();
 
   if (loading) {
@@ -131,14 +130,6 @@ export default function ProductDetailPage() {
                   sx={{ mr: 1 }}
                 >
                   Editar
-                </Button>
-                <Button
-                  onClick={handleDelete}
-                  startIcon={<DeleteIcon />}
-                  variant="contained"
-                  color="error"
-                >
-                  Eliminar
                 </Button>
               </>
             )}

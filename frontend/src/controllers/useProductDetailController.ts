@@ -49,22 +49,6 @@ export function useProductDetail() {
 		navigate(`/products/${id}/edit`);
 	};
 
-	const handleDelete = async () => {
-		if (!id) {
-			setError('Id de producto no encontrado');
-			return;
-		}
-		if (!window.confirm('¿Estás seguro de que quieres eliminar este producto?')) return;
-
-		try {
-			await productService.delete(id);
-			navigate('/products');
-		} catch (err) {
-			setError(getErrorMessage(err));
-			console.error(err);
-		}
-	};
-
 	const handleBack = () => {
 		navigate('/products');
 	};
@@ -74,7 +58,6 @@ export function useProductDetail() {
 		error,
 		product,
 		handleEdit,
-		handleDelete,
 		handleBack,
 	};
 }

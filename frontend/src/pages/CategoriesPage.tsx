@@ -56,9 +56,11 @@ export default function CategoriesPage() {
         <Typography variant="h4" component="h2" sx={{ fontWeight: 600 }}>
           Categorías
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={openCreateModal}>
-          Crear categoría
-        </Button>
+        {isAdmin && (
+          <Button variant="contained" startIcon={<AddIcon />} onClick={openCreateModal}>
+            Crear categoría
+          </Button>
+        )}
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -83,6 +85,7 @@ export default function CategoriesPage() {
                         size="small"
                         color="warning"
                         title="Editar"
+                        disabled={!isAdmin}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>

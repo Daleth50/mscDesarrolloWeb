@@ -226,9 +226,13 @@ def get_categories():
 def create_category():
     """Crear nueva categoría"""
     try:
+        _require_admin_user()
         data = request.get_json() or {}
         new_category = ProductViewModel.create_category(data)
         return jsonify(new_category), 201
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -239,9 +243,13 @@ def create_category():
 def update_category(category_id):
     """Actualizar categoría"""
     try:
+        _require_admin_user()
         data = request.get_json() or {}
         updated_category = ProductViewModel.update_category(category_id, data)
         return jsonify(updated_category), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         status_code = 404 if str(e) == "Category not found" else 400
         return jsonify({"error": str(e)}), status_code
@@ -253,8 +261,12 @@ def update_category(category_id):
 def delete_category(category_id):
     """Eliminar categoría"""
     try:
+        _require_admin_user()
         ProductViewModel.delete_category(category_id)
         return jsonify({"message": "Category deleted"}), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         error = str(e)
         status_code = 404 if error == "Category not found" else 400
@@ -634,8 +646,12 @@ def complete_purchase_cart(cart_id):
 def get_users():
     """Listar todos los usuarios"""
     try:
+        _require_admin_user()
         users = UserViewModel.get_all_users()
         return jsonify(users), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -644,10 +660,14 @@ def get_users():
 def get_user(user_id):
     """Obtener detalle de un usuario"""
     try:
+        _require_admin_user()
         user = UserViewModel.get_user_by_id(user_id)
         if not user:
             return jsonify({"error": "User not found"}), 404
         return jsonify(user), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -656,9 +676,13 @@ def get_user(user_id):
 def create_user():
     """Crear nuevo usuario"""
     try:
+        _require_admin_user()
         data = request.get_json()
         new_user = UserViewModel.create_user(data)
         return jsonify(new_user), 201
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -669,9 +693,13 @@ def create_user():
 def update_user(user_id):
     """Actualizar usuario"""
     try:
+        _require_admin_user()
         data = request.get_json()
         updated_user = UserViewModel.update_user(user_id, data)
         return jsonify(updated_user), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -682,8 +710,12 @@ def update_user(user_id):
 def delete_user(user_id):
     """Eliminar usuario"""
     try:
+        _require_admin_user()
         UserViewModel.delete_user(user_id)
         return jsonify({"message": "User deleted"}), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         status_code = 404 if str(e) == "User not found" else 400
         return jsonify({"error": str(e)}), status_code

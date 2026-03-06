@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { usePosCart } from './usePosCartController';
 import { getErrorMessage } from '../utils/error';
 import { buildContactPayload, validateContactForm, type ContactFormData } from '../models/contact';
@@ -48,12 +48,14 @@ export function usePosController() {
   const [selectedBillAccountId, setSelectedBillAccountId] = useState<UUID | ''>('');
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [billAccountsLoading, setBillAccountsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [quickCustomerDialogOpen, setQuickCustomerDialogOpen] = useState(false);
   const [quickCustomerForm, setQuickCustomerForm] = useState<ContactFormData>(INITIAL_QUICK_CUSTOMER_FORM);
   const [quickCustomerError, setQuickCustomerError] = useState<string | null>(null);
   const [quickCustomerLoading, setQuickCustomerLoading] = useState(false);
   const [pendingCartLoadingId, setPendingCartLoadingId] = useState<UUID | ''>('');
+  const checkoutInFlightRef = useRef(false);
 
   const activeCartId = cart?.id || '';
   const editingStockAvailable = quantityDialogMode === 'edit'
@@ -134,21 +136,26 @@ export function usePosController() {
   };
 
   const loadBillAccountsForMethod = async (method: PaymentMethod) => {
-    const accounts = await getBillAccountsByPaymentMethod(method);
-    setBillAccounts(accounts);
-    setSelectedBillAccountId((current) => {
-      if (accounts.length === 0) {
-        return '';
-      }
-      if (accounts.length === 1) {
+    try {
+      setBillAccountsLoading(true);
+      const accounts = await getBillAccountsByPaymentMethod(method);
+      setBillAccounts(accounts);
+      setSelectedBillAccountId((current) => {
+        if (accounts.length === 0) {
+          return '';
+        }
+        if (accounts.length === 1) {
+          return accounts[0].id;
+        }
+        if (current && accounts.some((account) => account.id === current)) {
+          return current;
+        }
         return accounts[0].id;
-      }
-      if (current && accounts.some((account) => account.id === current)) {
-        return current;
-      }
-      return accounts[0].id;
-    });
-    return accounts;
+      });
+      return accounts;
+    } finally {
+      setBillAccountsLoading(false);
+    }
   };
 
   const openCheckoutModal = async () => {
@@ -169,6 +176,8 @@ export function usePosController() {
 
     try {
       setSuccessMessage(null);
+      setBillAccounts([]);
+      setSelectedBillAccountId('');
       setPaymentMethod('cash');
       const accounts = await loadBillAccountsForMethod('cash');
       if (accounts.length === 0) {
@@ -186,6 +195,8 @@ export function usePosController() {
   const handleChangePaymentMethod = async (method: PaymentMethod) => {
     try {
       setPaymentMethod(method);
+      setBillAccounts([]);
+      setSelectedBillAccountId('');
       const accounts = await loadBillAccountsForMethod(method);
       if (accounts.length === 0) {
         setCheckoutError(`No hay cuentas de banco disponibles para ${getPaymentMethodLabel(method)}.`);
@@ -199,6 +210,15 @@ export function usePosController() {
   };
 
   const handleConfirmCheckout = async () => {
+    if (checkoutInFlightRef.current || checkoutLoading) {
+      return;
+    }
+
+    if (billAccountsLoading) {
+      setCheckoutError('Cargando cuentas de banco, espera un momento e intenta de nuevo.');
+      return;
+    }
+
     if (!selectedContactId) {
       setCheckoutError('Selecciona un cliente antes de completar la venta.');
       return;
@@ -215,10 +235,16 @@ export function usePosController() {
     }
 
     try {
+      checkoutInFlightRef.current = true;
       setCheckoutLoading(true);
-      await completeSale(paymentMethod, selectedBillAccountId);
+      const completedSale = await completeSale(paymentMethod, selectedBillAccountId);
       setCheckoutModalOpen(false);
-      setSuccessMessage('Venta registrada correctamente.');
+      const shortId = String(completedSale?.id || '').slice(0, 8);
+      setSuccessMessage(
+        shortId
+          ? `Venta registrada correctamente (ID: ${shortId}).`
+          : 'Venta registrada correctamente.'
+      );
       resetCurrentSale();
       setCheckoutError(null);
     } catch (err) {
@@ -226,6 +252,7 @@ export function usePosController() {
       console.error(err);
     } finally {
       setCheckoutLoading(false);
+      checkoutInFlightRef.current = false;
     }
   };
 
@@ -332,6 +359,7 @@ export function usePosController() {
     setSelectedBillAccountId,
     checkoutError,
     checkoutLoading,
+    billAccountsLoading,
     successMessage,
     quickCustomerDialogOpen,
     quickCustomerForm,

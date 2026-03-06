@@ -85,6 +85,7 @@ export interface Order {
   quantity?: number | null;
   status?: OrderStatus | null;
   payment_status?: PaymentStatus | null;
+  payment_method?: PaymentMethod | null;
   type?: OrderType | null;
   subtotal?: number | null;
   tax?: number | null;

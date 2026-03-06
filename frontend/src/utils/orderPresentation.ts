@@ -53,3 +53,25 @@ export function getPaymentStatusLabel(status?: string | null): string {
       return '-';
   }
 }
+
+export function getPaymentMethodColor(method?: string | null): ChipProps['color'] {
+  switch (method) {
+    case 'cash':
+      return 'success';
+    case 'transfer':
+      return 'info';
+    default:
+      return 'default';
+  }
+}
+
+export function getPaymentMethodLabel(method?: string | null): string {
+  switch (method) {
+    case 'cash':
+      return 'Efectivo';
+    case 'transfer':
+      return 'Transferencia';
+    default:
+      return '-';
+  }
+}

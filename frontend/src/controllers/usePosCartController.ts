@@ -51,6 +51,15 @@ export function usePosCart() {
     }
   };
 
+  const refreshProductsSilently = async () => {
+    try {
+      const posProducts = await posService.getProducts();
+      setProducts(posProducts);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const loadInitialData = async () => {
     try {
       setLoading(true);
@@ -190,13 +199,27 @@ export function usePosCart() {
       throw new Error('No hay carrito para completar');
     }
 
-    const completed = await posService.completeCart(cart.id, {
+    let cartToComplete = cart;
+    if (selectedContactId && cart.contact_id !== selectedContactId) {
+      cartToComplete = await posService.updateCart(cart.id, {
+        contact_id: selectedContactId,
+      });
+      setCart(cartToComplete);
+    }
+
+    const completed = await posService.completeCart(cartToComplete.id, {
       payment_method: paymentMethod,
       bill_account_id: billAccountId,
     });
+
     setCart(completed);
     setSelectedContactId('');
-    refreshPendingCartsSilently();
+
+    await Promise.all([
+      refreshPendingCartsSilently(),
+      refreshProductsSilently(),
+    ]);
+
     return completed;
   };
 

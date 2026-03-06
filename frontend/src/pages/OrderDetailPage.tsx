@@ -20,6 +20,8 @@ import { useOrderDetail } from '../controllers/useOrderDetailController';
 import { formatDateTime } from '../utils/date';
 import { formatCurrency } from '../utils/number';
 import {
+  getPaymentMethodColor,
+  getPaymentMethodLabel,
   getOrderStatusColor,
   getOrderStatusLabel,
   getPaymentStatusColor,
@@ -89,6 +91,15 @@ export default function OrderDetailPage() {
               <Chip
                 label={getPaymentStatusLabel(order.payment_status)}
                 color={getPaymentStatusColor(order.payment_status)}
+                size="small"
+                variant="outlined"
+              />
+            </Box>
+            <Box>
+              <Typography variant="body2" color="text.secondary">Tipo de pago</Typography>
+              <Chip
+                label={getPaymentMethodLabel(order.payment_method)}
+                color={getPaymentMethodColor(order.payment_method)}
                 size="small"
                 variant="outlined"
               />

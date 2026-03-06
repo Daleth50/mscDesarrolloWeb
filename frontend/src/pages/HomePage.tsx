@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Container,
@@ -8,6 +8,8 @@ import {
   CardActions,
   Button,
   Grid,
+  InputAdornment,
+  TextField,
   Typography,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -23,6 +25,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function HomePage() {
   const { canManageUsers } = useAuth();
+  const [search, setSearch] = useState('');
 
   const modules = [
     {
@@ -101,19 +104,58 @@ export default function HomePage() {
     });
   }
 
+  const normalizedQuery = search.trim().toLowerCase();
+  const filteredModules = useMemo(() => {
+    if (!normalizedQuery) {
+      return modules;
+    }
+
+    return modules.filter((module) => {
+      const searchableText = `${module.title} ${module.description}`.toLowerCase();
+      return searchableText.includes(normalizedQuery);
+    });
+  }, [modules, normalizedQuery]);
+
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" component="h1" sx={{ mb: 2, fontWeight: 700 }}>
-          Bienvenido a AppWeb
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          Selecciona un módulo para gestionar la operación del sistema.
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', md: 'center' },
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 2,
+          }}
+        >
+          <Box>
+            <Typography variant="h3" component="h1" sx={{ mb: 1, fontWeight: 700 }}>
+              Bienvenido a AppWeb
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Selecciona un módulo para gestionar la operación del sistema.
+            </Typography>
+          </Box>
+
+          <TextField
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Buscar módulo"
+            size="small"
+            sx={{ minWidth: { xs: '100%', md: 320 } }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
       </Box>
 
       <Grid container spacing={3}>
-        {modules.map((module) => {
+        {filteredModules.map((module) => {
           const IconComponent = module.icon;
           return (
             <Grid item xs={12} sm={6} md={4} key={module.title}>
@@ -155,6 +197,12 @@ export default function HomePage() {
             </Grid>
           );
         })}
+
+        {filteredModules.length === 0 && (
+          <Grid item xs={12}>
+            <Typography color="text.secondary">No se encontraron módulos para tu búsqueda.</Typography>
+          </Grid>
+        )}
       </Grid>
     </Container>
   );

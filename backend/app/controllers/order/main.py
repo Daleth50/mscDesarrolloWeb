@@ -441,7 +441,17 @@ class OrderViewModel:
     @staticmethod
     def complete_cart(cart_id, form_data):
         form_data = form_data or {}
-        cart = OrderViewModel._get_cart_or_raise(cart_id)
+
+        cart = Order.query.get(cart_id)
+        if not cart:
+            raise ValueError("Cart not found")
+
+        if cart.type == "sale" and cart.status == "completed":
+            return OrderViewModel._serialize_cart(cart)
+
+        if cart.type != "cart":
+            raise ValueError("Cart not found")
+
         OrderViewModel._recalculate_cart_totals(cart)
 
         total = float(cart.total or 0)

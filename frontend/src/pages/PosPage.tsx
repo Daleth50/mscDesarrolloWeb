@@ -67,6 +67,7 @@ export default function PosPage() {
     setSelectedBillAccountId,
     checkoutError,
     checkoutLoading,
+    billAccountsLoading,
     successMessage,
     quickCustomerDialogOpen,
     quickCustomerForm,
@@ -467,11 +468,16 @@ export default function PosPage() {
                 value={paymentMethod}
                 label="Método de pago"
                 onChange={(event) => handleChangePaymentMethod(event.target.value as PaymentMethod)}
+                disabled={checkoutLoading || billAccountsLoading}
               >
                 <MenuItem value="cash">Efectivo</MenuItem>
                 <MenuItem value="transfer">Transferencia</MenuItem>
               </Select>
             </FormControl>
+
+            {billAccountsLoading && (
+              <Alert severity="info">Cargando cuentas de banco...</Alert>
+            )}
 
             {hasMultipleBillAccounts && (
               <FormControl fullWidth>
@@ -481,6 +487,7 @@ export default function PosPage() {
                   value={selectedBillAccountId}
                   label="Cuenta de banco"
                   onChange={(event) => setSelectedBillAccountId(event.target.value as UUID | '')}
+                  disabled={checkoutLoading || billAccountsLoading}
                 >
                   {billAccounts.map((account) => (
                     <MenuItem key={account.id} value={account.id}>
@@ -509,11 +516,17 @@ export default function PosPage() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCheckoutModalOpen(false)}>Cancelar</Button>
+          <Button onClick={() => setCheckoutModalOpen(false)} disabled={checkoutLoading}>Cancelar</Button>
           <Button
             variant="contained"
             onClick={handleConfirmCheckout}
-            disabled={checkoutLoading || !selectedContactId || billAccounts.length === 0 || !selectedBillAccountId}
+            disabled={
+              checkoutLoading
+              || billAccountsLoading
+              || !selectedContactId
+              || billAccounts.length === 0
+              || !selectedBillAccountId
+            }
           >
             {checkoutLoading ? <CircularProgress size={20} /> : 'Confirmar venta'}
           </Button>

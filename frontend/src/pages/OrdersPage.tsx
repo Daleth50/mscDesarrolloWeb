@@ -23,6 +23,8 @@ import { formatDateTime } from '../utils/date';
 import {
   getOrderStatusColor,
   getOrderStatusLabel,
+  getPaymentMethodColor,
+  getPaymentMethodLabel,
   getPaymentStatusColor,
   getPaymentStatusLabel,
 } from '../utils/orderPresentation';
@@ -88,6 +90,7 @@ export default function OrdersPage() {
                 <TableCell align="right">Total</TableCell>
                 <TableCell>Estado</TableCell>
                 <TableCell>Pago</TableCell>
+                <TableCell>Tipo pago</TableCell>
                 <TableCell align="center">Detalle</TableCell>
               </TableRow>
             </TableHead>
@@ -114,6 +117,14 @@ export default function OrdersPage() {
                         variant="outlined"
                       />
                     </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={getPaymentMethodLabel(order.payment_method)}
+                        color={getPaymentMethodColor(order.payment_method)}
+                        size="small"
+                        variant="outlined"
+                      />
+                    </TableCell>
                     <TableCell align="center">
                       <Button component={Link} to={`/orders/${order.id}`} size="small" variant="outlined">
                         Ver detalle
@@ -123,7 +134,7 @@ export default function OrdersPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
                     <Typography color="textSecondary">No hay Ventas aún.</Typography>
                   </TableCell>
                 </TableRow>

@@ -25,7 +25,7 @@ import { formatCurrency } from '../utils/number';
 
 export default function ProductsPage() {
   const { products, loading, error, handleView, handleEdit } = useProductsList();
-  const { canEditProducts } = useAuth();
+  const { canEditProducts, isAdmin } = useAuth();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -85,11 +85,11 @@ export default function ProductsPage() {
                 <TableCell>Nombre</TableCell>
                 <TableCell>SKU</TableCell>
                 <TableCell align="right">Precio</TableCell>
-                <TableCell align="right">Costo</TableCell>
+                {isAdmin && <TableCell align="right">Costo</TableCell>}
                 <TableCell align="right">Stock actual</TableCell>
                 <TableCell>Categoría</TableCell>
                 <TableCell align="center">Acciones</TableCell>
-                <TableCell>Detalle</TableCell>
+                {isAdmin && <TableCell>Detalle</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -99,7 +99,7 @@ export default function ProductsPage() {
                     <TableCell>{product.name}</TableCell>
                     <TableCell>{product.sku || '-'}</TableCell>
                     <TableCell align="right">{formatCurrency(product.price ?? 0)}</TableCell>
-                    <TableCell align="right">{formatCurrency(product.cost ?? 0)}</TableCell>
+                    {isAdmin && <TableCell align="right">{formatCurrency(product.cost ?? 0)}</TableCell>}
                     <TableCell align="right">{(product.stock_available ?? 0).toFixed(2)}</TableCell>
                     <TableCell>{product.category_name || '-'}</TableCell>
                     <TableCell align="center">
@@ -113,20 +113,22 @@ export default function ProductsPage() {
                         <EditIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => handleView(product.id)}
-                        size="small"
-                        variant="outlined"
-                      >
-                        Ver detalle
-                      </Button>
-                    </TableCell>
+                    {isAdmin && (
+                      <TableCell>
+                        <Button
+                          onClick={() => handleView(product.id)}
+                          size="small"
+                          variant="outlined"
+                        >
+                          Ver detalle
+                        </Button>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={isAdmin ? 8 : 6} align="center" sx={{ py: 3 }}>
                     <Typography color="textSecondary">No hay productos aún.</Typography>
                   </TableCell>
                 </TableRow>

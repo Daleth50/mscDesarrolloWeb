@@ -14,6 +14,7 @@ from app.database import db
 from app.models.base import User
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
+PURCHASE_ORDER_TYPES = {"purchase", "purchase_cart"}
 
 
 def _require_admin_user():
@@ -23,6 +24,22 @@ def _require_admin_user():
     if user.role != "admin":
         raise PermissionError("Admin role required")
     return user
+
+
+def _is_purchase_order_type(order_type):
+    return (order_type or "").strip().lower() in PURCHASE_ORDER_TYPES
+
+
+def _without_product_cost(products):
+    sanitized = []
+    for product in products:
+        if isinstance(product, dict):
+            item = dict(product)
+            item.pop("cost", None)
+            sanitized.append(item)
+            continue
+        sanitized.append(product)
+    return sanitized
 
 
 @api_bp.before_request
@@ -154,8 +171,18 @@ def update_me():
 def get_products():
     """Listar todos los productos"""
     try:
+        user = get_authenticated_user()
+        if not user:
+            raise PermissionError("Unauthorized")
+
         products = ProductViewModel.get_all_products()
+        if user.role != "admin":
+            products = _without_product_cost(products)
+
         return jsonify(products), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -164,10 +191,14 @@ def get_products():
 def get_product(product_id):
     """Obtener detalle de un producto"""
     try:
+        _require_admin_user()
         product = ProductViewModel.get_product_by_id(product_id)
         if not product:
             return jsonify({"error": "Product not found"}), 404
         return jsonify(product), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -176,10 +207,14 @@ def get_product(product_id):
 def get_product_movements(product_id):
     """Listar histórico de movimientos de inventario de un producto"""
     try:
+        _require_admin_user()
         page = request.args.get("page")
         per_page = request.args.get("per_page")
         movements = ProductViewModel.get_product_inventory_movements(product_id, page, per_page)
         return jsonify(movements), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         status_code = 404 if str(e) == "Product not found" else 400
         return jsonify({"error": str(e)}), status_code
@@ -297,9 +332,22 @@ def delete_category(category_id):
 def get_contacts():
     """Listar todos los contactos"""
     try:
-        kind = request.args.get("kind")
+        user = get_authenticated_user()
+        if not user:
+            raise PermissionError("Unauthorized")
+
+        kind = (request.args.get("kind") or "").strip().lower()
+        if user.role != "admin":
+            if kind == "supplier":
+                raise PermissionError("Admin role required")
+            if not kind:
+                kind = "customer"
+
         contacts = ContactViewModel.get_contacts_by_kind(kind)
         return jsonify(contacts), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -362,8 +410,12 @@ def delete_contact(contact_id):
 def get_suppliers():
     """Listar proveedores"""
     try:
+        _require_admin_user()
         suppliers = ContactViewModel.get_contacts_by_kind("supplier")
         return jsonify(suppliers), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -389,8 +441,19 @@ def create_supplier():
 def get_orders():
     """Listar todas las Ventas"""
     try:
-        orders = OrderViewModel.get_all_orders()
+        user = get_authenticated_user()
+        if not user:
+            raise PermissionError("Unauthorized")
+
+        if user.role == "admin":
+            orders = OrderViewModel.get_all_orders()
+        else:
+            orders = OrderViewModel.get_sales_orders()
+
         return jsonify(orders), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -399,9 +462,16 @@ def get_orders():
 def create_order():
     """Crear nueva orden"""
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
+        order_type = data.get("type")
+        if _is_purchase_order_type(order_type):
+            _require_admin_user()
+
         new_order = OrderViewModel.create_order(data)
         return jsonify(new_order), 201
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -422,8 +492,12 @@ def get_sales_orders():
 def get_purchase_orders():
     """Listar compras completadas"""
     try:
+        _require_admin_user()
         orders = OrderViewModel.get_purchase_orders()
         return jsonify(orders), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -435,7 +509,14 @@ def get_order(order_id):
         order = OrderViewModel.get_order_by_id(order_id)
         if not order:
             return jsonify({"error": "Order not found"}), 404
+
+        if _is_purchase_order_type(order.get("type")):
+            _require_admin_user()
+
         return jsonify(order), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -562,8 +643,12 @@ def complete_cart(cart_id):
 def get_purchase_products():
     """Listar productos para compras"""
     try:
+        _require_admin_user()
         products = OrderViewModel.list_purchase_products()
         return jsonify(products), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -572,9 +657,13 @@ def get_purchase_products():
 def create_purchase_cart():
     """Crear carrito de compra"""
     try:
+        _require_admin_user()
         data = request.get_json() or {}
         cart = OrderViewModel.create_purchase_cart(data)
         return jsonify(cart), 201
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -585,8 +674,12 @@ def create_purchase_cart():
 def get_purchase_cart(cart_id):
     """Obtener carrito de compra"""
     try:
+        _require_admin_user()
         cart = OrderViewModel.get_purchase_cart(cart_id)
         return jsonify(cart), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:
@@ -597,9 +690,13 @@ def get_purchase_cart(cart_id):
 def update_purchase_cart(cart_id):
     """Actualizar carrito de compra"""
     try:
+        _require_admin_user()
         data = request.get_json() or {}
         cart = OrderViewModel.update_purchase_cart(cart_id, data)
         return jsonify(cart), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -610,9 +707,13 @@ def update_purchase_cart(cart_id):
 def add_purchase_item(cart_id):
     """Agregar producto al carrito de compra"""
     try:
+        _require_admin_user()
         data = request.get_json() or {}
         cart = OrderViewModel.add_purchase_item(cart_id, data)
         return jsonify(cart), 201
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -623,9 +724,13 @@ def add_purchase_item(cart_id):
 def update_purchase_item(cart_id, item_id):
     """Editar cantidad de item del carrito de compra"""
     try:
+        _require_admin_user()
         data = request.get_json() or {}
         cart = OrderViewModel.update_purchase_item(cart_id, item_id, data)
         return jsonify(cart), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -636,8 +741,12 @@ def update_purchase_item(cart_id, item_id):
 def remove_purchase_item(cart_id, item_id):
     """Eliminar item del carrito de compra"""
     try:
+        _require_admin_user()
         cart = OrderViewModel.remove_purchase_item(cart_id, item_id)
         return jsonify(cart), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -648,8 +757,12 @@ def remove_purchase_item(cart_id, item_id):
 def complete_purchase_cart(cart_id):
     """Completar compra y actualizar stock"""
     try:
+        _require_admin_user()
         cart = OrderViewModel.complete_purchase_cart(cart_id)
         return jsonify(cart), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:

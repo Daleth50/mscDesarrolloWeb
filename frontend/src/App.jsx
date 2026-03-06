@@ -41,7 +41,6 @@ const NAV_ITEMS = [
   { label: 'Inicio', to: '/' },
   { label: 'Punto de venta', to: '/pos' },
   { label: 'Ventas', to: '/orders' },
-  { label: 'Compras', to: '/purchase-orders' },
   { label: 'Clientes', to: '/contacts' },
   { label: 'Productos', to: '/products' },
 ];
@@ -50,7 +49,9 @@ function AppLayout() {
   const { isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
   const isImmersiveRoute = location.pathname === '/pos' || location.pathname === '/purchases';
-  const navItems = isAdmin ? [...NAV_ITEMS, { label: 'Reportes', to: '/reports' }] : NAV_ITEMS;
+  const navItems = isAdmin
+    ? [...NAV_ITEMS, { label: 'Compras', to: '/purchase-orders' }, { label: 'Reportes', to: '/reports' }]
+    : NAV_ITEMS;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
@@ -126,8 +127,8 @@ function AppLayout() {
 
             {/* Products */}
             <Route path="/products" element={<ProductsPage />} />
-            <Route path="/products/:id" element={<ProductDetailPage />} />
             <Route element={<RoleRoute allow={['admin']} />}>
+              <Route path="/products/:id" element={<ProductDetailPage />} />
               <Route path="/products/new" element={<ProductFormPage />} />
               <Route path="/products/:id/edit" element={<ProductFormPage />} />
             </Route>
@@ -141,19 +142,19 @@ function AppLayout() {
             <Route path="/contacts/:id/edit" element={<ContactFormPage />} />
 
             {/* Suppliers */}
-            <Route path="/suppliers" element={<SuppliersPage />} />
-            <Route path="/suppliers/new" element={<SupplierFormPage />} />
-
             {/* Orders */}
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:id" element={<OrderDetailPage />} />
-            <Route path="/purchase-orders" element={<PurchasesListPage />} />
-            <Route path="/purchase-orders/:id" element={<PurchaseDetailPage />} />
             <Route path="/pos" element={<PosPage />} />
-            <Route path="/purchases" element={<PurchasesPage />} />
 
             {/* Users */}
             <Route element={<RoleRoute allow={['admin']} />}>
+              <Route path="/suppliers" element={<SuppliersPage />} />
+              <Route path="/suppliers/new" element={<SupplierFormPage />} />
+              <Route path="/purchase-orders" element={<PurchasesListPage />} />
+              <Route path="/purchase-orders/:id" element={<PurchaseDetailPage />} />
+              <Route path="/purchases" element={<PurchasesPage />} />
+
               <Route path="/users" element={<UsersPage />} />
               <Route path="/users/new" element={<UserFormPage />} />
               <Route path="/users/:id/edit" element={<UserFormPage />} />

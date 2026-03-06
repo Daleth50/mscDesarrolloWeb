@@ -36,13 +36,6 @@ export default function HomePage() {
       color: 'primary',
     },
     {
-      title: 'Proveedores',
-      description: 'Administra proveedores',
-      href: '/suppliers',
-      icon: SearchIcon,
-      color: 'warning',
-    },
-    {
       title: 'Categorías',
       description: 'Organiza tus productos',
       href: '/categories',
@@ -56,20 +49,6 @@ export default function HomePage() {
       icon: AssignmentIcon,
       color: 'info',
     },
-    {
-      title: 'Compras',
-      description: 'Visualiza compras registradas',
-      href: '/purchase-orders',
-      icon: AssignmentIcon,
-      color: 'info',
-    },
-    {
-      title: 'Comprar',
-      description: 'Registra compras a proveedores',
-      href: '/purchases',
-      icon: Inventory2Icon,
-      color: 'primary',
-    },
 
     {
       title: 'Clientes',
@@ -81,6 +60,27 @@ export default function HomePage() {
   ];
 
   if (canManageUsers) {
+    modules.push({
+      title: 'Proveedores',
+      description: 'Administra proveedores',
+      href: '/suppliers',
+      icon: SearchIcon,
+      color: 'warning',
+    });
+    modules.push({
+      title: 'Compras',
+      description: 'Visualiza compras registradas',
+      href: '/purchase-orders',
+      icon: AssignmentIcon,
+      color: 'info',
+    });
+    modules.push({
+      title: 'Comprar',
+      description: 'Registra compras a proveedores',
+      href: '/purchases',
+      icon: Inventory2Icon,
+      color: 'primary',
+    });
     modules.push({
       title: 'Usuarios',
       description: 'Administra cuentas del sistema',

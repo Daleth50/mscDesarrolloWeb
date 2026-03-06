@@ -25,6 +25,13 @@ export default function HomePage() {
 
   const modules = [
     {
+      title: 'Punto de venta',
+      description: 'Registra ventas rápidas',
+      href: '/pos',
+      icon: ShoppingCartIcon,
+      color: 'primary',
+    },
+    {
       title: 'Proveedores',
       description: 'Administra proveedores',
       href: '/suppliers',
@@ -47,18 +54,19 @@ export default function HomePage() {
     },
     {
       title: 'Compras',
+      description: 'Visualiza compras registradas',
+      href: '/purchase-orders',
+      icon: AssignmentIcon,
+      color: 'info',
+    },
+    {
+      title: 'Comprar',
       description: 'Registra compras a proveedores',
       href: '/purchases',
       icon: Inventory2Icon,
       color: 'primary',
     },
-    {
-      title: 'Punto de venta',
-      description: 'Registra ventas rápidas',
-      href: '/pos',
-      icon: ShoppingCartIcon,
-      color: 'primary',
-    },
+
     {
       title: 'Clientes',
       description: 'Administra clientes',

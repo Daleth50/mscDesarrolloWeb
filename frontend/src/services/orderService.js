@@ -9,6 +9,10 @@ export const orderService = {
     return api.get('/orders/sales');
   },
 
+  getPurchases() {
+    return api.get('/orders/purchases');
+  },
+
   getById(id) {
     return api.get(`/orders/${id}`);
   },

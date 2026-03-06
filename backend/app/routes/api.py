@@ -390,6 +390,16 @@ def get_sales_orders():
         return jsonify({"error": str(e)}), 500
 
 
+@api_bp.route("/orders/purchases", methods=["GET"])
+def get_purchase_orders():
+    """Listar compras completadas"""
+    try:
+        orders = OrderViewModel.get_purchase_orders()
+        return jsonify(orders), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @api_bp.route("/orders/<string:order_id>", methods=["GET"])
 def get_order(order_id):
     """Obtener detalle de venta"""
@@ -785,15 +795,12 @@ def update_bill_account(account_id):
 
 @api_bp.route("/bill-accounts/<string:account_id>", methods=["DELETE"])
 def delete_bill_account(account_id):
-    """Eliminar cuenta de banco"""
+    """Eliminar cuenta de banco (no permitido)"""
     try:
         _require_admin_user()
-        BillAccountViewModel.delete_bill_account(account_id)
-        return jsonify({"message": "Bill account deleted"}), 200
+        return jsonify({"error": "Bill account deletion is not allowed"}), 405
     except PermissionError as e:
         status = 401 if str(e) == "Unauthorized" else 403
         return jsonify({"error": str(e)}), status
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500

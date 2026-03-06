@@ -24,10 +24,6 @@ export const billAccountService = {
   createMovement(id, payload) {
     return api.post(`/bill-accounts/${id}/movements`, payload);
   },
-
-  delete(id) {
-    return api.delete(`/bill-accounts/${id}`);
-  },
 };
 
 export default billAccountService;

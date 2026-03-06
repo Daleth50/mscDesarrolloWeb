@@ -6,7 +6,6 @@ import {
   Container,
   IconButton,
   Paper,
-  Stack,
   Table,
   TableBody,
   TableCell,
@@ -17,13 +16,11 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Link } from 'react-router-dom';
 import { useBillAccountsList } from '../controllers/useBillAccountsListController';
 
 export default function BillAccountsPage() {
-  const { billAccounts, loading, error, handleDelete } = useBillAccountsList();
+  const { billAccounts, loading, error } = useBillAccountsList();
 
   if (loading) {
     return (
@@ -61,6 +58,7 @@ export default function BillAccountsPage() {
               <TableCell>Tipo</TableCell>
               <TableCell align="right">Balance</TableCell>
               <TableCell align="center">Acciones</TableCell>
+              <TableCell>Detalle</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -71,40 +69,31 @@ export default function BillAccountsPage() {
                   <TableCell>{account.type}</TableCell>
                   <TableCell align="right">${Number(account.balance || 0).toFixed(2)}</TableCell>
                   <TableCell align="center">
-                    <Stack direction="row" spacing={1} justifyContent="center">
-                      <IconButton
-                        component={Link}
-                        to={`/bill-accounts/${account.id}/movements`}
-                        size="small"
-                        color="primary"
-                        title="Movimientos"
-                      >
-                        <VisibilityIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        component={Link}
-                        to={`/bill-accounts/${account.id}/edit`}
-                        size="small"
-                        color="warning"
-                        title="Editar"
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(account.id)}
-                        size="small"
-                        color="error"
-                        title="Eliminar"
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
+                    <IconButton
+                      component={Link}
+                      to={`/bill-accounts/${account.id}/edit`}
+                      size="small"
+                      color="warning"
+                      title="Editar"
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      component={Link}
+                      to={`/bill-accounts/${account.id}/movements`}
+                      size="small"
+                      variant="outlined"
+                    >
+                      Ver detalle
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
                   <Typography color="textSecondary">No hay cuentas de banco aún.</Typography>
                 </TableCell>
               </TableRow>

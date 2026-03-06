@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { billAccountService } from '../services/billAccountService';
 import { getErrorMessage } from '../utils/error';
-import type { BillAccount, UUID } from '../types/models';
+import type { BillAccount } from '../types/models';
 
 export function useBillAccountsList() {
 	const [billAccounts, setBillAccounts] = useState<BillAccount[]>([]);
@@ -26,25 +26,10 @@ export function useBillAccountsList() {
 		}
 	};
 
-	const handleDelete = async (id: UUID) => {
-		if (!window.confirm('¿Estás seguro de que quieres eliminar esta cuenta?')) {
-			return;
-		}
-
-		try {
-			await billAccountService.delete(id);
-			await loadBillAccounts();
-		} catch (err) {
-			setError(getErrorMessage(err));
-			console.error(err);
-		}
-	};
-
 	return {
 		billAccounts,
 		loading,
 		error,
 		loadBillAccounts,
-		handleDelete,
 	};
 }

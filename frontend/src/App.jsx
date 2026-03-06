@@ -14,6 +14,8 @@ import CategoriesPage from './pages/CategoriesPage';
 import HomePage from './pages/HomePage';
 import OrdersPage from './pages/OrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage';
+import PurchasesListPage from './pages/PurchasesListPage';
+import PurchaseDetailPage from './pages/PurchaseDetailPage';
 import PosPage from './pages/PosPage';
 import PurchasesPage from './pages/PurchasesPage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -37,6 +39,8 @@ import ProfilePage from './pages/ProfilePage';
 const NAV_ITEMS = [
   { label: 'Inicio', to: '/' },
   { label: 'Punto de venta', to: '/pos' },
+  { label: 'Ventas', to: '/orders' },
+  { label: 'Compras', to: '/purchase-orders' },
   { label: 'Clientes', to: '/contacts' },
   { label: 'Productos', to: '/products' },
 ];
@@ -141,6 +145,8 @@ function AppLayout() {
             {/* Orders */}
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:id" element={<OrderDetailPage />} />
+            <Route path="/purchase-orders" element={<PurchasesListPage />} />
+            <Route path="/purchase-orders/:id" element={<PurchaseDetailPage />} />
             <Route path="/pos" element={<PosPage />} />
             <Route path="/purchases" element={<PurchasesPage />} />
 

@@ -225,6 +225,24 @@ class OrderViewModel:
         return payload
 
     @staticmethod
+    def get_purchase_orders():
+        rows = (
+            db.session.query(Order, Contact.name)
+            .outerjoin(Contact, Contact.id == Order.contact_id)
+            .filter(Order.type == "purchase")
+            .order_by(Order.created_at.desc())
+            .all()
+        )
+
+        payload = []
+        for order, contact_name in rows:
+            serialized = order.to_dict()
+            serialized["contact_name"] = contact_name
+            payload.append(serialized)
+
+        return payload
+
+    @staticmethod
     def get_order_by_id(order_id):
         row = (
             db.session.query(Order, Contact.name)

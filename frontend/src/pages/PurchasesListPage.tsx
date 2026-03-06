@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -18,7 +17,7 @@ import {
   Chip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useOrdersList } from '../controllers/useOrdersListController';
+import { usePurchasesList } from '../controllers/usePurchasesListController';
 import { formatDateTime } from '../utils/date';
 import {
   getOrderStatusColor,
@@ -27,8 +26,8 @@ import {
   getPaymentStatusLabel,
 } from '../utils/orderPresentation';
 
-export default function OrdersPage() {
-  const { orders, loading, error } = useOrdersList();
+export default function PurchasesListPage() {
+  const { purchases, loading, error } = usePurchasesList();
 
   if (loading) {
     return (
@@ -44,15 +43,15 @@ export default function OrdersPage() {
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" component="h2" sx={{ fontWeight: 600 }}>
-          Ventas
+          Compras
         </Typography>
         <Button
           component={Link}
-          to="/pos"
+          to="/purchases"
           variant="contained"
           startIcon={<AddIcon />}
         >
-          Crear venta
+          Comprar
         </Button>
       </Box>
 
@@ -60,9 +59,9 @@ export default function OrdersPage() {
 
       <TableContainer component={Paper}>
         <Table>
-          <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+          <TableHead sx={{ backgroundColor: 'action.hover' }}>
             <TableRow>
-              <TableCell>Contacto</TableCell>
+              <TableCell>Proveedor</TableCell>
               <TableCell>Fecha creación</TableCell>
               <TableCell align="right">Total</TableCell>
               <TableCell>Estado</TableCell>
@@ -71,30 +70,30 @@ export default function OrdersPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {orders.length > 0 ? (
-              orders.map(order => (
-                <TableRow key={order.id} hover>
-                  <TableCell>{order.contact_name || '-'}</TableCell>
-                  <TableCell>{formatDateTime(order.created_at)}</TableCell>
-                  <TableCell align="right">${order.total}</TableCell>
+            {purchases.length > 0 ? (
+              purchases.map((purchase) => (
+                <TableRow key={purchase.id} hover>
+                  <TableCell>{purchase.contact_name || '-'}</TableCell>
+                  <TableCell>{formatDateTime(purchase.created_at)}</TableCell>
+                  <TableCell align="right">${purchase.total}</TableCell>
                   <TableCell>
                     <Chip
-                      label={getOrderStatusLabel(order.status)}
-                      color={getOrderStatusColor(order.status)}
+                      label={getOrderStatusLabel(purchase.status)}
+                      color={getOrderStatusColor(purchase.status)}
                       size="small"
                       variant="outlined"
                     />
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={getPaymentStatusLabel(order.payment_status)}
-                      color={getPaymentStatusColor(order.payment_status)}
+                      label={getPaymentStatusLabel(purchase.payment_status)}
+                      color={getPaymentStatusColor(purchase.payment_status)}
                       size="small"
                       variant="outlined"
                     />
                   </TableCell>
                   <TableCell align="center">
-                    <Button component={Link} to={`/orders/${order.id}`} size="small" variant="outlined">
+                    <Button component={Link} to={`/purchase-orders/${purchase.id}`} size="small" variant="outlined">
                       Ver detalle
                     </Button>
                   </TableCell>
@@ -103,7 +102,7 @@ export default function OrdersPage() {
             ) : (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
-                  <Typography color="textSecondary">No hay Ventas aún.</Typography>
+                  <Typography color="text.secondary">No hay compras aún.</Typography>
                 </TableCell>
               </TableRow>
             )}

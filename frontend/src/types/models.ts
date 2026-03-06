@@ -66,6 +66,8 @@ export interface Order {
   tax?: number | null;
   discount?: number | null;
   total?: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
   items?: CartItem[];
 }
 

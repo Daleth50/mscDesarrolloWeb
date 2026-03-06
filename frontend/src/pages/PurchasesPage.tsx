@@ -46,6 +46,7 @@ const INITIAL_QUICK_SUPPLIER_FORM: ContactFormData = {
 export default function PurchasesPage() {
   const {
     loading,
+    purchaseCompleting,
     error,
     suppliers,
     products,
@@ -161,6 +162,10 @@ export default function PurchasesPage() {
   };
 
   const handleCompletePurchase = async () => {
+    if (purchaseCompleting) {
+      return;
+    }
+
     if (!selectedSupplierId) {
       setDialogError('Debes seleccionar un proveedor.');
       return;
@@ -179,8 +184,13 @@ export default function PurchasesPage() {
     }
 
     try {
-      await completePurchase();
-      setSuccessMessage('Compra registrada y stock actualizado correctamente.');
+      const completedPurchase = await completePurchase();
+      const shortId = String(completedPurchase?.id || '').slice(0, 8);
+      setSuccessMessage(
+        shortId
+          ? `Compra registrada y stock actualizado correctamente (ID: ${shortId}).`
+          : 'Compra registrada y stock actualizado correctamente.'
+      );
       resetCurrentPurchase();
       setDialogError(null);
     } catch (err) {
@@ -470,11 +480,11 @@ export default function PurchasesPage() {
               color="success"
               startIcon={<CheckCircleIcon />}
               onClick={handleCompletePurchase}
-              disabled={cartItems.length === 0 || !selectedSupplierId || summary.total <= 0}
+              disabled={purchaseCompleting || cartItems.length === 0 || !selectedSupplierId || summary.total <= 0}
               fullWidth
               sx={{ mt: 'auto' }}
             >
-              Registrar compra
+              {purchaseCompleting ? <CircularProgress size={20} color="inherit" /> : 'Registrar compra'}
             </Button>
 
             {!selectedSupplierId && (

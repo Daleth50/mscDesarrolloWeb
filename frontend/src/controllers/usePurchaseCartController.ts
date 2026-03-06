@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { contactService } from '../services/contactService';
 import { orderService } from '../services/orderService';
 import { purchaseService } from '../services/purchaseService';
@@ -17,12 +17,14 @@ type CreateSupplierPayload = {
 
 export function usePurchaseCart() {
 	const [loading, setLoading] = useState(false);
+	const [purchaseCompleting, setPurchaseCompleting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [suppliers, setSuppliers] = useState<Contact[]>([]);
 	const [products, setProducts] = useState<PosProduct[]>([]);
 	const [cart, setCart] = useState<Order | null>(null);
 	const [selectedSupplierId, setSelectedSupplierId] = useState<UUID | ''>('');
 	const [pendingPurchaseCarts, setPendingPurchaseCarts] = useState<Order[]>([]);
+	const completePurchaseInFlightRef = useRef(false);
 
 	const cartItems = cart?.items || [];
 
@@ -46,6 +48,15 @@ export function usePurchaseCart() {
 		try {
 			const orders = await orderService.getAll();
 			setPendingPurchaseCarts(extractPendingPurchaseCarts(orders));
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
+	const refreshProductsSilently = async () => {
+		try {
+			const purchaseProducts = await purchaseService.getProducts();
+			setProducts(purchaseProducts);
 		} catch (err) {
 			console.error(err);
 		}
@@ -185,16 +196,41 @@ export function usePurchaseCart() {
 			throw new Error('No hay compra para completar');
 		}
 
+		if (completePurchaseInFlightRef.current || purchaseCompleting) {
+			return cart;
+		}
+
 		const supplierId = selectedSupplierId || cart.contact_id;
 		if (!supplierId) {
 			throw new Error('Debes seleccionar un proveedor antes de completar la compra.');
 		}
 
-		const completed = await purchaseService.complete(cart.id);
-		setCart(completed);
-		setSelectedSupplierId('');
-		refreshPendingPurchaseCartsSilently();
-		return completed;
+		try {
+			completePurchaseInFlightRef.current = true;
+			setPurchaseCompleting(true);
+
+			let cartToComplete = cart;
+			if (supplierId && cart.contact_id !== supplierId) {
+				cartToComplete = await purchaseService.updateCart(cart.id, {
+					contact_id: supplierId,
+				});
+				setCart(cartToComplete);
+			}
+
+			const completed = await purchaseService.complete(cartToComplete.id);
+			setCart(completed);
+			setSelectedSupplierId('');
+
+			await Promise.all([
+				refreshPendingPurchaseCartsSilently(),
+				refreshProductsSilently(),
+			]);
+
+			return completed;
+		} finally {
+			setPurchaseCompleting(false);
+			completePurchaseInFlightRef.current = false;
+		}
 	};
 
 	const createSupplier = async (payload: CreateSupplierPayload): Promise<Contact> => {
@@ -228,6 +264,7 @@ export function usePurchaseCart() {
 
 	return {
 		loading,
+		purchaseCompleting,
 		error,
 		suppliers,
 		products,

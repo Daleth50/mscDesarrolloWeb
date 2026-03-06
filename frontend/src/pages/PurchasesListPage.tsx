@@ -23,8 +23,6 @@ import { formatDateTime } from '../utils/date';
 import {
   getOrderStatusColor,
   getOrderStatusLabel,
-  getPaymentStatusColor,
-  getPaymentStatusLabel,
 } from '../utils/orderPresentation';
 
 export default function PurchasesListPage() {
@@ -87,7 +85,6 @@ export default function PurchasesListPage() {
                 <TableCell>Fecha creación</TableCell>
                 <TableCell align="right">Total</TableCell>
                 <TableCell>Estado</TableCell>
-                <TableCell>Pago</TableCell>
                 <TableCell align="center">Detalle</TableCell>
               </TableRow>
             </TableHead>
@@ -106,14 +103,6 @@ export default function PurchasesListPage() {
                         variant="outlined"
                       />
                     </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={getPaymentStatusLabel(purchase.payment_status)}
-                        color={getPaymentStatusColor(purchase.payment_status)}
-                        size="small"
-                        variant="outlined"
-                      />
-                    </TableCell>
                     <TableCell align="center">
                       <Button component={Link} to={`/purchase-orders/${purchase.id}`} size="small" variant="outlined">
                         Ver detalle
@@ -123,7 +112,7 @@ export default function PurchasesListPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
                     <Typography color="text.secondary">No hay compras aún.</Typography>
                   </TableCell>
                 </TableRow>

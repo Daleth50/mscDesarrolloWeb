@@ -22,8 +22,6 @@ import { formatCurrency } from '../utils/number';
 import {
   getOrderStatusColor,
   getOrderStatusLabel,
-  getPaymentStatusColor,
-  getPaymentStatusLabel,
 } from '../utils/orderPresentation';
 
 export default function PurchaseDetailPage() {
@@ -80,15 +78,6 @@ export default function PurchaseDetailPage() {
               <Chip
                 label={getOrderStatusLabel(purchase.status)}
                 color={getOrderStatusColor(purchase.status)}
-                size="small"
-                variant="outlined"
-              />
-            </Box>
-            <Box>
-              <Typography variant="body2" color="text.secondary">Pago</Typography>
-              <Chip
-                label={getPaymentStatusLabel(purchase.payment_status)}
-                color={getPaymentStatusColor(purchase.payment_status)}
                 size="small"
                 variant="outlined"
               />

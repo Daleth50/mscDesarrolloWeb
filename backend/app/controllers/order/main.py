@@ -610,7 +610,16 @@ class OrderViewModel:
 
     @staticmethod
     def complete_purchase_cart(cart_id):
-        cart = OrderViewModel._get_purchase_cart_or_raise(cart_id)
+        cart = Order.query.get(cart_id)
+        if not cart:
+            raise ValueError("Purchase cart not found")
+
+        if cart.type == "purchase" and cart.status == "completed":
+            return OrderViewModel._serialize_cart(cart)
+
+        if cart.type != "purchase_cart":
+            raise ValueError("Purchase cart not found")
+
         OrderViewModel._validate_supplier_contact(cart.contact_id)
 
         items = OrderItem.query.filter(OrderItem.order_id == cart.id).all()
@@ -627,8 +636,7 @@ class OrderViewModel:
 
         cart.type = "purchase"
         cart.status = "completed"
-        if not cart.payment_status:
-            cart.payment_status = "paid"
+        cart.payment_status = "paid"
 
         OrderViewModel._recalculate_cart_totals(cart)
         db.session.commit()

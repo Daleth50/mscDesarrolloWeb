@@ -3,6 +3,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app.controllers.product.main import ProductViewModel
 from app.controllers.contact.main import ContactViewModel
 from app.controllers.order.main import OrderViewModel
+from app.controllers.report.main import ReportViewModel
 from app.controllers.user import UserViewModel
 from app.controllers.bill_account import BillAccountViewModel
 from app.auth import (
@@ -634,6 +635,27 @@ def complete_purchase_cart(cart_id):
     try:
         cart = OrderViewModel.complete_purchase_cart(cart_id)
         return jsonify(cart), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ==================== REPORTS ====================
+
+@api_bp.route("/reports/overview", methods=["GET"])
+def get_reports_overview():
+    """Reporte general con filtros por fecha"""
+    try:
+        _require_admin_user()
+        from_value = request.args.get("from")
+        to_value = request.args.get("to")
+        top_limit = request.args.get("top_limit")
+        report = ReportViewModel.get_overview(from_value, to_value, top_limit)
+        return jsonify(report), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:

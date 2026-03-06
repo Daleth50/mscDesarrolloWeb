@@ -104,3 +104,59 @@ export interface User {
   created_at?: string;
   updated_at?: string;
 }
+
+export interface ReportDailyTotal {
+  date: string;
+  orders_count: number;
+  total: number;
+}
+
+export interface ReportTopProduct {
+  product_id: UUID;
+  product_name: string;
+  sku?: string | null;
+  quantity: number;
+  total: number;
+}
+
+export interface ReportTopContact {
+  contact_id?: UUID | null;
+  contact_name: string;
+  orders_count: number;
+  total: number;
+}
+
+export interface ReportPaymentMethod {
+  payment_method: string;
+  orders_count: number;
+  total: number;
+}
+
+export interface ReportBillFlow {
+  in_total: number;
+  out_total: number;
+  net_total: number;
+}
+
+export interface ReportsOverview {
+  range: {
+    from: string;
+    to: string;
+  };
+  totals: {
+    sales_count: number;
+    sales_total: number;
+    sales_avg_ticket: number;
+    purchases_count: number;
+    purchases_total: number;
+    purchases_avg_ticket: number;
+    net_total: number;
+  };
+  sales_by_day: ReportDailyTotal[];
+  purchases_by_day: ReportDailyTotal[];
+  top_products: ReportTopProduct[];
+  top_customers: ReportTopContact[];
+  top_suppliers: ReportTopContact[];
+  payment_methods: ReportPaymentMethod[];
+  bill_flow: ReportBillFlow;
+}

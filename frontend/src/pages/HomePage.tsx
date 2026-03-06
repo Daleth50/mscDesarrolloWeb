@@ -18,6 +18,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import { useAuth } from '../context/AuthContext';
 
 export default function HomePage() {
@@ -90,6 +91,13 @@ export default function HomePage() {
       href: '/bill-accounts',
       icon: AccountBalanceIcon,
       color: 'secondary',
+    });
+    modules.push({
+      title: 'Reportes',
+      description: 'Analiza ventas, compras y rendimiento',
+      href: '/reports',
+      icon: AssessmentIcon,
+      color: 'info',
     });
   }
 

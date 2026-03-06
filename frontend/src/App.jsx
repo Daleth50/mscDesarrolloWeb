@@ -30,6 +30,7 @@ import LoginPage from './pages/LoginPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import SupplierFormPage from './pages/SupplierFormPage';
+import ReportsPage from './pages/ReportsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthStatus from './components/AuthStatus';
 import RoleRoute from './components/RoleRoute';
@@ -46,9 +47,10 @@ const NAV_ITEMS = [
 ];
 
 function AppLayout() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
   const isImmersiveRoute = location.pathname === '/pos' || location.pathname === '/purchases';
+  const navItems = isAdmin ? [...NAV_ITEMS, { label: 'Reportes', to: '/reports' }] : NAV_ITEMS;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
@@ -81,7 +83,7 @@ function AppLayout() {
             </Link>
             {isAuthenticated && (
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-                {NAV_ITEMS.map((item) => (
+                {navItems.map((item) => (
                   <Button
                     key={item.to}
                     component={Link}
@@ -159,6 +161,7 @@ function AppLayout() {
               <Route path="/bill-accounts/new" element={<BillAccountFormPage />} />
               <Route path="/bill-accounts/:id/edit" element={<BillAccountFormPage />} />
               <Route path="/bill-accounts/:id/movements" element={<BillAccountMovementsPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
             </Route>
 
             {/* Profile */}

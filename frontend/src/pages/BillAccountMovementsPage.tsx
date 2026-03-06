@@ -27,23 +27,8 @@ import {
 } from '@mui/material';
 import { useBillAccountMovements } from '../controllers/useBillAccountMovementsController';
 import type { BillAccountMovement } from '../types/models';
-
-function formatCurrency(value: number): string {
-  return `$${Number(value || 0).toFixed(2)}`;
-}
-
-function formatDate(value?: string | null): string {
-  if (!value) {
-    return '-';
-  }
-
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-
-  return parsed.toLocaleString('es-ES');
-}
+import { formatDateTime } from '../utils/date';
+import { formatCurrency } from '../utils/number';
 
 function movementLabel(movementType: BillAccountMovement['movement_type']): string {
   return movementType === 'in' ? 'Ingreso' : 'Egreso';
@@ -144,11 +129,11 @@ export default function BillAccountMovementsPage() {
                 movements.map((movement) => {
                   const signedAmount = movement.movement_type === 'in'
                     ? formatCurrency(movement.amount)
-                    : `-${formatCurrency(movement.amount)}`;
+                    : formatCurrency(-movement.amount);
 
                   return (
                     <TableRow key={movement.id} hover>
-                      <TableCell>{formatDate(movement.created_at)}</TableCell>
+                      <TableCell>{formatDateTime(movement.created_at)}</TableCell>
                       <TableCell>{movementLabel(movement.movement_type)}</TableCell>
                       <TableCell
                         align="right"

@@ -22,34 +22,8 @@ import {
 } from '@mui/material';
 import { useReports } from '../controllers/useReportsController';
 import type { ReportDailyTotal, ReportTopContact, ReportTopProduct } from '../types/models';
-
-const REPORTS_LOCALE = 'es-ES';
-
-function formatCurrency(value: number): string {
-  return `$ ${new Intl.NumberFormat(REPORTS_LOCALE, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Number(value || 0))}`;
-}
-
-function formatInteger(value: number): string {
-  return new Intl.NumberFormat(REPORTS_LOCALE, {
-    maximumFractionDigits: 0,
-  }).format(Number(value || 0));
-}
-
-function formatDay(value: string): string {
-  const parsed = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(REPORTS_LOCALE, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(parsed);
-}
+import { formatDate } from '../utils/date';
+import { formatCurrency, formatInteger } from '../utils/number';
 
 function paymentMethodLabel(value: string): string {
   if (!value || value === 'sin_metodo') {
@@ -190,7 +164,7 @@ function DailyTotalsTable({
             {items.length > 0 ? (
               items.map((item) => (
                 <TableRow key={item.date} hover>
-                  <TableCell>{formatDay(item.date)}</TableCell>
+                  <TableCell>{formatDate(item.date)}</TableCell>
                   <TableCell align="right">{formatInteger(item.orders_count)}</TableCell>
                   <TableCell align="right">{formatCurrency(item.total)}</TableCell>
                 </TableRow>

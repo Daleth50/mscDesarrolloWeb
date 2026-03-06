@@ -18,6 +18,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import { Link } from 'react-router-dom';
 import { useBillAccountsList } from '../controllers/useBillAccountsListController';
+import { formatCurrency } from '../utils/number';
 
 export default function BillAccountsPage() {
   const { billAccounts, loading, error } = useBillAccountsList();
@@ -67,7 +68,7 @@ export default function BillAccountsPage() {
                 <TableRow key={account.id} hover>
                   <TableCell>{account.name}</TableCell>
                   <TableCell>{account.type}</TableCell>
-                  <TableCell align="right">${Number(account.balance || 0).toFixed(2)}</TableCell>
+                  <TableCell align="right">{formatCurrency(account.balance || 0)}</TableCell>
                   <TableCell align="center">
                     <IconButton
                       component={Link}

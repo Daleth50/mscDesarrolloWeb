@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { useProductDetail } from '../controllers/useProductDetailController';
 import { useAuth } from '../context/AuthContext';
+import { formatCurrency } from '../utils/number';
 
 export default function ProductDetailPage() {
   const { product, loading, error, handleEdit, handleBack } = useProductDetail();
@@ -81,7 +82,7 @@ export default function ProductDetailPage() {
                 Precio
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 600, color: 'success.main' }}>
-                ${(product.price ?? 0).toFixed(2)}
+                {formatCurrency(product.price ?? 0)}
               </Typography>
             </Grid>
             <Grid item xs={6}>
@@ -89,7 +90,7 @@ export default function ProductDetailPage() {
                 Costo
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                ${(product.cost ?? 0).toFixed(2)}
+                {formatCurrency(product.cost ?? 0)}
               </Typography>
             </Grid>
             <Grid item xs={6}>
@@ -97,7 +98,7 @@ export default function ProductDetailPage() {
                 Margen
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                ${((product.price ?? 0) - (product.cost ?? 0)).toFixed(2)}
+                {formatCurrency((product.price ?? 0) - (product.cost ?? 0))}
               </Typography>
             </Grid>
             <Grid item xs={6}>

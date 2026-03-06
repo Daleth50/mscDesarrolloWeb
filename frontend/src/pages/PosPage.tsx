@@ -32,6 +32,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import type { PaymentMethod, UUID } from '../types/models';
 import { usePosController } from '../controllers/usePosController';
+import { formatCurrency } from '../utils/number';
 
 export default function PosPage() {
   const {
@@ -207,7 +208,7 @@ export default function PosPage() {
                         Cliente: {getContactNameById(pendingCart.contact_id)}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Total: ${(pendingCart.total || 0).toFixed(2)}
+                        Total: {formatCurrency(pendingCart.total || 0)}
                       </Typography>
                       {isLoadingItem && <Typography variant="caption">Cargando carrito...</Typography>}
                     </Stack>
@@ -259,9 +260,9 @@ export default function PosPage() {
                     cartItems.map(item => (
                       <TableRow key={item.id} hover>
                         <TableCell>{item.product_name || item.product_id}</TableCell>
-                        <TableCell align="right">${item.price.toFixed(2)}</TableCell>
+                        <TableCell align="right">{formatCurrency(item.price)}</TableCell>
                         <TableCell align="right">{item.quantity}</TableCell>
-                        <TableCell align="right">${item.total.toFixed(2)}</TableCell>
+                        <TableCell align="right">{formatCurrency(item.total)}</TableCell>
                         <TableCell align="center">
                           <Stack direction="row" spacing={1} justifyContent="center">
                             <IconButton color="warning" size="small" onClick={() => openEditQuantityDialog(item)}>
@@ -293,10 +294,10 @@ export default function PosPage() {
           </Typography>
 
           <Stack spacing={1} sx={{ height: '100%' }}>
-            <Typography variant="body2">Subtotal: ${summary.subtotal.toFixed(2)}</Typography>
-            <Typography variant="body2">Impuestos: ${summary.tax.toFixed(2)}</Typography>
-            <Typography variant="body2">Descuento: ${summary.discount.toFixed(2)}</Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>Total: ${summary.total.toFixed(2)}</Typography>
+            <Typography variant="body2">Subtotal: {formatCurrency(summary.subtotal)}</Typography>
+            <Typography variant="body2">Impuestos: {formatCurrency(summary.tax)}</Typography>
+            <Typography variant="body2">Descuento: {formatCurrency(summary.discount)}</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>Total: {formatCurrency(summary.total)}</Typography>
             <Typography variant="caption" color="text.secondary">
               Estado pago carrito: {cart?.payment_status || 'pending'}
             </Typography>
@@ -398,7 +399,7 @@ export default function PosPage() {
                   <TableRow key={product.id} hover>
                     <TableCell>{product.name}</TableCell>
                     <TableCell>{product.sku || '-'}</TableCell>
-                    <TableCell align="right">${product.price.toFixed(2)}</TableCell>
+                    <TableCell align="right">{formatCurrency(product.price)}</TableCell>
                     <TableCell align="right">{product.stock_available}</TableCell>
                     <TableCell align="center">
                       <IconButton
@@ -503,7 +504,7 @@ export default function PosPage() {
             )}
 
             <Typography variant="body2" color="text.secondary">
-              Total de venta: ${summary.total.toFixed(2)}
+              Total de venta: {formatCurrency(summary.total)}
             </Typography>
           </Stack>
         </DialogContent>

@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { useOrderDetail } from '../controllers/useOrderDetailController';
 import { formatDateTime } from '../utils/date';
+import { formatCurrency } from '../utils/number';
 import {
   getOrderStatusColor,
   getOrderStatusLabel,
@@ -99,7 +100,7 @@ export default function OrderDetailPage() {
             <Box>
               <Typography variant="body2" color="text.secondary">Total</Typography>
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                ${Number(order.total || 0).toFixed(2)}
+                {formatCurrency(order.total || 0)}
               </Typography>
             </Box>
           </Stack>
@@ -121,8 +122,8 @@ export default function OrderDetailPage() {
                   <TableRow key={item.id} hover>
                     <TableCell>{item.product_name || item.product_id}</TableCell>
                     <TableCell align="right">{item.quantity}</TableCell>
-                    <TableCell align="right">${Number(item.price || 0).toFixed(2)}</TableCell>
-                    <TableCell align="right">${Number(item.total || 0).toFixed(2)}</TableCell>
+                    <TableCell align="right">{formatCurrency(item.price || 0)}</TableCell>
+                    <TableCell align="right">{formatCurrency(item.total || 0)}</TableCell>
                   </TableRow>
                 ))
               ) : (

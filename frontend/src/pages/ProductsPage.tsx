@@ -14,14 +14,13 @@ import {
   Paper,
   Alert,
   CircularProgress,
-  Stack,
   IconButton,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
 import { useProductsList } from '../controllers/useProductsListController';
 import { useAuth } from '../context/AuthContext';
+import { formatCurrency } from '../utils/number';
 
 export default function ProductsPage() {
   const { products, loading, error, handleView, handleEdit } = useProductsList();
@@ -68,6 +67,7 @@ export default function ProductsPage() {
               <TableCell align="right">Stock actual</TableCell>
               <TableCell>Categoría</TableCell>
               <TableCell align="center">Acciones</TableCell>
+              <TableCell>Detalle</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -76,36 +76,35 @@ export default function ProductsPage() {
                 <TableRow key={product.id} hover>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.sku || '-'}</TableCell>
-                  <TableCell align="right">${(product.price ?? 0).toFixed(2)}</TableCell>
-                  <TableCell align="right">${(product.cost ?? 0).toFixed(2)}</TableCell>
+                  <TableCell align="right">{formatCurrency(product.price ?? 0)}</TableCell>
+                  <TableCell align="right">{formatCurrency(product.cost ?? 0)}</TableCell>
                   <TableCell align="right">{(product.stock_available ?? 0).toFixed(2)}</TableCell>
                   <TableCell>{product.category_name || '-'}</TableCell>
                   <TableCell align="center">
-                    <Stack direction="row" spacing={1} justifyContent="center">
-                      <IconButton
-                        onClick={() => handleView(product.id)}
-                        size="small"
-                        color="primary"
-                        title="Ver"
-                      >
-                        <VisibilityIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleEdit(product.id)}
-                        size="small"
-                        color="warning"
-                        title="Editar"
-                        disabled={!canEditProducts}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
+                    <IconButton
+                      onClick={() => handleEdit(product.id)}
+                      size="small"
+                      color="warning"
+                      title="Editar"
+                      disabled={!canEditProducts}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      onClick={() => handleView(product.id)}
+                      size="small"
+                      variant="outlined"
+                    >
+                      Ver detalle
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
                   <Typography color="textSecondary">No hay productos aún.</Typography>
                 </TableCell>
               </TableRow>

@@ -30,6 +30,30 @@ export interface Product {
   category_id?: UUID | null;
 }
 
+export type ProductInventoryMovementType = 'in' | 'out';
+
+export interface ProductInventoryMovement {
+  id: UUID;
+  product_id: UUID;
+  quantity: number;
+  movement_type: ProductInventoryMovementType;
+  occurred_at?: string | null;
+}
+
+export interface ProductMovementsPagination {
+  page: number;
+  per_page: number;
+  total_items: number;
+  total_pages: number;
+  has_next: boolean;
+  has_prev: boolean;
+}
+
+export interface ProductInventoryMovementsResponse {
+  items: ProductInventoryMovement[];
+  pagination: ProductMovementsPagination;
+}
+
 export type OrderStatus = 'pending' | 'completed' | 'cancelled';
 export type PaymentStatus = 'pending' | 'unpaid' | 'paid' | 'partial';
 export type OrderType = 'cart' | 'sale' | 'quote' | string;

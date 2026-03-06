@@ -21,6 +21,32 @@ class ProductViewModel:
         }
 
     @staticmethod
+    def _parse_bounded_int(value, field_name, default, min_value, max_value):
+        if value in (None, ""):
+            return default
+
+        try:
+            parsed_value = int(value)
+        except (TypeError, ValueError):
+            raise ValueError(f"{field_name} must be an integer")
+
+        if parsed_value < min_value or parsed_value > max_value:
+            raise ValueError(f"{field_name} must be between {min_value} and {max_value}")
+
+        return parsed_value
+
+    @staticmethod
+    def _serialize_inventory_movement(movement):
+        quantity = float(movement.quantity) if movement.quantity is not None else 0.0
+        return {
+            "id": movement.id,
+            "product_id": movement.product_id,
+            "quantity": quantity,
+            "movement_type": "in" if quantity >= 0 else "out",
+            "occurred_at": movement.updated_at.isoformat() if movement.updated_at else None,
+        }
+
+    @staticmethod
     def _get_stock_map(product_ids):
         if not product_ids:
             return {}
@@ -220,6 +246,55 @@ class ProductViewModel:
             category_map.get(product.id),
             stock_map.get(product.id, 0.0),
         )
+
+    @staticmethod
+    def get_product_inventory_movements(product_id, page=None, per_page=None):
+        product = Product.query.get(product_id)
+        if not product:
+            raise ValueError("Product not found")
+
+        parsed_page = ProductViewModel._parse_bounded_int(
+            page,
+            "Page",
+            default=1,
+            min_value=1,
+            max_value=100000,
+        )
+        parsed_per_page = ProductViewModel._parse_bounded_int(
+            per_page,
+            "Per page",
+            default=10,
+            min_value=1,
+            max_value=100,
+        )
+
+        base_query = Inventory.query.filter(Inventory.product_id == product_id)
+        total_items = base_query.count()
+        total_pages = (total_items + parsed_per_page - 1) // parsed_per_page if total_items > 0 else 1
+        offset = (parsed_page - 1) * parsed_per_page
+
+        movements = (
+            base_query
+            .order_by(Inventory.updated_at.desc(), Inventory.id.desc())
+            .offset(offset)
+            .limit(parsed_per_page)
+            .all()
+        )
+
+        return {
+            "items": [
+                ProductViewModel._serialize_inventory_movement(movement)
+                for movement in movements
+            ],
+            "pagination": {
+                "page": parsed_page,
+                "per_page": parsed_per_page,
+                "total_items": total_items,
+                "total_pages": total_pages,
+                "has_next": parsed_page < total_pages,
+                "has_prev": parsed_page > 1,
+            },
+        }
     
     @staticmethod
     def create_product(form_data):

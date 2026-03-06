@@ -9,6 +9,22 @@ export const productService = {
     return api.get(`/products/${id}`);
   },
 
+  getMovements(id, params = {}) {
+    const search = new URLSearchParams();
+
+    if (params.page) {
+      search.set('page', String(params.page));
+    }
+
+    if (params.perPage) {
+      search.set('per_page', String(params.perPage));
+    }
+
+    const query = search.toString();
+    const endpoint = query ? `/products/${id}/movements?${query}` : `/products/${id}/movements`;
+    return api.get(endpoint);
+  },
+
   create(product) {
     return api.post('/products', product);
   },

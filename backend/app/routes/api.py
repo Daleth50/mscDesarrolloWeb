@@ -172,6 +172,21 @@ def get_product(product_id):
         return jsonify({"error": str(e)}), 500
 
 
+@api_bp.route("/products/<string:product_id>/movements", methods=["GET"])
+def get_product_movements(product_id):
+    """Listar histórico de movimientos de inventario de un producto"""
+    try:
+        page = request.args.get("page")
+        per_page = request.args.get("per_page")
+        movements = ProductViewModel.get_product_inventory_movements(product_id, page, per_page)
+        return jsonify(movements), 200
+    except ValueError as e:
+        status_code = 404 if str(e) == "Product not found" else 400
+        return jsonify({"error": str(e)}), status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @api_bp.route("/products", methods=["POST"])
 def create_product():
     """Crear nuevo producto"""

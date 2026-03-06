@@ -12,12 +12,6 @@ def index():
 def health():
     return "Healthy", 200
 
-products = [
-    {'id': 1, 'name': 'Product A'},
-    {'id': 2, 'name': 'Product B'},
-    {'id': 3, 'name': 'Product C'}
-]
-
 
 if __name__ == "__main__":
     app.run(debug=True)

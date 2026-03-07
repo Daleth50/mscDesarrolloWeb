@@ -533,6 +533,16 @@ def get_pos_products():
         return jsonify({"error": str(e)}), 500
 
 
+@api_bp.route("/pos/carts/pending", methods=["GET"])
+def get_pending_pos_carts():
+    """Listar carritos POS pendientes"""
+    try:
+        carts = OrderViewModel.get_pending_pos_carts()
+        return jsonify(carts), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @api_bp.route("/pos/bill-accounts", methods=["GET"])
 def get_pos_bill_accounts():
     """Listar cuentas de banco para POS por tipo"""

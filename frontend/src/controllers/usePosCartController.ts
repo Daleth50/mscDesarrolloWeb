@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { contactService } from '../services/contactService';
-import { orderService } from '../services/orderService';
 import { posService } from '../services/posService';
 import { getErrorMessage } from '../utils/error';
 import type { BillAccount, CartItem, Contact, Order, PaymentMethod, PosProduct, UUID } from '../types/models';
@@ -38,14 +37,10 @@ export function usePosCart() {
     loadInitialData();
   }, []);
 
-  const extractPendingPosCarts = (orders: Order[]) => (
-    orders.filter((order) => order.type === 'cart' && order.status === 'pending')
-  );
-
   const refreshPendingCartsSilently = async () => {
     try {
-      const orders = await orderService.getAll();
-      setPendingCarts(extractPendingPosCarts(orders));
+      const carts = await posService.getPendingCarts();
+      setPendingCarts(carts);
     } catch (err) {
       console.error(err);
     }
@@ -63,14 +58,14 @@ export function usePosCart() {
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      const [contactsData, posProducts, orders] = await Promise.all([
+      const [contactsData, posProducts, pendingPosCarts] = await Promise.all([
         contactService.getAll('customer'),
         posService.getProducts(),
-        orderService.getAll(),
+        posService.getPendingCarts(),
       ]);
       setContacts(contactsData);
       setProducts(posProducts);
-      setPendingCarts(extractPendingPosCarts(orders));
+      setPendingCarts(pendingPosCarts);
     } catch (err) {
       setError(getErrorMessage(err));
       console.error(err);

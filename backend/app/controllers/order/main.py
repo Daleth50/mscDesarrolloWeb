@@ -225,6 +225,27 @@ class OrderViewModel:
         return payload
 
     @staticmethod
+    def get_pending_pos_carts():
+        rows = (
+            db.session.query(Order, Contact.name)
+            .outerjoin(Contact, Contact.id == Order.contact_id)
+            .filter(
+                Order.type == "cart",
+                Order.status == "pending",
+            )
+            .order_by(Order.created_at.desc())
+            .all()
+        )
+
+        payload = []
+        for order, contact_name in rows:
+            serialized = order.to_dict()
+            serialized["contact_name"] = contact_name
+            payload.append(serialized)
+
+        return payload
+
+    @staticmethod
     def get_purchase_orders():
         rows = (
             db.session.query(Order, Contact.name)

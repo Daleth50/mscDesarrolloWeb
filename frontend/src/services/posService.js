@@ -5,6 +5,10 @@ export const posService = {
     return api.get('/pos/products');
   },
 
+  getPendingCarts() {
+    return api.get('/pos/carts/pending');
+  },
+
   getBillAccounts(type) {
     const query = type ? `?type=${encodeURIComponent(type)}` : '';
     return api.get(`/pos/bill-accounts${query}`);

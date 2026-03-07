@@ -1,94 +1,217 @@
-# Flask Application with MySQL
+# AppWeb POS
 
-A simple Flask application template with SQLAlchemy ORM and MySQL database integration.
+Aplicación web de punto de venta con arquitectura SPA + API REST.
 
-## Prerequisites
+- Backend: Flask + SQLAlchemy + MySQL
+- Frontend: React + Vite + Material UI
+- Auth: token Bearer en encabezado `Authorization`
 
-- Python 3.9+
-- MySQL 8.0+
-- pip
+## Tabla de contenido
 
-## Installation
+- [Requisitos](#requisitos)
+- [Instalación rápida](#instalación-rápida)
+- [Configuración de variables de entorno](#configuración-de-variables-de-entorno)
+- [Base de datos y migraciones](#base-de-datos-y-migraciones)
+- [Ejecución en desarrollo](#ejecución-en-desarrollo)
+- [Build y ejecución tipo producción](#build-y-ejecución-tipo-producción)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Resumen de API](#resumen-de-api)
+- [Comandos útiles](#comandos-útiles)
+- [Solución de problemas](#solución-de-problemas)
 
-1. Clone or navigate to the project directory:
+## Requisitos
+
+- Python 3.10 o superior
+- Node.js 18 o superior
+- npm
+- MySQL 8.0 o superior
+
+## Instalación rápida
+
+Desde la raíz del proyecto:
+
 ```bash
-cd appWeb
+# 1) Entorno virtual Python
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2) Dependencias backend
+pip install -r backend/requirements.txt
+
+# 3) Dependencias frontend
+cd frontend
+npm install
+cd ..
 ```
 
-2. Create a virtual environment:
-```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+## Configuración de variables de entorno
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+### 1) Backend: `backend/.env`
 
-4. Create a `.env` file based on `.env.example`:
-```bash
-cp .env.example .env
-```
+```env
+FLASK_ENV=development
+FLASK_PORT=5000
+SECRET_KEY=dev-secret-change-me
 
-5. Update `.env` with your MySQL credentials:
-```
-DB_HOST=localhost
+DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_USER=your_user
-DB_PASSWORD=your_password
-DB_NAME=your_database
+DB_USER=root
+DB_PASSWORD=tu_password
+DB_NAME=swipall_pos
+
+FRONTEND_URL=http://127.0.0.1:5173
+AUTH_TOKEN_MAX_AGE=28800
+PASSWORD_RESET_TOKEN_MAX_AGE=3600
 ```
 
-## Database Setup
+### 2) Frontend: `frontend/.env.local`
 
-Make sure your MySQL server is running and create the database:
+```env
+VITE_API_URL=http://127.0.0.1:5000/api
+```
+
+Nota:
+- Si cambias `FLASK_PORT`, actualiza también `VITE_API_URL`.
+- Si no defines `VITE_API_URL`, el frontend usa por defecto `http://localhost:4203/api`.
+
+## Base de datos y migraciones
+
+Crear base de datos en MySQL:
 
 ```sql
-CREATE DATABASE app_database CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE swipall_pos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-## Running the Application
+Aplicar migraciones:
 
 ```bash
+cd backend
+source ../.venv/bin/activate
+FLASK_APP=run.py flask db upgrade
+cd ..
+```
+
+## Ejecución en desarrollo
+
+### Opción A: script único (backend + frontend)
+
+```bash
+source .venv/bin/activate
+python backend/app/scripts/dev.py
+```
+
+Servicios esperados:
+- Frontend: `http://127.0.0.1:5173`
+- Backend API: `http://127.0.0.1:5000`
+
+### Opción B: terminales separadas
+
+Terminal 1 (backend):
+
+```bash
+cd backend
+source ../.venv/bin/activate
 python run.py
 ```
 
-The application will be available at `http://localhost:5000`
+Terminal 2 (frontend):
 
-## Project Structure
-
+```bash
+cd frontend
+npm run dev
 ```
+
+## Build y ejecución tipo producción
+
+Generar build de React en `backend/app/static/dist`:
+
+```bash
+cd frontend
+npm run build
+cd ..
+```
+
+Levantar Flask sirviendo SPA compilada:
+
+```bash
+cd backend
+source ../.venv/bin/activate
+python run.py
+```
+
+Abrir `http://127.0.0.1:5000`.
+
+## Estructura del proyecto
+
+```text
 appWeb/
-├── app/
-│   ├── __init__.py          # Application factory
-│   ├── config.py            # Configuration settings
-│   ├── database.py          # SQLAlchemy initialization
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── base.py          # Database models
-│   └── routes/
-│       ├── __init__.py
-│       └── main.py          # Route blueprints
-├── migrations/              # Database migrations (for Alembic)
-├── tests/                   # Unit tests
-├── .env.example             # Environment variables template
-├── requirements.txt         # Project dependencies
-├── run.py                   # Application entry point
-└── README.md               # This file
+├── backend/
+│   ├── app/
+│   │   ├── controllers/      # Lógica por módulo (product, order, contact, report, etc.)
+│   │   ├── models/           # Modelos SQLAlchemy
+│   │   ├── routes/           # Endpoints Flask (`/health`, `/api/*`)
+│   │   ├── scripts/dev.py    # Arranque conjunto en desarrollo
+│   │   └── static/dist/      # Build frontend para producción
+│   ├── migrations/           # Alembic
+│   ├── requirements.txt
+│   └── run.py                # Entry point principal
+└── frontend/
+	├── src/
+	│   ├── pages/
+	│   ├── controllers/
+	│   ├── services/api.js
+	│   └── components/
+	├── package.json
+	└── vite.config.js
 ```
 
-## API Endpoints
+## Resumen de API
 
-- `GET /` - Health check
-- `GET /health` - Load balancer health check
+Base URL: `/api`
 
-## Best Practices Implemented
+- Auth: `/auth/login`, `/auth/me`, `/auth/password/forgot`, `/auth/password/reset`
+- Productos y categorías: `/products`, `/products/:id/movements`, `/categories`
+- Contactos y proveedores: `/contacts`, `/suppliers`
+- Órdenes: `/orders`, `/orders/sales`, `/orders/purchases`
+- POS y compras: `/pos/*`, `/purchases/*`
+- Reportes: `/reports/overview`
+- Usuarios: `/users`
+- Cuentas por cobrar: `/bill-accounts`, `/bill-accounts/:id/movements`
 
-- Application factory pattern for flexible app creation
-- Blueprint-based route organization
-- Environment-based configuration
-- SQLAlchemy ORM with modern syntax (SQLAlchemy 2.0+)
-- Logging setup
-- Security headers configuration
-- Modular code structure
+Health check:
+- `GET /health`
+
+Autenticación:
+- Excepto endpoints de login/recuperación, la API requiere `Authorization: Bearer <token>`.
+
+## Comandos útiles
+
+```bash
+# Backend
+cd backend
+source ../.venv/bin/activate
+python run.py
+
+# Frontend
+cd frontend
+npm run dev
+npm run build
+npm run preview
+```
+
+## Solución de problemas
+
+### Backend no levanta
+
+- Verifica conexión y credenciales MySQL en `backend/.env`.
+- Confirma que la base de datos existe y que aplicaste migraciones.
+
+### Frontend no conecta con API
+
+- Revisa `frontend/.env.local` y el valor de `VITE_API_URL`.
+- Verifica que el puerto de Flask coincida con la URL configurada.
+
+### Error 401 en endpoints
+
+- Confirma que estás enviando `Authorization: Bearer <token>`.
+- Revisa expiración de token (`AUTH_TOKEN_MAX_AGE`).

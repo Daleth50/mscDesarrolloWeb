@@ -1,0 +1,285 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { contactService } from '../services/contactService';
+import { orderService } from '../services/orderService';
+import { purchaseService } from '../services/purchaseService';
+import { getErrorMessage } from '../utils/error';
+import type { CartItem, Contact, Order, PosProduct, UUID } from '../types/models';
+
+const DEFAULT_PAYMENT_STATUS = 'pending';
+
+type CreateSupplierPayload = {
+	name: string;
+	email: string;
+	phone: string;
+	address: string;
+	kind: 'customer' | 'supplier';
+};
+
+export function usePurchaseCart() {
+	const [loading, setLoading] = useState(false);
+	const [purchaseCompleting, setPurchaseCompleting] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [suppliers, setSuppliers] = useState<Contact[]>([]);
+	const [products, setProducts] = useState<PosProduct[]>([]);
+	const [cart, setCart] = useState<Order | null>(null);
+	const [selectedSupplierId, setSelectedSupplierId] = useState<UUID | ''>('');
+	const [pendingPurchaseCarts, setPendingPurchaseCarts] = useState<Order[]>([]);
+	const completePurchaseInFlightRef = useRef(false);
+
+	const cartItems = cart?.items || [];
+
+	const summary = useMemo(() => {
+		const subtotal = cart?.subtotal || 0;
+		const tax = cart?.tax || 0;
+		const discount = cart?.discount || 0;
+		const total = cart?.total || 0;
+		return { subtotal, tax, discount, total };
+	}, [cart]);
+
+	useEffect(() => {
+		loadInitialData();
+	}, []);
+
+	const extractPendingPurchaseCarts = (orders: Order[]) => (
+		orders.filter((order) => order.type === 'purchase_cart' && order.status === 'pending')
+	);
+
+	const refreshPendingPurchaseCartsSilently = async () => {
+		try {
+			const orders = await orderService.getAll();
+			setPendingPurchaseCarts(extractPendingPurchaseCarts(orders));
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
+	const refreshProductsSilently = async () => {
+		try {
+			const purchaseProducts = await purchaseService.getProducts();
+			setProducts(purchaseProducts);
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
+	const loadInitialData = async () => {
+		try {
+			setLoading(true);
+			const [suppliersData, purchaseProducts, orders] = await Promise.all([
+				contactService.getAll('supplier'),
+				purchaseService.getProducts(),
+				orderService.getAll(),
+			]);
+			setSuppliers(suppliersData);
+			setProducts(purchaseProducts);
+			setPendingPurchaseCarts(extractPendingPurchaseCarts(orders));
+		} catch (err) {
+			setError(getErrorMessage(err));
+			console.error(err);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const ensureCart = async () => {
+		if (cart?.id) {
+			return cart.id;
+		}
+
+		const created = await purchaseService.createCart({
+			contact_id: selectedSupplierId || null,
+			payment_status: DEFAULT_PAYMENT_STATUS,
+		});
+		setCart(created);
+		refreshPendingPurchaseCartsSilently();
+		return created.id;
+	};
+
+	const loadPendingCart = async (cartId: UUID) => {
+		try {
+			setLoading(true);
+			const loadedCart = await purchaseService.getCart(cartId);
+			setCart(loadedCart);
+			setSelectedSupplierId(loadedCart.contact_id || '');
+			setError(null);
+		} catch (err) {
+			setError(getErrorMessage(err));
+			console.error(err);
+			throw err;
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleSelectSupplier = async (supplierId: UUID | '') => {
+		setSelectedSupplierId(supplierId);
+
+		if (!cart?.id) {
+			return;
+		}
+
+		try {
+			setLoading(true);
+			const updated = await purchaseService.updateCart(cart.id, {
+				contact_id: supplierId || null,
+			});
+			setCart(updated);
+			refreshPendingPurchaseCartsSilently();
+			setError(null);
+		} catch (err) {
+			setError(getErrorMessage(err));
+			console.error(err);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const addProductToCart = async (productId: UUID, quantity: number) => {
+		try {
+			setLoading(true);
+			const cartId = await ensureCart();
+			const updated = await purchaseService.addItem(cartId, { product_id: productId, quantity });
+			setCart(updated);
+			refreshPendingPurchaseCartsSilently();
+			setError(null);
+		} catch (err) {
+			setError(getErrorMessage(err));
+			console.error(err);
+			throw err;
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const updateItemQuantity = async (item: CartItem, quantity: number) => {
+		if (!cart?.id) {
+			return;
+		}
+
+		try {
+			setLoading(true);
+			const updated = await purchaseService.updateItem(cart.id, item.id, { quantity });
+			setCart(updated);
+			refreshPendingPurchaseCartsSilently();
+			setError(null);
+		} catch (err) {
+			setError(getErrorMessage(err));
+			console.error(err);
+			throw err;
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const removeItem = async (item: CartItem) => {
+		if (!cart?.id) {
+			return;
+		}
+
+		try {
+			setLoading(true);
+			const updated = await purchaseService.removeItem(cart.id, item.id);
+			setCart(updated);
+			refreshPendingPurchaseCartsSilently();
+			setError(null);
+		} catch (err) {
+			setError(getErrorMessage(err));
+			console.error(err);
+			throw err;
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const completePurchase = async () => {
+		if (!cart?.id) {
+			throw new Error('No hay compra para completar');
+		}
+
+		if (completePurchaseInFlightRef.current || purchaseCompleting) {
+			return cart;
+		}
+
+		const supplierId = selectedSupplierId || cart.contact_id;
+		if (!supplierId) {
+			throw new Error('Debes seleccionar un proveedor antes de completar la compra.');
+		}
+
+		try {
+			completePurchaseInFlightRef.current = true;
+			setPurchaseCompleting(true);
+
+			let cartToComplete = cart;
+			if (supplierId && cart.contact_id !== supplierId) {
+				cartToComplete = await purchaseService.updateCart(cart.id, {
+					contact_id: supplierId,
+				});
+				setCart(cartToComplete);
+			}
+
+			const completed = await purchaseService.complete(cartToComplete.id);
+			setCart(completed);
+			setSelectedSupplierId('');
+
+			await Promise.all([
+				refreshPendingPurchaseCartsSilently(),
+				refreshProductsSilently(),
+			]);
+
+			return completed;
+		} finally {
+			setPurchaseCompleting(false);
+			completePurchaseInFlightRef.current = false;
+		}
+	};
+
+	const createSupplier = async (payload: CreateSupplierPayload): Promise<Contact> => {
+		try {
+			const createdSupplier = await contactService.create(payload);
+			setSuppliers((current) => [...current, createdSupplier]);
+
+			if (cart?.id) {
+				const updated = await purchaseService.updateCart(cart.id, {
+					contact_id: createdSupplier.id,
+				});
+				setCart(updated);
+				refreshPendingPurchaseCartsSilently();
+			}
+
+			setSelectedSupplierId(createdSupplier.id);
+			setError(null);
+			return createdSupplier;
+		} catch (err) {
+			setError(getErrorMessage(err));
+			console.error(err);
+			throw err;
+		}
+	};
+
+	const resetCurrentPurchase = () => {
+		setCart(null);
+		setSelectedSupplierId('');
+		refreshPendingPurchaseCartsSilently();
+	};
+
+	return {
+		loading,
+		purchaseCompleting,
+		error,
+		suppliers,
+		products,
+		cart,
+		cartItems,
+		pendingPurchaseCarts,
+		selectedSupplierId,
+		summary,
+		loadPendingCart,
+		handleSelectSupplier,
+		addProductToCart,
+		updateItemQuantity,
+		removeItem,
+		completePurchase,
+		createSupplier,
+		resetCurrentPurchase,
+	};
+}

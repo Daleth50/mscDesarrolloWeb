@@ -10,12 +10,14 @@ Aplicación web de punto de venta con arquitectura SPA + API REST.
 
 ## 📚 Documentación Disponible
 
+Toda la documentación se encuentra en la carpeta **`docs/`**.
+
 | Documento | Descripción |
 |-----------|-------------|
-| **[SETUP.md](SETUP.md)** | ⚡ Guía completa de instalación (comenzar aquí) |
-| **[DOCS.md](DOCS.md)** | 📖 Índice de documentación y búsqueda rápida |
-| **[DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)** | 🗄️ Estructura completa de la base de datos |
-| **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** | 🔄 Guía de migraciones |
+| **[SETUP.md](docs/SETUP.md)** | ⚡ Guía completa de instalación (comenzar aquí) |
+| **[DOCS.md](docs/DOCS.md)** | 📖 Índice de documentación y búsqueda rápida |
+| **[DATABASE_STRUCTURE.md](docs/DATABASE_STRUCTURE.md)** | 🗄️ Estructura completa de la base de datos |
+| **[MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md)** | 🔄 Guía de migraciones |
 
 ---
 

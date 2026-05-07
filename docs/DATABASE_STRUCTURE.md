@@ -1,196 +1,196 @@
-# Estructura de la Base de Datos
+# Database Structure
 
-## Descripción General
-La base de datos está diseñada para un sistema POS (Punto de Venta) e inventario. Utiliza **SQLAlchemy** con **Alembic** para migraciones. Las IDs se generan con UUID.
-
----
-
-## 📊 Tablas
-
-### 1. **users**
-Gestiona los usuarios del sistema.
-
-| Columna | Tipo | Restricciones | Descripción |
-|---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único del usuario |
-| `first_name` | String(100) | NOT NULL | Primer nombre |
-| `last_name` | String(100) | NOT NULL | Apellido |
-| `email` | String(255) | UNIQUE, NOT NULL | Correo electrónico |
-| `username` | String(100) | UNIQUE, NOT NULL | Nombre de usuario |
-| `password` | String(255) | NOT NULL | Contraseña (hash) |
-| `role` | String(50) | DEFAULT 'user' | Rol del usuario |
-| `is_active` | Boolean | DEFAULT True | Estado activo/inactivo |
-| `created_at` | DateTime | DEFAULT NOW | Fecha de creación |
-| `updated_at` | DateTime | DEFAULT NOW | Última actualización |
+## Overview
+The database is designed for a POS (Point of Sale) and inventory system. It uses SQLAlchemy with Alembic for migrations. IDs are generated with UUID.
 
 ---
 
-### 2. **contacts**
-Información de contactos (clientes, proveedores).
+## Tables
 
-| Columna | Tipo | Restricciones | Descripción |
+### 1. users
+Manages system users.
+
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `name` | String(255) | - | Nombre del contacto |
-| `email` | String(255) | - | Correo electrónico |
-| `phone` | String(50) | - | Número telefónico |
-| `address` | Text | - | Dirección |
-| `latitude` | Numeric(10,8) | - | Latitud geográfica (opcional) |
-| `longitude` | Numeric(11,8) | - | Longitud geográfica (opcional) |
-| `kind` | String(20) | NOT NULL, DEFAULT 'customer' | Tipo: customer, supplier, etc |
-| `created_at` | DateTime | DEFAULT NOW | Fecha de creación |
-| `updated_at` | DateTime | DEFAULT NOW | Última actualización |
+| `id` | String(36) | PK, UUID | Unique user identifier |
+| `first_name` | String(100) | NOT NULL | First name |
+| `last_name` | String(100) | NOT NULL | Last name |
+| `email` | String(255) | UNIQUE, NOT NULL | Email address |
+| `username` | String(100) | UNIQUE, NOT NULL | Username |
+| `password` | String(255) | NOT NULL | Password (hash) |
+| `role` | String(50) | DEFAULT 'user' | User role |
+| `is_active` | Boolean | DEFAULT True | Active/inactive status |
+| `created_at` | DateTime | DEFAULT NOW | Creation date |
+| `updated_at` | DateTime | DEFAULT NOW | Last update |
 
 ---
 
-### 3. **products**
-Catálogo de productos.
+### 2. contacts
+Contact information (customers, suppliers).
 
-| Columna | Tipo | Restricciones | Descripción |
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `name` | String(255) | NOT NULL | Nombre del producto |
-| `sku` | String(100) | - | Código SKU |
-| `price` | Numeric(18,4) | - | Precio de venta |
-| `cost` | Numeric(18,4) | - | Costo del producto |
-| `tax_rate` | Numeric(5,2) | - | Tasa de impuesto (%) |
-| `attribute_combinations` | Text | - | JSON con combinaciones de atributos |
-| `created_at` | DateTime | DEFAULT NOW | Fecha de creación |
-| `updated_at` | DateTime | DEFAULT NOW | Última actualización |
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `name` | String(255) | - | Contact name |
+| `email` | String(255) | - | Email address |
+| `phone` | String(50) | - | Phone number |
+| `address` | Text | - | Address |
+| `latitude` | Numeric(10,8) | - | Geographic latitude (optional) |
+| `longitude` | Numeric(11,8) | - | Geographic longitude (optional) |
+| `kind` | String(20) | NOT NULL, DEFAULT 'customer' | Type: customer, supplier, etc |
+| `created_at` | DateTime | DEFAULT NOW | Creation date |
+| `updated_at` | DateTime | DEFAULT NOW | Last update |
 
 ---
 
-### 4. **taxonomies**
-Categorías y clasificaciones jerárquicas de productos.
+### 3. products
+Product catalog.
 
-| Columna | Tipo | Restricciones | Descripción |
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `name` | String(255) | - | Nombre de la taxonomía |
-| `value` | Text | - | Valor/descripción |
-| `slug` | String(255) | - | Slug para URLs |
-| `kind` | String(50) | - | Tipo de taxonomía (categoría, marca, etc) |
-| `ordering` | Integer | - | Orden de visualización |
-| `icon` | String(255) | - | Icono (ruta/referencia) |
-| `color` | String(50) | - | Color asociado |
-| `image` | String(255) | - | Imagen (ruta/referencia) |
-| `parent_id` | String(36) | FK (taxonomies.id) | Padre para jerarquía |
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `name` | String(255) | NOT NULL | Product name |
+| `sku` | String(100) | - | SKU code |
+| `price` | Numeric(18,4) | - | Selling price |
+| `cost` | Numeric(18,4) | - | Product cost |
+| `tax_rate` | Numeric(5,2) | - | Tax rate (%) |
+| `attribute_combinations` | Text | - | JSON with attribute combinations |
+| `created_at` | DateTime | DEFAULT NOW | Creation date |
+| `updated_at` | DateTime | DEFAULT NOW | Last update |
 
 ---
 
-### 5. **product_taxonomies**
-Relación M-N entre productos y taxonomías.
+### 4. taxonomies
+Categories and hierarchical product classifications.
 
-| Columna | Tipo | Restricciones | Descripción |
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `product_id` | String(36) | FK (products.id) | Referencia a producto |
-| `taxonomy_id` | String(36) | FK (taxonomies.id) | Referencia a taxonomía |
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `name` | String(255) | - | Taxonomy name |
+| `value` | Text | - | Value/description |
+| `slug` | String(255) | - | Slug for URLs |
+| `kind` | String(50) | - | Taxonomy type (category, brand, etc) |
+| `ordering` | Integer | - | Display order |
+| `icon` | String(255) | - | Icon (path/reference) |
+| `color` | String(50) | - | Associated color |
+| `image` | String(255) | - | Image (path/reference) |
+| `parent_id` | String(36) | FK (taxonomies.id) | Parent for hierarchy |
 
 ---
 
-### 6. **product_components**
-Composición de productos (productos compuestos por otros).
+### 5. product_taxonomies
+M-N relationship between products and taxonomies.
 
-| Columna | Tipo | Restricciones | Descripción |
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `parent_product_id` | String(36) | FK (products.id) | Producto padre |
-| `component_product_id` | String(36) | FK (products.id) | Producto componente |
-| `quantity` | Numeric(18,4) | - | Cantidad del componente |
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `product_id` | String(36) | FK (products.id) | Product reference |
+| `taxonomy_id` | String(36) | FK (taxonomies.id) | Taxonomy reference |
 
 ---
 
-### 7. **warehouses**
-Almacenes disponibles.
+### 6. product_components
+Product composition (products composed of others).
 
-| Columna | Tipo | Restricciones | Descripción |
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `name` | String(255) | - | Nombre del almacén |
-| `location` | Text | - | Ubicación/dirección |
-| `created_at` | DateTime | DEFAULT NOW | Fecha de creación |
-| `updated_at` | DateTime | DEFAULT NOW | Última actualización |
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `parent_product_id` | String(36) | FK (products.id) | Parent product |
+| `component_product_id` | String(36) | FK (products.id) | Component product |
+| `quantity` | Numeric(18,4) | - | Component quantity |
 
 ---
 
-### 8. **inventories**
-Stock de productos por almacén.
+### 7. warehouses
+Available warehouses.
 
-| Columna | Tipo | Restricciones | Descripción |
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `warehouse_id` | String(36) | FK (warehouses.id) | Referencia al almacén |
-| `product_id` | String(36) | FK (products.id) | Referencia al producto |
-| `quantity` | Numeric(18,4) | - | Cantidad disponible |
-| `updated_at` | DateTime | DEFAULT NOW | Última actualización |
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `name` | String(255) | - | Warehouse name |
+| `location` | Text | - | Location/address |
+| `created_at` | DateTime | DEFAULT NOW | Creation date |
+| `updated_at` | DateTime | DEFAULT NOW | Last update |
 
 ---
 
-### 9. **orders**
-Órdenes de venta/compra.
+### 8. inventories
+Product stock per warehouse.
 
-| Columna | Tipo | Restricciones | Descripción |
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `contact_id` | String(36) | FK (contacts.id) | Cliente/Proveedor |
-| `total` | Numeric(18,4) | - | Total con impuestos |
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `warehouse_id` | String(36) | FK (warehouses.id) | Warehouse reference |
+| `product_id` | String(36) | FK (products.id) | Product reference |
+| `quantity` | Numeric(18,4) | - | Available quantity |
+| `updated_at` | DateTime | DEFAULT NOW | Last update |
+
+---
+
+### 9. orders
+Sales/purchase orders.
+
+| Column | Type | Constraints | Description |
+|---------|------|---|---|
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `contact_id` | String(36) | FK (contacts.id) | Customer/Supplier |
+| `total` | Numeric(18,4) | - | Total with taxes |
 | `subtotal` | Numeric(18,4) | - | Subtotal |
-| `tax` | Numeric(18,4) | - | Monto de impuesto |
-| `discount` | Numeric(18,4) | - | Descuento aplicado |
-| `status` | String(50) | - | Estado (pending, completed, cancelled) |
-| `payment_status` | String(50) | - | Estado de pago (paid, unpaid, partial) |
-| `payment_method` | String(50) | - | Método de pago |
-| `type` | String(50) | - | Tipo (sale, purchase) |
-| `extra_fields` | Text | - | JSON con campos adicionales |
-| `created_at` | DateTime | DEFAULT NOW | Fecha de creación |
-| `updated_at` | DateTime | DEFAULT NOW | Última actualización |
+| `tax` | Numeric(18,4) | - | Tax amount |
+| `discount` | Numeric(18,4) | - | Applied discount |
+| `status` | String(50) | - | Status (pending, completed, cancelled) |
+| `payment_status` | String(50) | - | Payment status (paid, unpaid, partial) |
+| `payment_method` | String(50) | - | Payment method |
+| `type` | String(50) | - | Type (sale, purchase) |
+| `extra_fields` | Text | - | JSON with additional fields |
+| `created_at` | DateTime | DEFAULT NOW | Creation date |
+| `updated_at` | DateTime | DEFAULT NOW | Last update |
 
 ---
 
-### 10. **order_items**
-Items dentro de una orden.
+### 10. order_items
+Items within an order.
 
-| Columna | Tipo | Restricciones | Descripción |
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `order_id` | String(36) | FK (orders.id) | Referencia a la orden |
-| `product_id` | String(36) | FK (products.id) | Producto |
-| `quantity` | Integer | - | Cantidad |
-| `price` | Numeric(18,4) | - | Precio unitario |
-| `total` | Numeric(18,4) | - | Total (cantidad × precio) |
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `order_id` | String(36) | FK (orders.id) | Order reference |
+| `product_id` | String(36) | FK (products.id) | Product |
+| `quantity` | Integer | - | Quantity |
+| `price` | Numeric(18,4) | - | Unit price |
+| `total` | Numeric(18,4) | - | Total (quantity × price) |
 
 ---
 
-### 11. **bill_accounts**
-Cuentas de facturación/contables.
+### 11. bill_accounts
+Billing/accounting accounts.
 
-| Columna | Tipo | Restricciones | Descripción |
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `name` | String(255) | - | Nombre de la cuenta |
-| `type` | String(50) | - | Tipo de cuenta |
-| `balance` | Numeric(18,4) | - | Balance actual |
-| `created_at` | DateTime | DEFAULT NOW | Fecha de creación |
-| `updated_at` | DateTime | DEFAULT NOW | Última actualización |
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `name` | String(255) | - | Account name |
+| `type` | String(50) | - | Account type |
+| `balance` | Numeric(18,4) | - | Current balance |
+| `created_at` | DateTime | DEFAULT NOW | Creation date |
+| `updated_at` | DateTime | DEFAULT NOW | Last update |
 
 ---
 
-### 12. **order_bill_accounts**
-Relación entre órdenes y cuentas de facturación.
+### 12. order_bill_accounts
+Relationship between orders and billing accounts.
 
-| Columna | Tipo | Restricciones | Descripción |
+| Column | Type | Constraints | Description |
 |---------|------|---|---|
-| `id` | String(36) | PK, UUID | Identificador único |
-| `order_id` | String(36) | FK (orders.id) | Referencia a la orden |
-| `bill_account_id` | String(36) | FK (bill_accounts.id) | Referencia a cuenta |
-| `amount` | Numeric(18,4) | - | Monto |
-| `movement_type` | String(20) | - | Tipo de movimiento (debit, credit) |
-| `created_at` | DateTime | DEFAULT NOW | Fecha de creación |
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `order_id` | String(36) | FK (orders.id) | Order reference |
+| `bill_account_id` | String(36) | FK (bill_accounts.id) | Account reference |
+| `amount` | Numeric(18,4) | - | Amount |
+| `movement_type` | String(20) | - | Movement type (debit, credit) |
+| `created_at` | DateTime | DEFAULT NOW | Creation date |
 
 ---
 
-## 🔗 Relaciones (Entity Relationship Diagram)
+## Relationships (Entity Relationship Diagram)
 
 ```
 users (1) ──────── (M) orders [contact_id via contacts]
@@ -201,7 +201,7 @@ products (1) ──────── (M) product_taxonomies
 products (1) ──────── (M) product_components [parent_product_id]
 products (1) ──────── (M) product_components [component_product_id]
 taxonomies (1) ──────── (M) product_taxonomies
-taxonomies (1) ──────── (M) taxonomies [parent_id - jerarquía]
+taxonomies (1) ──────── (M) taxonomies [parent_id - hierarchy]
 warehouses (1) ──────── (M) inventories
 orders (1) ──────── (M) order_items
 orders (1) ──────── (M) order_bill_accounts
@@ -210,44 +210,44 @@ bill_accounts (1) ──────── (M) order_bill_accounts
 
 ---
 
-## 🔑 Índices Recomendados
+## Recommended Indexes
 
-Para optimizar consultas comunes, se recomienda crear índices en:
+To optimize common queries, it is recommended to create indexes on:
 
 ```sql
--- Búsquedas por email
+-- Email searches
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_contacts_email ON contacts(email);
 
--- Búsquedas por producto
+-- Product searches
 CREATE INDEX idx_products_sku ON products(sku);
 CREATE INDEX idx_product_taxonomies_product_id ON product_taxonomies(product_id);
 CREATE INDEX idx_product_taxonomies_taxonomy_id ON product_taxonomies(taxonomy_id);
 
--- Búsquedas por inventario
+-- Inventory searches
 CREATE INDEX idx_inventories_warehouse_id ON inventories(warehouse_id);
 CREATE INDEX idx_inventories_product_id ON inventories(product_id);
 
--- Búsquedas por orden
+-- Order searches
 CREATE INDEX idx_orders_contact_id ON orders(contact_id);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_payment_status ON orders(payment_status);
 CREATE INDEX idx_order_items_order_id ON order_items(order_id);
 CREATE INDEX idx_order_items_product_id ON order_items(product_id);
 
--- Búsquedas por cuenta
+-- Account searches
 CREATE INDEX idx_order_bill_accounts_order_id ON order_bill_accounts(order_id);
 CREATE INDEX idx_order_bill_accounts_bill_account_id ON order_bill_accounts(bill_account_id);
 ```
 
 ---
 
-## 📝 Notas Técnicas
+## Technical Notes
 
-- **ORM**: SQLAlchemy con Flask-SQLAlchemy
-- **Migraciones**: Alembic
-- **Tipo de IDs**: UUID (String de 36 caracteres)
-- **Timestamps**: Todas las tablas con `created_at` y `updated_at` (excepto order_items)
-- **Tipos decimales**: Numeric(18,4) para dinero, Numeric(5,2) para porcentajes
-- **Base de datos soportada**: MySQL/MariaDB (con server_default/server_onupdate)
+- ORM: SQLAlchemy with Flask-SQLAlchemy
+- Migrations: Alembic
+- ID Type: UUID (String of 36 characters)
+- Timestamps: All tables with created_at and updated_at (except order_items)
+- Decimal Types: Numeric(18,4) for money, Numeric(5,2) for percentages
+- Supported Database: MySQL/MariaDB (with server_default/server_onupdate)
 

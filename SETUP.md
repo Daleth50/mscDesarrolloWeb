@@ -1,43 +1,43 @@
-# 📖 Guía Completa de Instalación
+# Complete Installation Guide
 
-Este documento proporciona instrucciones detalladas para instalar y configurar el proyecto en macOS, Linux y Windows.
+This document provides detailed instructions for installing and configuring the project on macOS, Linux, and Windows.
 
 ---
 
-## 🚀 Instalación Rápida Automática (5 minutos)
+## Quick Automatic Installation (5 minutes)
 
 ### macOS / Linux
 ```bash
-cd /ruta/del/proyecto
+cd /path/to/project
 chmod +x setup.sh
 ./setup.sh
 ```
 
 ### Windows (PowerShell)
 ```powershell
-# Abre PowerShell como Administrador
-cd C:\ruta\del\proyecto
+# Open PowerShell as Administrator
+cd C:\path\to\project
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 .\setup.ps1
 ```
 
-**El script automático:**
-- ✅ Verifica Python 3 y Node.js
-- ✅ Crea el entorno virtual
-- ✅ Instala todas las dependencias
-- ✅ Configura archivos `.env`
-- ✅ Crea y prepara la base de datos
-- ✅ Aplica migraciones automáticamente
+**The automatic script:**
+- Verifies Python 3 and Node.js
+- Creates the virtual environment
+- Installs all dependencies
+- Configures `.env` files
+- Creates and prepares the database
+- Applies migrations automatically
 
 ---
 
-## 🔧 Instalación Manual Paso a Paso
+## Manual Step-by-Step Installation
 
-### Paso 1: Instalar Requisitos Previos
+### Step 1: Install Prerequisites
 
 #### macOS
 ```bash
-# Usar Homebrew (si no lo tienes, instala desde https://brew.sh)
+# Use Homebrew (if you don't have it, install from https://brew.sh)
 brew install python@3.11
 brew install node
 brew install mysql
@@ -50,29 +50,29 @@ sudo apt install -y python3.11 python3.11-venv python3-pip nodejs npm mysql-serv
 ```
 
 #### Windows
-1. **Python**: Descarga desde [python.org](https://www.python.org/downloads/)
-   - ⚠️ **IMPORTANTE**: Marca "Add Python to PATH" durante la instalación
-   - Reinicia después de instalar
+1. **Python**: Download from [python.org](https://www.python.org/downloads/)
+   - IMPORTANT: Check "Add Python to PATH" during installation
+   - Restart after installing
 
-2. **Node.js**: Descarga desde [nodejs.org](https://nodejs.org/)
-   - Elige la versión LTS (18 o superior)
-   - npm se instala automáticamente con Node.js
+2. **Node.js**: Download from [nodejs.org](https://nodejs.org/)
+   - Choose the LTS version (18 or higher)
+   - npm installs automatically with Node.js
 
-3. **MySQL**: Descarga desde [mysql.com](https://www.mysql.com/downloads/)
-   - Elige MySQL Community Server
-   - Durante la instalación, anota usuario/contraseña
+3. **MySQL**: Download from [mysql.com](https://www.mysql.com/downloads/)
+   - Choose MySQL Community Server
+   - During installation, note the username/password
 
-### Paso 2: Clonar/Descargar el Proyecto
+### Step 2: Clone/Download the Project
 
 ```bash
-# Si usas Git:
-git clone <URL_DEL_REPOSITORIO>
+# If using Git:
+git clone <REPOSITORY_URL>
 cd mscDesarrolloWeb
 
-# O descargar y extraer el ZIP
+# Or download and extract the ZIP
 ```
 
-### Paso 3: Crear Entorno Virtual Python
+### Step 3: Create Python Virtual Environment
 
 ```bash
 # macOS / Linux
@@ -88,17 +88,17 @@ python -m venv .venv
 .venv\Scripts\activate.bat
 ```
 
-**Deberías ver `(.venv)` al inicio de tu terminal**
+**You should see `(.venv)` at the beginning of your terminal**
 
-### Paso 4: Instalar Dependencias de Backend
+### Step 4: Install Backend Dependencies
 
 ```bash
-# Asegúrate que el entorno virtual está activado (.venv)
+# Make sure the virtual environment is activated (.venv)
 pip install --upgrade pip
 pip install -r backend/requirements.txt
 ```
 
-### Paso 5: Instalar Dependencias de Frontend
+### Step 5: Install Frontend Dependencies
 
 ```bash
 cd frontend
@@ -106,22 +106,22 @@ npm install
 cd ..
 ```
 
-### Paso 6: Configurar Variables de Entorno
+### Step 6: Configure Environment Variables
 
 #### Backend (`backend/.env`)
 
-Copia desde `backend/.env.example` o crea el archivo:
+Copy from `backend/.env.example` or create the file:
 
 ```env
 FLASK_ENV=development
 FLASK_PORT=5000
 SECRET_KEY=dev-secret-change-me
 
-# Base de datos (ajusta según tu MySQL)
+# Database (adjust according to your MySQL)
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=tu_password_aqui
+DB_PASSWORD=your_password_here
 DB_NAME=swipall_pos
 
 FRONTEND_URL=http://127.0.0.1:5173
@@ -135,14 +135,14 @@ PASSWORD_RESET_TOKEN_MAX_AGE=3600
 VITE_API_URL=http://127.0.0.1:5000/api
 ```
 
-### Paso 7: Configurar Base de Datos MySQL
+### Step 7: Configure MySQL Database
 
-#### 1. Iniciar MySQL
+#### 1. Start MySQL
 
 **macOS:**
 ```bash
 brew services start mysql
-# o manual: /usr/local/opt/mysql/bin/mysqld_safe
+# or manual: /usr/local/opt/mysql/bin/mysqld_safe
 ```
 
 **Linux:**
@@ -151,40 +151,40 @@ sudo systemctl start mysql
 ```
 
 **Windows:**
-MySQL generalmente inicia automáticamente si la instalaste como servicio.
+MySQL typically starts automatically if you installed it as a service.
 
-#### 2. Conectar a MySQL
+#### 2. Connect to MySQL
 
 ```bash
 mysql -u root -p
-# Ingresa la contraseña que configuraste
+# Enter the password you configured
 ```
 
-#### 3. Aplicar Script de Base de Datos
+#### 3. Apply Database Script
 
-En lugar de crear la BD manualmente, simplemente ejecuta:
+Instead of creating the database manually, simply run:
 
 ```bash
 mysql -u root -p < database/DATABASE.sql
 ```
 
-Este comando aplicará:
-- Creación de la base de datos `swipall_pos`
-- Creación de todas las 12 tablas
-- Índices recomendados
-- Restricciones de integridad
-- Campos de geolocalización en contacts (latitude, longitude)
+This command will apply:
+- Creation of `swipall_pos` database
+- Creation of all 12 tables
+- Recommended indexes
+- Integrity constraints
+- Geolocation fields in contacts (latitude, longitude)
 
-#### 4. Aplicar Migraciones
+#### 4. Apply Migrations
 
 ```bash
 cd backend
-source ../.venv/bin/activate  # (o .\.venv\Scripts\Activate.ps1 en Windows)
+source ../.venv/bin/activate  # (or .\.venv\Scripts\Activate.ps1 on Windows)
 FLASK_APP=run.py python -m flask db upgrade
 cd ..
 ```
 
-Deberías ver algo como:
+You should see something like:
 ```
 INFO  [alembic.runtime.migration] Running upgrade  -> 20260227_add_kind_to_contacts, done
 INFO  [alembic.runtime.migration] Running upgrade 20260227_add_kind_to_contacts -> 20260506_add_geolocation_to_contacts, done
@@ -192,21 +192,21 @@ INFO  [alembic.runtime.migration] Running upgrade 20260227_add_kind_to_contacts 
 
 ---
 
-## ▶️ Ejecutar el Proyecto
+## Run the Project
 
-### Opción A: Script Unificado (Más Fácil)
+### Option A: Unified Script (Easier)
 
 ```bash
-# Desde la raíz del proyecto
-source .venv/bin/activate  # (o .\.venv\Scripts\Activate.ps1 en Windows)
+# From the project root
+source .venv/bin/activate  # (or .\.venv\Scripts\Activate.ps1 on Windows)
 python backend/app/scripts/dev.py
 ```
 
-Abre el navegador:
+Open your browser:
 - Frontend: http://127.0.0.1:5173
 - Backend: http://127.0.0.1:5000
 
-### Opción B: Terminales Separadas (Más Control)
+### Option B: Separate Terminals (More Control)
 
 **Terminal 1 - Backend:**
 ```bash
@@ -215,7 +215,7 @@ source ../.venv/bin/activate
 python run.py
 ```
 
-Debería mostrar:
+Should display:
 ```
 * Running on http://127.0.0.1:5000
 ```
@@ -226,53 +226,53 @@ cd frontend
 npm run dev
 ```
 
-Debería mostrar:
+Should display:
 ```
 VITE v5.0.0  ready in 1234 ms
-➜  Local:   http://127.0.0.1:5173/
+Local:   http://127.0.0.1:5173/
 ```
 
 ---
 
-## 🏗️ Build para Producción
+## Production Build
 
 ```bash
-# Compilar React
+# Compile React
 cd frontend
 npm run build
 cd ..
 
-# Flask servirá los archivos compilados
+# Flask will serve the compiled files
 cd backend
 source ../.venv/bin/activate
 python run.py
 ```
 
-Abre http://127.0.0.1:5000
+Open http://127.0.0.1:5000
 
 ---
 
-## 📋 Verificación Post-Instalación
+## Post-Installation Verification
 
-Ejecuta esta checklist para verificar que todo está correctamente instalado:
+Run this checklist to verify that everything is correctly installed:
 
 ```bash
-# 1. Verificar Python
+# 1. Verify Python
 python --version
-pip list | grep Flask  # Debe mostrar Flask
+pip list | grep Flask  # Should show Flask
 
-# 2. Verificar Node.js
+# 2. Verify Node.js
 node --version
 npm --version
 
-# 3. Verificar directorios
+# 3. Verify directories
 ls -la backend/app/models/
 ls -la frontend/src/
 
-# 4. Conectar a MySQL
+# 4. Connect to MySQL
 mysql -u root -p -e "SELECT VERSION();"
 
-# 5. Ver estado de migraciones
+# 5. Check migration status
 cd backend
 FLASK_APP=run.py python -m flask db current
 cd ..
@@ -280,46 +280,46 @@ cd ..
 
 ---
 
-## 🆘 Problemas Comunes y Soluciones
+## Common Problems and Solutions
 
 ### "Python: command not found"
-- **Causa**: Python no está en el PATH o no está instalado
-- **Solución**:
-  - Verifica: `which python3` (macOS/Linux) o `Get-Command python` (Windows)
-  - Reinstala Python desde [python.org](https://python.org) con "Add to PATH"
-  - Reinicia tu terminal
+- **Cause**: Python is not in PATH or not installed
+- **Solution**:
+  - Verify: `which python3` (macOS/Linux) or `Get-Command python` (Windows)
+  - Reinstall Python from [python.org](https://python.org) with "Add to PATH"
+  - Restart your terminal
 
 ### "No module named flask"
-- **Causa**: No activaste el entorno virtual
-- **Solución**: 
+- **Cause**: You did not activate the virtual environment
+- **Solution**: 
   ```bash
   source .venv/bin/activate  # macOS/Linux
   .\.venv\Scripts\Activate.ps1  # Windows
   ```
 
 ### "Access denied for user 'root'@'localhost'"
-- **Causa**: Credenciales MySQL incorrectas en `.env`
-- **Solución**:
-  1. Verifica usuario/contraseña en `backend/.env`
-  2. Prueba conectar manualmente: `mysql -u root -p`
-  3. Actualiza las credenciales en `.env`
+- **Cause**: Incorrect MySQL credentials in `.env`
+- **Solution**:
+  1. Verify username/password in `backend/.env`
+  2. Try connecting manually: `mysql -u root -p`
+  3. Update credentials in `.env`
 
 ### "Port 5000 already in use"
-- **Causa**: Otro proceso usa el puerto 5000
-- **Solución**:
-  - Busca qué usa el puerto: `lsof -i :5000` (macOS/Linux)
-  - Mata el proceso: `kill -9 <PID>`
-  - O cambia FLASK_PORT en `backend/.env` a 5001
+- **Cause**: Another process uses port 5000
+- **Solution**:
+  - Find what uses the port: `lsof -i :5000` (macOS/Linux)
+  - Kill the process: `kill -9 <PID>`
+  - Or change FLASK_PORT in `backend/.env` to 5001
 
 ### "npm ERR! code ERESOLVE"
-- **Causa**: Conflicto de dependencias npm
-- **Solución**:
+- **Cause**: npm dependency conflict
+- **Solution**:
   ```bash
   cd frontend
   npm install --legacy-peer-deps
   ```
 
-### Permisos denegados en macOS/Linux
+### Permission denied on macOS/Linux
 ```bash
 chmod +x setup.sh
 chmod 755 backend/migrations/versions/*.py
@@ -327,17 +327,16 @@ chmod 755 backend/migrations/versions/*.py
 
 ---
 
-## 📚 Documentación Adicional
+## Additional Documentation
 
-- [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md) - Estructura completa de la BD
-- [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) - Guía de migraciones
-- [README.md](README.md) - Información general del proyecto
+- [DATABASE_STRUCTURE.md](docs/DATABASE_STRUCTURE.md) - Complete database schema
+- [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) - Database migration procedures
+- [README.md](README.md) - General project information
 
 ---
 
-## ✅ Siguiente Paso
+## Next Step
 
-¡Una vez instalado todo, consulta la [documentación de API](README.md#resumen-de-api) o comienza a desarrollar!
+Once everything is installed, check the [API documentation](README.md#api-summary) or start developing!
 
-Para dudas específicas, abre un issue en el repositorio.
-
+For specific questions, open an issue in the repository.

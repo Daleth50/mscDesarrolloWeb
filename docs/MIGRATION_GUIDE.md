@@ -1,60 +1,60 @@
-# Guía de Migración: Geolocalización en Contactos
+# Database Migration Guide: Geolocation in Contacts
 
-## 📝 Cambios Realizados
+## Changes Made
 
-Se han agregado dos campos opcionales a la tabla `contacts` para almacenar información geográfica:
+Two optional fields have been added to the contacts table to store geographic information:
 
-### 1. **Modelo Backend** (`backend/app/models/pos.py`)
-- ✅ Agregado campo `latitude` (Numeric(10,8), nullable)
-- ✅ Agregado campo `longitude` (Numeric(11,8), nullable)
-- ✅ Actualizado método `to_dict()` para convertir valores decimales a float
+### 1. Backend Model (backend/app/models/pos.py)
+- Added latitude field (Numeric(10,8), nullable)
+- Added longitude field (Numeric(11,8), nullable)
+- Updated to_dict() method to convert decimal values to float
 
-### 2. **Migración Alembic** 
-- ✅ Archivo: `backend/migrations/versions/20260506_add_geolocation_to_contacts.py`
-- ✅ Versión anterior: `20260227_add_kind_to_contacts`
-- ✅ Permite rollback automático (downgrade)
+### 2. Alembic Migration
+- File: backend/migrations/versions/20260506_add_geolocation_to_contacts.py
+- Previous version: 20260227_add_kind_to_contacts
+- Allows automatic rollback (downgrade)
 
-### 3. **Documentación**
-- ✅ Actualizado: `DATABASE_STRUCTURE.md` con los nuevos campos
+### 3. Documentation
+- Updated: DATABASE_STRUCTURE.md with the new fields
 
 ---
 
-## 🚀 Cómo Aplicar la Migración
+## How to Apply the Migration
 
-### Prerequisitos
-Asegúrate de estar en el directorio `backend` y tener el ambiente virtual activado:
+### Prerequisites
+Make sure you are in the backend directory and have the virtual environment activated:
 
 ```bash
 cd backend
-source venv/bin/activate  # En macOS/Linux
-# o
-venv\Scripts\activate  # En Windows
+source venv/bin/activate  # On macOS/Linux
+# or
+venv\Scripts\activate  # On Windows
 ```
 
-### Instalar dependencias (si no está hecho)
+### Install dependencies (if not already done)
 ```bash
 pip install -r requirements.txt
 ```
 
-### Aplicar la migración
+### Apply the migration
 ```bash
 python -m flask db upgrade
 ```
 
-### Verificar la migración
+### Verify the migration
 ```bash
-# Ver versión actual de migraciones
+# See current migration version
 python -m flask db current
 
-# Ver historial de migraciones
+# See migration history
 python -m flask db history
 ```
 
 ---
 
-## ⏮️ Cómo Revertir la Migración
+## How to Revert the Migration
 
-Si necesitas revertir a la versión anterior:
+If you need to revert to the previous version:
 
 ```bash
 python -m flask db downgrade
@@ -62,34 +62,34 @@ python -m flask db downgrade
 
 ---
 
-## 📊 Detalles Técnicos de los Campos
+## Technical Details of Fields
 
-### Latitud
-- **Tipo**: Numeric(10,8)
-- **Rango**: -90 a +90
-- **Precisión**: 8 decimales (±1.1mm de precisión)
-- **Valor por defecto**: NULL (opcional)
+### Latitude
+- Type: Numeric(10,8)
+- Range: -90 to +90
+- Precision: 8 decimals (±1.1mm precision)
+- Default value: NULL (optional)
 
-### Longitud
-- **Tipo**: Numeric(11,8)
-- **Rango**: -180 a +180
-- **Precisión**: 8 decimales (±1.1mm de precisión)
-- **Valor por defecto**: NULL (opcional)
+### Longitude
+- Type: Numeric(11,8)
+- Range: -180 to +180
+- Precision: 8 decimals (±1.1mm precision)
+- Default value: NULL (optional)
 
 ---
 
-## 🔍 Ejemplo de Uso
+## Usage Example
 
-### Crear un contacto con geolocalización:
+### Create a contact with geolocation:
 
 ```python
 from app.models.pos import Contact
 
 contact = Contact(
-    name="Tienda Centro",
-    email="tienda@ejemplo.com",
+    name="Downtown Store",
+    email="store@example.com",
     phone="555-1234",
-    address="Calle Principal 123",
+    address="Main Street 123",
     latitude=40.7128,
     longitude=-74.0060,
     kind="customer"
@@ -99,7 +99,7 @@ db.session.add(contact)
 db.session.commit()
 ```
 
-### Serializar a JSON:
+### Serialize to JSON:
 
 ```python
 contact_data = contact.to_dict()
@@ -107,10 +107,10 @@ print(contact_data)
 # Output:
 # {
 #   'id': 'abc-123',
-#   'name': 'Tienda Centro',
-#   'email': 'tienda@ejemplo.com',
+#   'name': 'Downtown Store',
+#   'email': 'store@example.com',
 #   'phone': '555-1234',
-#   'address': 'Calle Principal 123',
+#   'address': 'Main Street 123',
 #   'latitude': 40.7128,
 #   'longitude': -74.0060,
 #   'kind': 'customer'
@@ -119,25 +119,25 @@ print(contact_data)
 
 ---
 
-## ✅ Validación Post-Migración
+## Post-Migration Validation
 
-Después de aplicar la migración, verifica que la tabla se actualizó correctamente:
+After applying the migration, verify that the table was updated correctly:
 
 ```sql
--- En tu consola de base de datos
+-- In your database console
 DESCRIBE contacts;
 
--- Deberías ver las nuevas columnas:
+-- You should see the new columns:
 -- latitude     | DECIMAL(10,8)  | YES
 -- longitude    | DECIMAL(11,8)  | YES
 ```
 
 ---
 
-## 📝 Notas Importantes
+## Important Notes
 
-- Los campos son **opcionales** (nullable), por lo que contactos existentes no se verán afectados
-- La migración es **reversible** mediante `flask db downgrade`
-- Los valores se convierten automáticamente a `float` en el método `to_dict()`
-- Usa estos campos para integrar servicios de geolocalización, mapas, rutas, etc.
+- The fields are optional (nullable), so existing contacts will not be affected
+- The migration is reversible via flask db downgrade
+- Values are automatically converted to float in the to_dict() method
+- Use these fields to integrate geolocation services, maps, routing, etc.
 

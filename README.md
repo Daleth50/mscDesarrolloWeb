@@ -1,99 +1,99 @@
 # AppWeb POS
 
-Aplicación web de punto de venta con arquitectura SPA + API REST.
+Point of Sale web application with SPA + REST API architecture.
 
 - Backend: Flask + SQLAlchemy + MySQL
 - Frontend: React + Vite + Material UI
-- Auth: token Bearer en encabezado `Authorization`
+- Auth: Bearer token in `Authorization` header
 
 ---
 
-## 📚 Documentación Disponible
+## Available Documentation
 
-Toda la documentación se encuentra en la carpeta **`docs/`**.
+All documentation is located in the **`docs/`** folder.
 
-| Documento | Descripción |
+| Document | Description |
 |-----------|-------------|
-| **[SETUP.md](docs/SETUP.md)** | ⚡ Guía completa de instalación (comenzar aquí) |
-| **[DOCS.md](docs/DOCS.md)** | 📖 Índice de documentación y búsqueda rápida |
-| **[DATABASE_STRUCTURE.md](docs/DATABASE_STRUCTURE.md)** | 🗄️ Estructura completa de la base de datos |
-| **[MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md)** | 🔄 Guía de migraciones |
+| **[SETUP.md](docs/SETUP.md)** | Complete installation guide (start here) |
+| **[DOCS.md](docs/DOCS.md)** | Documentation index and quick reference |
+| **[DATABASE_STRUCTURE.md](docs/DATABASE_STRUCTURE.md)** | Complete database schema |
+| **[MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md)** | Database migration procedures |
 
 ---
 
-## Tabla de contenido
+## Table of Contents
 
-- [Requisitos](#requisitos)
-- [Instalación rápida](#instalación-rápida)
-  - [Instalación automática](#-instalación-automática-recomendado)
-  - [Instalación manual](#-instalación-manual-paso-a-paso)
-- [Configuración de variables de entorno](#configuración-de-variables-de-entorno)
-- [Base de datos y migraciones](#base-de-datos-y-migraciones)
-- [Ejecución en desarrollo](#ejecución-en-desarrollo)
-- [Build y ejecución tipo producción](#build-y-ejecución-tipo-producción)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [Resumen de API](#resumen-de-api)
-- [Comandos útiles](#comandos-útiles)
-- [Solución de problemas](#solución-de-problemas)
+- [Requirements](#requirements)
+- [Quick Installation](#quick-installation)
+  - [Automatic Installation](#automatic-installation-recommended)
+  - [Manual Installation](#manual-installation-step-by-step)
+- [Environment Variables Configuration](#environment-variables-configuration)
+- [Database and Migrations](#database-and-migrations)
+- [Development Execution](#development-execution)
+- [Production Build and Execution](#production-build-and-execution)
+- [Project Structure](#project-structure)
+- [API Summary](#api-summary)
+- [Useful Commands](#useful-commands)
+- [Troubleshooting](#troubleshooting)
 
-## Requisitos
+## Requirements
 
-- **Python** 3.10 o superior → [Descargar](https://www.python.org/downloads/)
-- **Node.js** 18 o superior → [Descargar](https://nodejs.org/)
-- **npm** (incluido con Node.js)
-- **MySQL** 8.0 o superior → [Descargar](https://www.mysql.com/downloads/)
+- **Python** 3.10 or higher [Download](https://www.python.org/downloads/)
+- **Node.js** 18 or higher [Download](https://nodejs.org/)
+- **npm** (included with Node.js)
+- **MySQL** 8.0 or higher [Download](https://www.mysql.com/downloads/)
 
-**Nota:** Los scripts de instalación verifican automáticamente estas dependencias.
+**Note:** The installation scripts automatically verify these dependencies.
 
-## Instalación rápida
+## Quick Installation
 
-### ⚡ Instalación automática (recomendado)
+### Automatic Installation (recommended)
 
-La forma más sencilla es usar los scripts de instalación automática que configuran todo el proyecto:
+The easiest way is to use the automatic installation scripts that configure the entire project:
 
-#### 📱 macOS / Linux
+#### macOS / Linux
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
 
-#### 🪟 Windows (PowerShell)
+#### Windows (PowerShell)
 ```powershell
-# Abre PowerShell como Administrador y ejecuta:
+# Open PowerShell as Administrator and run:
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 .\setup.ps1
 ```
 
-**¿Qué hace el script?**
-✓ Verifica Python 3 y Node.js
-✓ Crea entorno virtual Python
-✓ Instala dependencias de backend (Flask, SQLAlchemy, etc)
-✓ Instala dependencias de frontend (React, Vite, etc)
-✓ Crea archivos `.env` necesarios
-✓ Configura la base de datos
-✓ Aplica migraciones automáticamente
+**What does the script do?**
+- Verifies Python 3 and Node.js
+- Creates Python virtual environment
+- Installs backend dependencies (Flask, SQLAlchemy, etc)
+- Installs frontend dependencies (React, Vite, etc)
+- Creates necessary `.env` files
+- Configures the database
+- Applies migrations automatically
 
 ---
 
-### 📖 Instalación manual (paso a paso)
+### Manual Installation (step by step)
 
-Si prefieres hacerlo manualmente:
+If you prefer to do it manually:
 
 ```bash
-# 1) Entorno virtual Python
+# 1) Python virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 2) Dependencias backend
+# 2) Backend dependencies
 pip install -r backend/requirements.txt
 
-# 3) Dependencias frontend
+# 3) Frontend dependencies
 cd frontend
 npm install
 cd ..
 ```
 
-## Configuración de variables de entorno
+## Environment Variables Configuration
 
 ### 1) Backend: `backend/.env`
 
@@ -105,7 +105,7 @@ SECRET_KEY=dev-secret-change-me
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=tu_password
+DB_PASSWORD=your_password
 DB_NAME=swipall_pos
 
 FRONTEND_URL=http://127.0.0.1:5173
@@ -119,19 +119,19 @@ PASSWORD_RESET_TOKEN_MAX_AGE=3600
 VITE_API_URL=http://127.0.0.1:5000/api
 ```
 
-Nota:
-- Si cambias `FLASK_PORT`, actualiza también `VITE_API_URL`.
-- Si no defines `VITE_API_URL`, el frontend usa por defecto `http://localhost:4203/api`.
+Notes:
+- If you change `FLASK_PORT`, also update `VITE_API_URL`.
+- If you don't define `VITE_API_URL`, the frontend uses `http://localhost:4203/api` by default.
 
-## Base de datos y migraciones
+## Database and Migrations
 
-Crear base de datos en MySQL:
+Create the database in MySQL:
 
 ```sql
 CREATE DATABASE swipall_pos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Aplicar migraciones:
+Apply migrations:
 
 ```bash
 cd backend
@@ -140,20 +140,20 @@ FLASK_APP=run.py flask db upgrade
 cd ..
 ```
 
-## Ejecución en desarrollo
+## Development Execution
 
-### Opción A: script único (backend + frontend)
+### Option A: Single script (backend + frontend)
 
 ```bash
 source .venv/bin/activate
 python backend/app/scripts/dev.py
 ```
 
-Servicios esperados:
+Expected services:
 - Frontend: `http://127.0.0.1:5173`
 - Backend API: `http://127.0.0.1:5000`
 
-### Opción B: terminales separadas
+### Option B: Separate terminals
 
 Terminal 1 (backend):
 
@@ -170,9 +170,9 @@ cd frontend
 npm run dev
 ```
 
-## Build y ejecución tipo producción
+## Production Build and Execution
 
-Generar build de React en `backend/app/static/dist`:
+Generate React build in `backend/app/static/dist`:
 
 ```bash
 cd frontend
@@ -180,7 +180,7 @@ npm run build
 cd ..
 ```
 
-Levantar Flask sirviendo SPA compilada:
+Start Flask serving the compiled SPA:
 
 ```bash
 cd backend
@@ -188,22 +188,22 @@ source ../.venv/bin/activate
 python run.py
 ```
 
-Abrir `http://127.0.0.1:5000`.
+Open `http://127.0.0.1:5000`.
 
-## Estructura del proyecto
+## Project Structure
 
 ```text
 appWeb/
 ├── backend/
 │   ├── app/
-│   │   ├── controllers/      # Lógica por módulo (product, order, contact, report, etc.)
-│   │   ├── models/           # Modelos SQLAlchemy
-│   │   ├── routes/           # Endpoints Flask (`/health`, `/api/*`)
-│   │   ├── scripts/dev.py    # Arranque conjunto en desarrollo
-│   │   └── static/dist/      # Build frontend para producción
+│   │   ├── controllers/      # Logic by module (product, order, contact, report, etc.)
+│   │   ├── models/           # SQLAlchemy models
+│   │   ├── routes/           # Flask endpoints (`/health`, `/api/*`)
+│   │   ├── scripts/dev.py    # Development unified startup
+│   │   └── static/dist/      # Frontend build for production
 │   ├── migrations/           # Alembic
 │   ├── requirements.txt
-│   └── run.py                # Entry point principal
+│   └── run.py                # Main entry point
 └── frontend/
 	├── src/
 	│   ├── pages/
@@ -214,26 +214,26 @@ appWeb/
 	└── vite.config.js
 ```
 
-## Resumen de API
+## API Summary
 
 Base URL: `/api`
 
 - Auth: `/auth/login`, `/auth/me`, `/auth/password/forgot`, `/auth/password/reset`
-- Productos y categorías: `/products`, `/products/:id/movements`, `/categories`
-- Contactos y proveedores: `/contacts`, `/suppliers`
-- Órdenes: `/orders`, `/orders/sales`, `/orders/purchases`
-- POS y compras: `/pos/*`, `/purchases/*`
-- Reportes: `/reports/overview`
-- Usuarios: `/users`
-- Cuentas por cobrar: `/bill-accounts`, `/bill-accounts/:id/movements`
+- Products and categories: `/products`, `/products/:id/movements`, `/categories`
+- Contacts and suppliers: `/contacts`, `/suppliers`
+- Orders: `/orders`, `/orders/sales`, `/orders/purchases`
+- POS and purchases: `/pos/*`, `/purchases/*`
+- Reports: `/reports/overview`
+- Users: `/users`
+- Accounts receivable: `/bill-accounts`, `/bill-accounts/:id/movements`
 
 Health check:
 - `GET /health`
 
-Autenticación:
-- Excepto endpoints de login/recuperación, la API requiere `Authorization: Bearer <token>`.
+Authentication:
+- Except for login/recovery endpoints, the API requires `Authorization: Bearer <token>`.
 
-## Comandos útiles
+## Useful Commands
 
 ```bash
 # Backend
@@ -248,66 +248,66 @@ npm run build
 npm run preview
 ```
 
-## Solución de problemas
+## Troubleshooting
 
-### Problemas con el script de instalación
+### Installation script issues
 
-#### El script setup.sh no ejecuta en macOS
+#### setup.sh script does not run on macOS
 ```bash
-# Dale permisos de ejecución:
+# Give execution permissions:
 chmod +x setup.sh
 ./setup.sh
 ```
 
-#### El script setup.ps1 no ejecuta en Windows
+#### setup.ps1 script does not run on Windows
 ```powershell
-# En PowerShell como Administrador:
+# In PowerShell as Administrator:
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 .\setup.ps1
 ```
 
-#### Python/Node.js no se reconocen
-- **Reinicia tu terminal** después de instalar Python o Node.js
-- Verifica que estén en el PATH: `python --version` y `node --version`
-- En Windows, asegúrate de haber seleccionado "Add Python to PATH" durante la instalación
+#### Python/Node.js not recognized
+- **Restart your terminal** after installing Python or Node.js
+- Verify they are in PATH: `python --version` and `node --version`
+- On Windows, ensure you selected "Add Python to PATH" during installation
 
-#### Error al crear el entorno virtual
+#### Error creating virtual environment
 ```bash
-# En macOS/Linux:
+# On macOS/Linux:
 python3 -m venv .venv
 source .venv/bin/activate
 
-# En Windows:
+# On Windows:
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-### Backend no levanta
+### Backend not starting
 
-- Verifica conexión y credenciales MySQL en `backend/.env`.
-- Confirma que la base de datos existe y que aplicaste migraciones.
-- Intenta ejecutar manualmente: `python -m flask db upgrade`
+- Verify MySQL connection and credentials in `backend/.env`.
+- Confirm the database exists and migrations were applied.
+- Try running manually: `python -m flask db upgrade`
 
-### Frontend no conecta con API
+### Frontend not connecting to API
 
-- Revisa `frontend/.env.local` y el valor de `VITE_API_URL`.
-- Verifica que el puerto de Flask coincida con la URL configurada.
-- Usa `http://127.0.0.1:5000/api` (no localhost)
+- Check `frontend/.env.local` and the `VITE_API_URL` value.
+- Verify that Flask port matches the configured URL.
+- Use `http://127.0.0.1:5000/api` (not localhost)
 
-### Error 401 en endpoints
+### 401 Error on endpoints
 
-- Confirma que estás enviando `Authorization: Bearer <token>`.
-- Revisa expiración de token (`AUTH_TOKEN_MAX_AGE`).
+- Confirm you are sending `Authorization: Bearer <token>`.
+- Check token expiration (`AUTH_TOKEN_MAX_AGE`).
 
-### El script falla en la migración de BD
+### Database migration script fails
 
-1. Verifica que MySQL esté corriendo
-2. Revisa usuario/contraseña en `backend/.env`
-3. Crea la BD manualmente:
+1. Verify MySQL is running
+2. Check username/password in `backend/.env`
+3. Create the database manually:
    ```sql
    CREATE DATABASE swipall_pos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
-4. Aplica migraciones manualmente:
+4. Apply migrations manually:
    ```bash
    cd backend
    source ../.venv/bin/activate

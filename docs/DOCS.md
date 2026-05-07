@@ -1,132 +1,132 @@
-# 📚 Documentación del Proyecto
+# Project Documentation
 
-> Guía rápida a toda la documentación disponible
+Quick guide to all available documentation
 
-## 🚀 Inicio Rápido
+## Quick Start
 
-Para instalar y ejecutar el proyecto por primera vez:
+To install and run the project for the first time:
 
-1. **[SETUP.md](SETUP.md)** - Guía completa de instalación
-   - Instalación automática con scripts
-   - Instalación manual paso a paso
-   - Solución de problemas
-   - Verificación post-instalación
+1. **[SETUP.md](SETUP.md)** - Complete installation guide
+   - Automatic installation with scripts
+   - Manual step-by-step installation
+   - Troubleshooting
+   - Post-installation verification
 
-2. **Scripts de Instalación:**
-   - **[setup.sh](setup.sh)** - Para macOS/Linux
-   - **[setup.ps1](setup.ps1)** - Para Windows PowerShell
+2. **Installation Scripts:**
+   - **[setup.sh](setup.sh)** - For macOS/Linux
+   - **[setup.ps1](setup.ps1)** - For Windows PowerShell
 
-## 📖 Documentación del Proyecto
+## Project Documentation
 
-### Visión General
-- **[README.md](README.md)** - Información general del proyecto
-  - Descripción de la arquitectura
-  - Requisitos previos
-  - URLs de acceso
-  - Resumen de API
+### General Overview
+- **[README.md](README.md)** - General project information
+  - Architecture description
+  - Prerequisites
+  - Access URLs
+  - API Summary
 
-### Base de Datos
-- **[DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)** - Estructura completa de la BD
-  - Descripción de todas las tablas (12 tablas)
-  - Columnas, tipos y restricciones
-  - Relaciones entre tablas
-  - Índices recomendados
-  - Notas técnicas
+### Database
+- **[DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)** - Complete database structure
+  - Description of all tables (12 tables)
+  - Columns, types and constraints
+  - Relationships between tables
+  - Recommended indexes
+  - Technical notes
 
-### Migraciones
-- **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** - Guía de migraciones
-  - Migración reciente: Geolocalización en contactos
-  - Cómo aplicar migraciones
-  - Cómo revertir migraciones
-  - Ejemplo de uso
-
----
-
-## 🔍 Búsqueda Rápida
-
-### "¿Cómo instalo el proyecto?"
-→ Consulta [SETUP.md](SETUP.md) sección "Instalación Rápida Automática"
-
-### "¿Cómo inicio el proyecto en desarrollo?"
-→ Consulta [README.md](README.md) sección "Ejecución en desarrollo"
-
-### "¿Cuáles son todas las tablas de la BD?"
-→ Consulta [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)
-
-### "¿Cómo agrego campos a la BD?"
-→ Consulta [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) sección "Guía de Migración"
-
-### "Me da error al ejecutar el script"
-→ Consulta [SETUP.md](SETUP.md) sección "🆘 Problemas Comunes"
-
-### "¿Cómo construyo para producción?"
-→ Consulta [README.md](README.md) sección "Build y ejecución tipo producción"
-
-### "¿Cuál es la estructura del proyecto?"
-→ Consulta [README.md](README.md) sección "Estructura del proyecto"
-
-### "¿Qué endpoints tiene la API?"
-→ Consulta [README.md](README.md) sección "Resumen de API"
+### Migrations
+- **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** - Database migration guide
+  - Recent migration: Geolocation in contacts
+  - How to apply migrations
+  - How to revert migrations
+  - Usage example
 
 ---
 
-## 📋 Tabla de Contenidos Cruzada
+## Quick Search
+
+### "How do I install the project?"
+See [SETUP.md](SETUP.md) section "Quick Automatic Installation"
+
+### "How do I start the project in development?"
+See [README.md](README.md) section "Development Execution"
+
+### "What are all the database tables?"
+See [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)
+
+### "How do I add fields to the database?"
+See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) section "Migration Guide"
+
+### "I get an error when running the script"
+See [SETUP.md](SETUP.md) section "Common Problems and Solutions"
+
+### "How do I build for production?"
+See [README.md](README.md) section "Production Build and Execution"
+
+### "What is the project structure?"
+See [README.md](README.md) section "Project Structure"
+
+### "What endpoints does the API have?"
+See [README.md](README.md) section "API Summary"
+
+---
+
+## Cross-Reference Table of Contents
 
 ### Backend (Flask)
-- Ver modelos: `backend/app/models/`
-- Configuración: `backend/app/config.py`
-- Base de datos: `backend/app/database.py`
-- Rutas/Endpoints: `backend/app/routes/`
-- Migraciones: `backend/migrations/versions/`
+- View models: `backend/app/models/`
+- Configuration: `backend/app/config.py`
+- Database: `backend/app/database.py`
+- Routes/Endpoints: `backend/app/routes/`
+- Migrations: `backend/migrations/versions/`
 
 ### Frontend (React)
-- Componentes: `frontend/src/components/`
-- Páginas: `frontend/src/pages/`
-- Servicios API: `frontend/src/services/api.js`
-- Configuración: `frontend/vite.config.js`
+- Components: `frontend/src/components/`
+- Pages: `frontend/src/pages/`
+- API Services: `frontend/src/services/api.js`
+- Configuration: `frontend/vite.config.js`
 
-### Documentación
-- Instalación: [SETUP.md](SETUP.md)
-- Base de Datos: [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)
-- Migraciones: [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
+### Documentation
+- Installation: [SETUP.md](SETUP.md)
+- Database: [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)
+- Migrations: [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
 - General: [README.md](README.md)
 
 ---
 
-## 🎯 Flujos Comunes
+## Common Workflows
 
-### 1️⃣ Primera vez usando el proyecto
+### 1. First time using the project
 ```
-SETUP.md (Instalación) 
-  → README.md (Ejecución)
-  → DATABASE_STRUCTURE.md (Entiender datos)
-```
-
-### 2️⃣ Agregar un nuevo campo a un modelo
-```
-Editar backend/app/models/pos.py
-  → Crear migración: flask db migrate
-  → Aplicar: flask db upgrade
-  → Ver MIGRATION_GUIDE.md
+SETUP.md (Installation)
+  → README.md (Execution)
+  → DATABASE_STRUCTURE.md (Understand data)
 ```
 
-### 3️⃣ Solucionar un problema
+### 2. Adding a new field to a model
 ```
-SETUP.md (Problemas Comunes)
-  → README.md (Solución de problemas)
-  → Buscar en archivos del proyecto
+Edit backend/app/models/pos.py
+  → Create migration: flask db migrate
+  → Apply: flask db upgrade
+  → See MIGRATION_GUIDE.md
 ```
 
-### 4️⃣ Entender la estructura de datos
+### 3. Troubleshooting a problem
 ```
-DATABASE_STRUCTURE.md (Lee todas las tablas)
-  → README.md (Resumen de API)
-  → backend/app/models/ (Ve el código)
+SETUP.md (Common Problems)
+  → README.md (Troubleshooting)
+  → Search project files
+```
+
+### 4. Understanding the data structure
+```
+DATABASE_STRUCTURE.md (Read all tables)
+  → README.md (API Summary)
+  → backend/app/models/ (View code)
 ```
 
 ---
 
-## 🔧 Comandos Útiles Rápidos
+## Quick Useful Commands
 
 ```bash
 # Backend
@@ -138,27 +138,26 @@ python run.py
 cd frontend
 npm run dev
 
-# Ambos juntos
+# Both together
 python backend/app/scripts/dev.py
 
-# Base de datos
-flask db current          # Ver versión actual
-flask db migrate          # Crear migración
-flask db upgrade          # Aplicar migraciones
-flask db downgrade        # Revertir última migración
+# Database
+flask db current          # View current version
+flask db migrate          # Create migration
+flask db upgrade          # Apply migrations
+flask db downgrade        # Revert last migration
 ```
 
 ---
 
-## 📞 Soporte
+## Support
 
-Si tienes dudas sobre:
-- **Instalación** → Consulta [SETUP.md](SETUP.md)
-- **Estructura del Proyecto** → Consulta [README.md](README.md)
-- **Base de Datos** → Consulta [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)
-- **Migraciones BD** → Consulta [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
+If you have questions about:
+- **Installation** → See [SETUP.md](SETUP.md)
+- **Project Structure** → See [README.md](README.md)
+- **Database** → See [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)
+- **Database Migrations** → See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
 
 ---
 
-**Última actualización**: Mayo 2026
-
+**Last updated**: May 2026

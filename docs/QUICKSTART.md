@@ -1,132 +1,132 @@
-# 🚀 INICIO RÁPIDO
+# Quick Start
 
-> 5 minutos para tener el proyecto instalado y ejecutándose
+5 minutes to get the project installed and running
 
-## Requisitos Previos
+## Prerequisites
 
-Asegúrate de tener instalados:
-- ✓ Python 3.10+ ([Descargar](https://www.python.org/downloads/))
-- ✓ Node.js 18+ ([Descargar](https://nodejs.org/))
-- ✓ MySQL 8.0+ ([Descargar](https://www.mysql.com/downloads/))
+Make sure you have installed:
+- Python 3.10+ (Download)
+- Node.js 18+ (Download)
+- MySQL 8.0+ (Download)
 
-## Instalación (Elige tu Sistema Operativo)
+## Installation (Choose your Operating System)
 
-### 📱 macOS / Linux
+### macOS / Linux
 
 ```bash
-# 1. Haz el script ejecutable
+# 1. Make the script executable
 chmod +x setup.sh
 
-# 2. Ejecuta el script
+# 2. Run the script
 ./setup.sh
 
-# 3. El script te guiará a través de:
-#    - Verificación de Python, Node.js, npm
-#    - Instalación de dependencias
-#    - Creación de BD desde database/DATABASE.sql
-#    - Aplicación de migraciones
+# 3. The script will guide you through:
+#    - Verification of Python, Node.js, npm
+#    - Installation of dependencies
+#    - Database creation from database/DATABASE.sql
+#    - Application of migrations
 ```
 
-### 🪟 Windows (PowerShell)
+### Windows (PowerShell)
 
 ```powershell
-# 1. Abre PowerShell como Administrador
+# 1. Open PowerShell as Administrator
 
-# 2. Permite ejecución de scripts
+# 2. Allow script execution
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
-# 3. Ejecuta el script
+# 3. Run the script
 .\setup.ps1
 
-# 4. El script te guiará a través de:
-#    - Verificación de Python, Node.js, npm
-#    - Instalación de dependencias
-#    - Creación de BD desde database/DATABASE.sql
-#    - Aplicación de migraciones
+# 4. The script will guide you through:
+#    - Verification of Python, Node.js, npm
+#    - Installation of dependencies
+#    - Database creation from database/DATABASE.sql
+#    - Application of migrations
 ```
 
-**Alternativamente (Manual):**
+Alternatively (Manual):
 
-Si prefieres crear la BD manualmente sin ejecutar el script:
+If you prefer to create the database manually without running the script:
 
 ```bash
 mysql -u root -p < database/DATABASE.sql
 ```
 
-## Ejecutar el Proyecto
+## Run the Project
 
-Una vez que el script termina exitosamente:
+Once the script finishes successfully:
 
-### Opción A: Ambos servicios juntos (más fácil)
+### Option A: Both services together (easier)
 
 ```bash
-source .venv/bin/activate  # Activa entorno virtual
+source .venv/bin/activate  # Activate virtual environment
 python backend/app/scripts/dev.py
 ```
 
-Luego abre:
+Then open:
 - Frontend: http://127.0.0.1:5173
 - Backend: http://127.0.0.1:5000
 
-### Opción B: Terminales separadas (más control)
+### Option B: Separate terminals (more control)
 
-**Terminal 1 - Backend:**
+Terminal 1 - Backend:
 ```bash
 cd backend
 source ../.venv/bin/activate
 python run.py
 ```
 
-**Terminal 2 - Frontend:**
+Terminal 2 - Frontend:
 ```bash
 cd frontend
 npm run dev
 ```
 
-## 🔍 Verificación
+## Verification
 
-Si todo está correcto, deberías ver:
+If everything is correct, you should see:
 
-**Backend:**
+Backend:
 ```
 * Running on http://127.0.0.1:5000
 ```
 
-**Frontend:**
+Frontend:
 ```
 VITE v5.0.0  ready in 1234 ms
-➜  Local:   http://127.0.0.1:5173/
+Local:   http://127.0.0.1:5173/
 ```
 
-## ❌ Algo salió mal?
+## Something went wrong?
 
-### Soluciones rápidas:
+### Quick solutions:
 
-**"Python: command not found"**
-- Verifica que Python está instalado: `python --version`
-- Reinicia tu terminal después de instalar Python
+"Python: command not found"
+- Verify Python is installed: `python --version`
+- Restart your terminal after installing Python
 
-**"Port already in use"**
-- Cierra otros procesos en 5000/5173
-- O cambia `FLASK_PORT` en `backend/.env`
+"Port already in use"
+- Close other processes on ports 5000/5173
+- Or change `FLASK_PORT` in `backend/.env`
 
-**"MySQL connection error"**
-- Verifica que MySQL está ejecutándose
-- Revisa credenciales en `backend/.env`
+"MySQL connection error"
+- Verify MySQL is running
+- Check credentials in `backend/.env`
 
-### Más ayuda:
+### More help:
 
-- 📖 Lee [SETUP.md](SETUP.md) para soluciones detalladas
-- 📚 Lee [DOCS.md](DOCS.md) para navegar toda la documentación
+- Read SETUP.md for detailed solutions
+- Read DOCS.md to navigate all documentation
 
-## 🎯 Siguientes Pasos
+## Next Steps
 
-1. ✅ Proyecto instalado
-2. ✅ Base de datos configurada
-3. ✅ Frontend + Backend ejecutándose
-4. 👉 Lee la documentación de API en [README.md](README.md#resumen-de-api)
-5. 👉 Comienza a desarrollar!
+1. Project installed
+2. Database configured
+3. Frontend + Backend running
+4. Read API documentation in README.md
+5. Start developing!
 
 ---
 
-**¿Necesitas ayuda?** Consulta la [Guía Completa](SETUP.md) o el [Índice de Documentación](DOCS.md)
+Need help? Check the Complete Guide (SETUP.md) or Documentation Index (DOCS.md)

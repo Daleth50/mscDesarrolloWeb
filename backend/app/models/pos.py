@@ -10,6 +10,8 @@ class Contact(db.Model):
     email = db.Column(db.String(255), nullable=True)
     phone = db.Column(db.String(50), nullable=True)
     address = db.Column(db.Text, nullable=True)
+    latitude = db.Column(db.Numeric(10, 8), nullable=True)
+    longitude = db.Column(db.Numeric(11, 8), nullable=True)
     kind = db.Column(db.String(20), nullable=False, default="customer", server_default="customer")
     created_at = db.Column(db.DateTime, server_default=db.func.current_timestamp())
     updated_at = db.Column(
@@ -28,6 +30,8 @@ class Contact(db.Model):
             "email": self.email,
             "phone": self.phone,
             "address": self.address,
+            "latitude": float(self.latitude) if self.latitude is not None else None,
+            "longitude": float(self.longitude) if self.longitude is not None else None,
             "kind": self.kind,
         }
 

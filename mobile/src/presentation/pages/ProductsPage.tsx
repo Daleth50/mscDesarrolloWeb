@@ -1,26 +1,7 @@
-import {
-  IonBadge,
-  IonButton,
-  IonButtons,
-  IonContent,
-  IonFab,
-  IonFabButton,
-  IonHeader,
-  IonIcon,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonNote,
-  IonPage,
-  IonText,
-  IonTitle,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonPage } from "@ionic/react";
 import { container } from "app/container";
 import type { Cart } from "domain/entities/Cart";
 import type { Product } from "domain/entities/Product";
-import { cartOutline, chevronBackOutline } from "ionicons/icons";
 import { useEffect, useMemo, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
@@ -41,9 +22,7 @@ export function ProductsPage() {
     const q = query.trim().toLowerCase();
     if (!q) return products;
     return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        (p.barcode || "").toLowerCase().includes(q),
+      (p) => p.name.toLowerCase().includes(q) || (p.barcode || "").toLowerCase().includes(q),
     );
   }, [products, query]);
 
@@ -53,13 +32,8 @@ export function ProductsPage() {
     cart?.items.find((i) => i.productId === productId)?.quantity ?? 0;
 
   const handleAdd = async (product: Product) => {
-    const current = getItemQty(product.id);
     const updated = await container.addToCartUseCase.execute(
-      customerId,
-      product.id,
-      product.name,
-      product.price,
-      current + 1,
+      customerId, product.id, product.name, product.price, getItemQty(product.id) + 1,
     );
     setCart(updated);
   };
@@ -67,101 +41,84 @@ export function ProductsPage() {
   const handleRemove = async (product: Product) => {
     const current = getItemQty(product.id);
     if (current <= 1) {
-      const updated = await container.removeFromCartUseCase.execute(customerId, product.id);
-      setCart(updated);
+      setCart(await container.removeFromCartUseCase.execute(customerId, product.id));
     } else {
-      const updated = await container.addToCartUseCase.execute(
-        customerId,
-        product.id,
-        product.name,
-        product.price,
-        current - 1,
-      );
-      setCart(updated);
+      setCart(await container.addToCartUseCase.execute(customerId, product.id, product.name, product.price, current - 1));
     }
   };
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={() => history.goBack()}>
-              <IonIcon icon={chevronBackOutline} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Productos</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={() => history.push(`/pos/cart/${customerId}`)} disabled={cartCount === 0}>
-              <IonIcon icon={cartOutline} slot="start" />
-              {cartCount > 0 && <IonBadge color="danger">{cartCount}</IonBadge>}
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-        <IonToolbar>
-          <div className="ion-padding-horizontal">
-            <IonInput
-              value={query}
-              onIonInput={(e) => setQuery(e.detail.value || "")}
-              placeholder="Buscar por nombre o código de barras"
-              clearInput
-            />
-          </div>
-        </IonToolbar>
-      </IonHeader>
+      <div className="page-header">
+        <div className="page-header-back" onClick={() => history.goBack()}>← Productos</div>
+        <div className="page-header-title">Productos</div>
+      </div>
 
       <IonContent fullscreen>
-        {filtered.length === 0 ? (
-          <div className="ion-padding">
-            <IonText color="medium">
-              <p>No se encontraron productos.</p>
-            </IonText>
-          </div>
-        ) : (
-          <IonList>
-            {filtered.map((product) => {
+        <div style={{ padding: "12px 16px", paddingBottom: cartCount > 0 ? "72px" : "12px" }}>
+          <input
+            className="search-input"
+            placeholder="Buscar..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+
+          <div className="count-badge">{filtered.length} Productos</div>
+
+          {filtered.length === 0 ? (
+            <p style={{ color: "#999", fontSize: "13px" }}>No se encontraron productos.</p>
+          ) : (
+            filtered.map((product) => {
               const qty = getItemQty(product.id);
               return (
-                <IonItem key={product.id}>
-                  <IonLabel>
-                    <h2>{product.name}</h2>
-                    <p>
-                      ${product.price.toFixed(2)} &nbsp;·&nbsp; Stock: {product.stock}
-                      {product.category_name ? ` · ${product.category_name}` : ""}
-                    </p>
-                  </IonLabel>
-                  {qty > 0 ? (
-                    <div slot="end" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <IonButton size="small" fill="outline" onClick={() => void handleRemove(product)}>
-                        −
-                      </IonButton>
-                      <IonNote>{qty}</IonNote>
-                      <IonButton size="small" onClick={() => void handleAdd(product)}>
-                        +
-                      </IonButton>
+                <div key={product.id} className="product-card">
+                  <div className="product-card-row">
+                    <div className="product-img" />
+                    <div style={{ flex: 1 }}>
+                      <div className="product-name">{product.name}</div>
+                      {product.category_name && (
+                        <div className="product-sub">{product.category_name}</div>
+                      )}
                     </div>
-                  ) : (
-                    <IonButton slot="end" size="small" onClick={() => void handleAdd(product)}>
-                      Agregar
-                    </IonButton>
-                  )}
-                </IonItem>
+                  </div>
+                  <div className="product-meta">
+                    <span className="product-code">{product.barcode || product.id.slice(0, 8)}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <span className="product-price">${product.price.toFixed(2)}</span>
+                      {qty > 0 ? (
+                        <div className="qty-control">
+                          <button className="qty-btn" onClick={() => void handleRemove(product)}>−</button>
+                          <span className="qty-value">{qty}</span>
+                          <button className="qty-btn" onClick={() => void handleAdd(product)}>+</button>
+                        </div>
+                      ) : (
+                        <button
+                          className="btn-primary"
+                          style={{ width: "auto", height: "28px", padding: "0 12px", fontSize: "11px" }}
+                          onClick={() => void handleAdd(product)}
+                        >
+                          Agregar
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               );
-            })}
-          </IonList>
-        )}
-
-        {cartCount > 0 && (
-          <IonFab vertical="bottom" horizontal="end" slot="fixed">
-            <IonFabButton onClick={() => history.push(`/pos/cart/${customerId}`)}>
-              <IonIcon icon={cartOutline} />
-              <IonBadge color="danger" style={{ position: "absolute", top: 0, right: 0 }}>
-                {cartCount}
-              </IonBadge>
-            </IonFabButton>
-          </IonFab>
-        )}
+            })
+          )}
+        </div>
       </IonContent>
+
+      {cartCount > 0 && (
+        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "12px 16px", background: "#fff", borderTop: "1px solid #e0e0e0", zIndex: 10 }}>
+          <button
+            className="btn-primary"
+            onClick={() => history.push(`/pos/cart/${customerId}`)}
+          >
+            Ver carrito ({cartCount})
+          </button>
+        </div>
+      )}
     </IonPage>
   );
 }

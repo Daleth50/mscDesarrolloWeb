@@ -3,20 +3,26 @@
 ## Goal
 Allow a user to authenticate against the backend API and persist session credentials for offline usage.
 
+## UI Layout
+- Centered logo placeholder (56×56 px, rounded)
+- Title: "Inicia sesión"
+- Form fields: Email, Contraseña
+- "Olvidé mi contraseña" link (no-op, placeholder)
+- Primary action button: "Inicia sesión"
+- Secondary outline button: "Cerrar sesión" (clears any stale session)
+- Footer: "¿No tienes cuenta? Regístrate" (no-op, placeholder)
+
 ## Functional Requirements
 - The screen must be the app entry point when there is no active session.
-- The screen must include:
-  - Identifier field (email or username)
-  - Password field
-  - Sign in button
 - On submit, the app must call `POST /api/auth/login`.
-- On success, the app must persist token and user profile in local storage.
-- On success, the app must navigate to Sync Screen.
-- On invalid credentials, show a non-blocking error message.
-- The button must be disabled while request is in progress.
+- On success, persist token and user profile in local storage.
+- On success, navigate to Sync Screen.
+- On invalid credentials, show an inline error message inside the form.
+- The submit button must be disabled while the request is in progress.
+- Pressing Enter on any field submits the form.
 
 ## Validation Rules
-- Identifier is required.
+- Identifier (email) is required.
 - Password is required.
 
 ## Non-Functional Requirements

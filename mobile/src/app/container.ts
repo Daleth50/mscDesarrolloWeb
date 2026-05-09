@@ -69,6 +69,7 @@ const syncRepository = new SyncRepositoryImpl(
 );
 
 export const container = {
+  salesLocalDataSource,
   loginUseCase: new LoginUseCase(authRepository),
   getPersistedSessionUseCase: new GetPersistedSessionUseCase(authRepository),
   syncInitialDataUseCase: new SyncInitialDataUseCase(syncRepository),

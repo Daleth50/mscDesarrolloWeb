@@ -1,24 +1,18 @@
-import {
-  IonContent,
-  IonHeader,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonNote,
-  IonPage,
-  IonRefresher,
-  IonRefresherContent,
-  IonText,
-  IonTitle,
-  IonToolbar,
-  type RefresherEventDetail,
-} from "@ionic/react";
+import { IonContent, IonPage, IonRefresher, IonRefresherContent, type RefresherEventDetail } from "@ionic/react";
 import { container } from "app/container";
 import type { Contact } from "domain/entities/Contact";
-import { cartOutline } from "ionicons/icons";
 import { useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
+
+function groupAlphabetically(contacts: Contact[]): [string, Contact[]][] {
+  const map = new Map<string, Contact[]>();
+  for (const c of contacts) {
+    const letter = c.name.charAt(0).toUpperCase();
+    if (!map.has(letter)) map.set(letter, []);
+    map.get(letter)!.push(c);
+  }
+  return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
+}
 
 export function CustomersTabPage() {
   const history = useHistory();
@@ -34,71 +28,57 @@ export function CustomersTabPage() {
     void loadCustomers();
   }, []);
 
-  const filteredCustomers = useMemo(() => {
+  const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return customers;
     return customers.filter((c) => c.name.toLowerCase().includes(q));
   }, [customers, query]);
+
+  const groups = useMemo(() => groupAlphabetically(filtered), [filtered]);
 
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
     await loadCustomers();
     event.detail.complete();
   };
 
-  const handleSelectCustomer = (customerId: string) => {
-    history.push(`/pos/products/${customerId}`);
-  };
-
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Clientes</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <div className="page-header">
+        <div className="page-header-title">Elige un cliente</div>
+      </div>
 
       <IonContent fullscreen>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent />
         </IonRefresher>
 
-        <div className="ion-padding">
-          <IonItem>
-            <IonLabel position="stacked">Buscar cliente</IonLabel>
-            <IonInput
-              value={query}
-              onIonInput={(e) => setQuery(e.detail.value || "")}
-              placeholder="Buscar por nombre"
-            />
-          </IonItem>
-        </div>
+        <div style={{ padding: "12px 16px" }}>
+          <input
+            className="search-input"
+            placeholder="Buscar cliente..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
 
-        {filteredCustomers.length === 0 ? (
-          <div className="ion-padding">
-            <IonText color="medium">
-              <p>No hay clientes disponibles localmente.</p>
-            </IonText>
-          </div>
-        ) : (
-          <IonList inset>
-            {filteredCustomers.map((customer) => (
-              <IonItem
-                key={customer.id}
-                button
-                detail
-                onClick={() => handleSelectCustomer(customer.id)}
-              >
-                <IonLabel>
-                  <h2>{customer.name}</h2>
-                  <p>{customer.email || customer.phone || "Sin información de contacto"}</p>
-                </IonLabel>
-                <IonNote slot="end" color="primary">
-                  Nueva venta
-                </IonNote>
-              </IonItem>
-            ))}
-          </IonList>
-        )}
+          {filtered.length === 0 ? (
+            <p style={{ color: "#999", fontSize: "13px" }}>No hay clientes disponibles localmente.</p>
+          ) : (
+            groups.map(([letter, contacts]) => (
+              <div key={letter}>
+                <div className="alpha-section-header">{letter}</div>
+                {contacts.map((c) => (
+                  <div
+                    key={c.id}
+                    className="customer-item"
+                    onClick={() => history.push(`/pos/products/${c.id}`)}
+                  >
+                    {c.name}
+                  </div>
+                ))}
+              </div>
+            ))
+          )}
+        </div>
       </IonContent>
     </IonPage>
   );

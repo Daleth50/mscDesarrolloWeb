@@ -1,14 +1,4 @@
-import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonProgressBar,
-  IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
-} from "@ionic/react";
+import { IonContent, IonPage } from "@ionic/react";
 import { container } from "app/container";
 import type { SyncStep } from "domain/repositories/SyncRepository";
 import { useAppState } from "presentation/context/AppStateContext";
@@ -20,21 +10,28 @@ type SyncState = "idle" | "running" | "success" | "error";
 const STEPS: SyncStep[] = ["customers", "categories", "products", "bill_accounts"];
 
 const STEP_LABELS: Record<SyncStep, string> = {
-  customers: "Descargando clientes...",
-  categories: "Descargando categorías...",
-  products: "Descargando productos e inventario...",
-  bill_accounts: "Descargando cuentas de cobro...",
+  customers: "Clientes",
+  categories: "Categorías",
+  products: "Productos",
+  bill_accounts: "Cuentas de cobro",
 };
 
 export function SyncPage() {
   const history = useHistory();
   const { session, markSyncCompleted, logout } = useAppState();
   const [state, setState] = useState<SyncState>("idle");
-  const [message, setMessage] = useState("Preparando sincronización...");
   const [currentStep, setCurrentStep] = useState<SyncStep | null>(null);
-  const [summary, setSummary] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [counts, setCounts] = useState<Partial<Record<SyncStep, number>>>({});
 
-  const progress = currentStep ? (STEPS.indexOf(currentStep) + 1) / STEPS.length : 0;
+  const stepProgress = (step: SyncStep): number => {
+    if (!currentStep) return state === "success" ? 1 : 0;
+    const current = STEPS.indexOf(currentStep);
+    const target = STEPS.indexOf(step);
+    if (target < current) return 1;
+    if (target === current) return 0.4;
+    return 0;
+  };
 
   const executeSync = async () => {
     if (!session) {
@@ -43,32 +40,30 @@ export function SyncPage() {
     }
 
     setState("running");
-    setMessage("Iniciando sincronización...");
     setCurrentStep(null);
-    setSummary(null);
+    setErrorMessage(null);
+    setCounts({});
 
     try {
       const result = await container.syncInitialDataUseCase.execute(
         session.token,
-        (step) => {
-          setCurrentStep(step);
-          setMessage(STEP_LABELS[step]);
-        },
+        (step) => setCurrentStep(step),
       );
 
       markSyncCompleted(result.syncedAt);
+      setCounts({
+        customers: result.customersCount,
+        categories: result.categoriesCount,
+        products: result.productsCount,
+        bill_accounts: result.billAccountsCount,
+      });
       setState("success");
       setCurrentStep(null);
-      setSummary(
-        `${result.customersCount} clientes · ${result.productsCount} productos · ${result.categoriesCount} categorías · ${result.billAccountsCount} cuentas`,
-      );
-      setMessage("Sincronización completada.");
       history.replace("/tabs/customers");
     } catch (err) {
       setState("error");
       setCurrentStep(null);
-      const detail = err instanceof Error ? err.message : "Error de sincronización desconocido";
-      setMessage(`Error en la sincronización: ${detail}`);
+      setErrorMessage(err instanceof Error ? err.message : "Error de sincronización desconocido");
     }
   };
 
@@ -84,39 +79,52 @@ export function SyncPage() {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Sincronización inicial</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen className="ion-padding">
-        <div className="screen-centered">
-          {state === "running" ? (
-            <>
-              <IonSpinner name="crescent" />
-              <IonProgressBar value={progress} style={{ marginTop: "1rem" }} />
-            </>
-          ) : null}
+      <IonContent fullscreen>
+        <div className="sync-wrapper">
+          <div className="sync-icon">☁</div>
+          <div className="sync-title">Sincronizar</div>
+          <div className="sync-subtitle">
+            {state === "running" ? "Descargando datos..." : "Asegúrate de tener datos sincronizados"}
+          </div>
 
-          <IonText>
-            <p>{message}</p>
-          </IonText>
+          {errorMessage && (
+            <div className="alert-error">{errorMessage}</div>
+          )}
 
-          {summary ? (
-            <IonText color="medium">
-              <p style={{ fontSize: "0.85rem" }}>{summary}</p>
-            </IonText>
-          ) : null}
+          <div className="sync-steps">
+            {STEPS.map((step) => {
+              const progress = stepProgress(step);
+              const count = counts[step];
+              return (
+                <div key={step} className="sync-step">
+                  <div className="sync-step-header">
+                    <span>{STEP_LABELS[step]}</span>
+                    <span>{Math.round(progress * 100)}%</span>
+                  </div>
+                  <div className="sync-progress-bar">
+                    <div className="sync-progress-fill" style={{ width: `${progress * 100}%` }} />
+                  </div>
+                  {count !== undefined && (
+                    <div className="sync-step-count">📦 {count}</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
-          {state === "error" ? (
-            <IonButton onClick={executeSync} expand="block">
+          {state === "error" && (
+            <button className="btn-primary" style={{ width: "100%", maxWidth: "320px" }} onClick={() => void executeSync()}>
               Reintentar sincronización
-            </IonButton>
-          ) : null}
+            </button>
+          )}
 
-          <IonButton fill="outline" onClick={handleLogout} expand="block">
+          <button
+            className="btn-outline"
+            style={{ width: "100%", maxWidth: "320px" }}
+            onClick={() => void handleLogout()}
+          >
             Cerrar sesión
-          </IonButton>
+          </button>
         </div>
       </IonContent>
     </IonPage>

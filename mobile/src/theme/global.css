@@ -1,0 +1,30 @@
+:root {
+  --app-surface: #f3f4ef;
+  --app-surface-strong: #e3e5d9;
+}
+
+body {
+  background: radial-gradient(circle at 10% 10%, #eef3de, #f7f8f2 45%, #dde5cf 100%);
+}
+
+.screen-centered {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-wrapper ion-card {
+  width: min(420px, 100%);
+  border-radius: 16px;
+}

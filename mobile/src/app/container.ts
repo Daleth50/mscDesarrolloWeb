@@ -33,7 +33,7 @@ function resolveApiBaseUrl(): string {
   const envUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000";
   if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
     // Android emulator routes host machine via 10.0.2.2
-    return envUrl.replace(/^http:\/\/(?:localhost|127\.0\.0\.1|192\.168\.\d+\.\d+)/, "http://10.0.2.2");
+    return envUrl.replace(/^http:\/\/(?:localhost|127\.0\.0\.1|192\.168\.\d+\.\d+)(:\d+)?/, (_: string, port: string) => `http://10.0.2.2${port ?? ""}`);
   }
   return envUrl;
 }

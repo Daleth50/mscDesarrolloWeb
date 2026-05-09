@@ -90,7 +90,7 @@ export function ProductsPage() {
               <IonIcon icon={chevronBackOutline} slot="icon-only" />
             </IonButton>
           </IonButtons>
-          <IonTitle>Products</IonTitle>
+          <IonTitle>Productos</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={() => history.push(`/pos/cart/${customerId}`)} disabled={cartCount === 0}>
               <IonIcon icon={cartOutline} slot="start" />
@@ -103,7 +103,7 @@ export function ProductsPage() {
             <IonInput
               value={query}
               onIonInput={(e) => setQuery(e.detail.value || "")}
-              placeholder="Search by name or barcode"
+              placeholder="Buscar por nombre o código de barras"
               clearInput
             />
           </div>
@@ -114,7 +114,7 @@ export function ProductsPage() {
         {filtered.length === 0 ? (
           <div className="ion-padding">
             <IonText color="medium">
-              <p>No products found.</p>
+              <p>No se encontraron productos.</p>
             </IonText>
           </div>
         ) : (
@@ -142,7 +142,7 @@ export function ProductsPage() {
                     </div>
                   ) : (
                     <IonButton slot="end" size="small" onClick={() => void handleAdd(product)}>
-                      Add
+                      Agregar
                     </IonButton>
                   )}
                 </IonItem>

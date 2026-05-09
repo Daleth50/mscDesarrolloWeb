@@ -23,11 +23,11 @@ export function TabsPage() {
       <IonTabBar slot="bottom">
         <IonTabButton tab="customers" href="/tabs/customers">
           <IonIcon icon={peopleOutline} />
-          <IonLabel>Customers</IonLabel>
+          <IonLabel>Clientes</IonLabel>
         </IonTabButton>
         <IonTabButton tab="settings" href="/tabs/settings">
           <IonIcon icon={settingsOutline} />
-          <IonLabel>Settings</IonLabel>
+          <IonLabel>Ajustes</IonLabel>
         </IonTabButton>
       </IonTabBar>
     </IonTabs>

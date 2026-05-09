@@ -20,17 +20,17 @@ type SyncState = "idle" | "running" | "success" | "error";
 const STEPS: SyncStep[] = ["customers", "categories", "products", "bill_accounts"];
 
 const STEP_LABELS: Record<SyncStep, string> = {
-  customers: "Downloading customers...",
-  categories: "Downloading categories...",
-  products: "Downloading products and inventory...",
-  bill_accounts: "Downloading payment accounts...",
+  customers: "Descargando clientes...",
+  categories: "Descargando categorías...",
+  products: "Descargando productos e inventario...",
+  bill_accounts: "Descargando cuentas de cobro...",
 };
 
 export function SyncPage() {
   const history = useHistory();
   const { session, markSyncCompleted, logout } = useAppState();
   const [state, setState] = useState<SyncState>("idle");
-  const [message, setMessage] = useState("Preparing synchronization...");
+  const [message, setMessage] = useState("Preparando sincronización...");
   const [currentStep, setCurrentStep] = useState<SyncStep | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
 
@@ -43,7 +43,7 @@ export function SyncPage() {
     }
 
     setState("running");
-    setMessage("Starting synchronization...");
+    setMessage("Iniciando sincronización...");
     setCurrentStep(null);
     setSummary(null);
 
@@ -60,15 +60,15 @@ export function SyncPage() {
       setState("success");
       setCurrentStep(null);
       setSummary(
-        `${result.customersCount} customers · ${result.productsCount} products · ${result.categoriesCount} categories · ${result.billAccountsCount} accounts`,
+        `${result.customersCount} clientes · ${result.productsCount} productos · ${result.categoriesCount} categorías · ${result.billAccountsCount} cuentas`,
       );
-      setMessage("Synchronization complete.");
+      setMessage("Sincronización completada.");
       history.replace("/tabs/customers");
     } catch (err) {
       setState("error");
       setCurrentStep(null);
-      const detail = err instanceof Error ? err.message : "Unknown sync error";
-      setMessage(`Synchronization failed: ${detail}`);
+      const detail = err instanceof Error ? err.message : "Error de sincronización desconocido";
+      setMessage(`Error en la sincronización: ${detail}`);
     }
   };
 
@@ -86,7 +86,7 @@ export function SyncPage() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Initial synchronization</IonTitle>
+          <IonTitle>Sincronización inicial</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
@@ -110,12 +110,12 @@ export function SyncPage() {
 
           {state === "error" ? (
             <IonButton onClick={executeSync} expand="block">
-              Retry sync
+              Reintentar sincronización
             </IonButton>
           ) : null}
 
           <IonButton fill="outline" onClick={handleLogout} expand="block">
-            Logout
+            Cerrar sesión
           </IonButton>
         </div>
       </IonContent>

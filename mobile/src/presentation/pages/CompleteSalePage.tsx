@@ -49,7 +49,7 @@ export function CompleteSalePage() {
   const handleConfirm = async () => {
     if (!cart || cart.items.length === 0) return;
     if (!selectedAccountId) {
-      setErrorMsg("Select a payment account.");
+      setErrorMsg("Selecciona una cuenta de cobro.");
       return;
     }
 
@@ -67,7 +67,7 @@ export function CompleteSalePage() {
       setPageState("done");
     } catch (err) {
       setPageState("error");
-      setErrorMsg(err instanceof Error ? err.message : "Unknown error");
+      setErrorMsg(err instanceof Error ? err.message : "Error desconocido");
     }
   };
 
@@ -82,11 +82,11 @@ export function CompleteSalePage() {
           <div className="screen-centered">
             <IonIcon icon={checkmarkCircleOutline} style={{ fontSize: "4rem", color: "var(--ion-color-success)" }} />
             <IonText>
-              <h2>Sale completed!</h2>
+              <h2>¡Venta completada!</h2>
               <p>Total: ${total.toFixed(2)}</p>
             </IonText>
             <IonButton expand="block" onClick={handleGoHome} style={{ marginTop: "1rem" }}>
-              Back to customers
+              Volver a clientes
             </IonButton>
           </div>
         </IonContent>
@@ -103,14 +103,14 @@ export function CompleteSalePage() {
               <IonIcon icon={chevronBackOutline} slot="icon-only" />
             </IonButton>
           </IonButtons>
-          <IonTitle>Complete sale</IonTitle>
+          <IonTitle>Completar venta</IonTitle>
         </IonToolbar>
       </IonHeader>
 
       <IonContent fullscreen>
         <IonList>
           <IonListHeader>
-            <IonLabel>Order summary</IonLabel>
+            <IonLabel>Resumen del pedido</IonLabel>
           </IonListHeader>
           {cart?.items.map((item) => (
             <IonItem key={item.productId}>
@@ -135,7 +135,7 @@ export function CompleteSalePage() {
 
         <IonList style={{ marginTop: "1rem" }}>
           <IonListHeader>
-            <IonLabel>Payment method</IonLabel>
+            <IonLabel>Método de pago</IonLabel>
           </IonListHeader>
           <IonRadioGroup
             value={selectedAccountId}
@@ -145,7 +145,7 @@ export function CompleteSalePage() {
               <IonItem key={account.id}>
                 <IonLabel>
                   <h3>{account.name}</h3>
-                  <p>{account.type === "cash" ? "Cash" : "Credit / Debt"}</p>
+                  <p>{account.type === "cash" ? "Efectivo" : "Crédito / Deuda"}</p>
                 </IonLabel>
                 <IonRadio slot="end" value={account.id} />
               </IonItem>
@@ -167,7 +167,7 @@ export function CompleteSalePage() {
             onClick={() => void handleConfirm()}
             disabled={pageState === "submitting" || !selectedAccountId}
           >
-            {pageState === "submitting" ? <IonSpinner name="crescent" /> : "Confirm sale"}
+            {pageState === "submitting" ? <IonSpinner name="crescent" /> : "Confirmar venta"}
           </IonButton>
         </div>
       </IonContent>

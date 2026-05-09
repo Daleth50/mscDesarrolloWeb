@@ -56,7 +56,7 @@ export function CartPage() {
               <IonIcon icon={chevronBackOutline} slot="icon-only" />
             </IonButton>
           </IonButtons>
-          <IonTitle>Cart</IonTitle>
+          <IonTitle>Carrito</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -64,7 +64,7 @@ export function CartPage() {
         {isEmpty ? (
           <div className="ion-padding">
             <IonText color="medium">
-              <p>The cart is empty. Add products first.</p>
+              <p>El carrito está vacío. Agrega productos primero.</p>
             </IonText>
           </div>
         ) : (
@@ -74,7 +74,7 @@ export function CartPage() {
                 <IonItem key={item.productId}>
                   <IonLabel>
                     <h2>{item.productName}</h2>
-                    <p>${item.price.toFixed(2)} each</p>
+                    <p>${item.price.toFixed(2)} c/u</p>
                   </IonLabel>
                   <div slot="end" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <IonButton
@@ -125,7 +125,7 @@ export function CartPage() {
                 style={{ marginTop: "1rem" }}
                 onClick={() => history.push(`/pos/complete/${customerId}`)}
               >
-                Complete sale
+                Completar venta
               </IonButton>
             </div>
           </>

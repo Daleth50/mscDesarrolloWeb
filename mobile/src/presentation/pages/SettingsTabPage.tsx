@@ -33,10 +33,10 @@ export function SettingsTabPage() {
     try {
       const result = await container.syncInitialDataUseCase.execute(session.token);
       markSyncCompleted(result.syncedAt);
-      setSyncMessage(`Sync completed. ${result.customersCount} customers updated.`);
+      setSyncMessage(`Sincronización completada. ${result.customersCount} clientes actualizados.`);
     } catch (err) {
       const detail = err instanceof Error ? err.message : "Unknown error";
-      setSyncMessage(`Sync failed: ${detail}`);
+      setSyncMessage(`Error en la sincronización: ${detail}`);
     } finally {
       setIsSyncing(false);
     }
@@ -51,7 +51,7 @@ export function SettingsTabPage() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Settings</IonTitle>
+          <IonTitle>Ajustes</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -59,20 +59,20 @@ export function SettingsTabPage() {
         <IonList inset>
           <IonItem>
             <IonLabel>
-              <h2>Signed in as</h2>
-              <p>{session?.user.username || "Unknown user"}</p>
+              <h2>Sesión iniciada como</h2>
+              <p>{session?.user.username || "Usuario desconocido"}</p>
             </IonLabel>
           </IonItem>
           <IonItem>
             <IonLabel>
-              <h2>Last sync</h2>
-              <p>{lastSyncAt ? new Date(lastSyncAt).toLocaleString() : "Never"}</p>
+              <h2>Última sincronización</h2>
+              <p>{lastSyncAt ? new Date(lastSyncAt).toLocaleString() : "Nunca"}</p>
             </IonLabel>
           </IonItem>
         </IonList>
 
         <IonButton expand="block" onClick={handleManualSync}>
-          {isSyncing ? "Syncing..." : "Run sync now"}
+          {isSyncing ? "Sincronizando..." : "Sincronizar ahora"}
         </IonButton>
 
         {syncMessage ? (
@@ -82,7 +82,7 @@ export function SettingsTabPage() {
         ) : null}
 
         <IonButton expand="block" fill="outline" color="danger" onClick={handleLogout}>
-          Logout
+          Cerrar sesión
         </IonButton>
       </IonContent>
     </IonPage>

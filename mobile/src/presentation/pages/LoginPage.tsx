@@ -47,11 +47,11 @@ export function LoginPage() {
         <div className="auth-wrapper">
           <IonCard>
             <IonCardHeader>
-              <IonCardTitle>Sign in</IonCardTitle>
+              <IonCardTitle>Iniciar sesión</IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
               <IonItem>
-                <IonLabel position="stacked">Email or username</IonLabel>
+                <IonLabel position="stacked">Correo o usuario</IonLabel>
                 <IonInput
                   value={identifier}
                   onIonInput={(event) => setIdentifier(event.detail.value || "")}
@@ -61,7 +61,7 @@ export function LoginPage() {
               </IonItem>
 
               <IonItem>
-                <IonLabel position="stacked">Password</IonLabel>
+                <IonLabel position="stacked">Contraseña</IonLabel>
                 <IonInput
                   type="password"
                   value={password}
@@ -83,7 +83,7 @@ export function LoginPage() {
                 disabled={isSubmitting}
                 className="ion-margin-top"
               >
-                {isSubmitting ? "Signing in..." : "Sign in"}
+                {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
               </IonButton>
             </IonCardContent>
           </IonCard>

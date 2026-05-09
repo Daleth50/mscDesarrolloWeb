@@ -6,7 +6,7 @@ export function AppLoadingScreen() {
       <IonContent className="ion-padding" fullscreen>
         <div className="screen-centered">
           <IonSpinner name="crescent" />
-          <p>Loading mobile app...</p>
+          <p>Cargando la aplicación...</p>
         </div>
       </IonContent>
     </IonPage>

@@ -53,7 +53,7 @@ export function CustomersTabPage() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Customers</IonTitle>
+          <IonTitle>Clientes</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -64,11 +64,11 @@ export function CustomersTabPage() {
 
         <div className="ion-padding">
           <IonItem>
-            <IonLabel position="stacked">Search customer</IonLabel>
+            <IonLabel position="stacked">Buscar cliente</IonLabel>
             <IonInput
               value={query}
               onIonInput={(e) => setQuery(e.detail.value || "")}
-              placeholder="Search by name"
+              placeholder="Buscar por nombre"
             />
           </IonItem>
         </div>
@@ -76,7 +76,7 @@ export function CustomersTabPage() {
         {filteredCustomers.length === 0 ? (
           <div className="ion-padding">
             <IonText color="medium">
-              <p>No local customers available.</p>
+              <p>No hay clientes disponibles localmente.</p>
             </IonText>
           </div>
         ) : (
@@ -90,10 +90,10 @@ export function CustomersTabPage() {
               >
                 <IonLabel>
                   <h2>{customer.name}</h2>
-                  <p>{customer.email || customer.phone || "No contact info"}</p>
+                  <p>{customer.email || customer.phone || "Sin información de contacto"}</p>
                 </IonLabel>
                 <IonNote slot="end" color="primary">
-                  New sale
+                  Nueva venta
                 </IonNote>
               </IonItem>
             ))}

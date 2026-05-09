@@ -1,8 +1,12 @@
+import { BillAccountsLocalDataSource } from "data/datasources/local/BillAccountsLocalDataSource";
 import { ContactsLocalDataSource } from "data/datasources/local/ContactsLocalDataSource";
+import { ProductsLocalDataSource } from "data/datasources/local/ProductsLocalDataSource";
 import { SessionLocalDataSource } from "data/datasources/local/SessionLocalDataSource";
 import { SyncLocalDataSource } from "data/datasources/local/SyncLocalDataSource";
 import { AuthRemoteDataSource } from "data/datasources/remote/AuthRemoteDataSource";
+import { BillAccountsRemoteDataSource } from "data/datasources/remote/BillAccountsRemoteDataSource";
 import { ContactsRemoteDataSource } from "data/datasources/remote/ContactsRemoteDataSource";
+import { ProductsRemoteDataSource } from "data/datasources/remote/ProductsRemoteDataSource";
 import { AuthRepositoryImpl } from "data/repositories/AuthRepositoryImpl";
 import { ContactRepositoryImpl } from "data/repositories/ContactRepositoryImpl";
 import { SyncRepositoryImpl } from "data/repositories/SyncRepositoryImpl";
@@ -20,9 +24,13 @@ const apiClient = new ApiClient(apiBaseUrl);
 
 const authRemoteDataSource = new AuthRemoteDataSource(apiClient);
 const contactsRemoteDataSource = new ContactsRemoteDataSource(apiClient);
+const productsRemoteDataSource = new ProductsRemoteDataSource(apiClient);
+const billAccountsRemoteDataSource = new BillAccountsRemoteDataSource(apiClient);
 
 const sessionLocalDataSource = new SessionLocalDataSource();
 const contactsLocalDataSource = new ContactsLocalDataSource();
+const productsLocalDataSource = new ProductsLocalDataSource();
+const billAccountsLocalDataSource = new BillAccountsLocalDataSource();
 const syncLocalDataSource = new SyncLocalDataSource();
 
 const authRepository = new AuthRepositoryImpl(
@@ -33,6 +41,10 @@ const contactRepository = new ContactRepositoryImpl(contactsLocalDataSource);
 const syncRepository = new SyncRepositoryImpl(
   contactsRemoteDataSource,
   contactsLocalDataSource,
+  productsRemoteDataSource,
+  productsLocalDataSource,
+  billAccountsRemoteDataSource,
+  billAccountsLocalDataSource,
   syncLocalDataSource,
 );
 

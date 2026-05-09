@@ -14,3 +14,13 @@ export const contactsStore = localforage.createInstance({
   name: "msc-mobile-db",
   storeName: "contacts",
 });
+
+export const productsStore = localforage.createInstance({
+  name: "msc-mobile-db",
+  storeName: "products",
+});
+
+export const billAccountsStore = localforage.createInstance({
+  name: "msc-mobile-db",
+  storeName: "bill_accounts",
+});

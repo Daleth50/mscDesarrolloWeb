@@ -26,9 +26,19 @@ import { LoginUseCase } from "domain/usecases/LoginUseCase";
 import { LogoutUseCase } from "domain/usecases/LogoutUseCase";
 import { RemoveFromCartUseCase } from "domain/usecases/RemoveFromCartUseCase";
 import { SyncInitialDataUseCase } from "domain/usecases/SyncInitialDataUseCase";
+import { Capacitor } from "@capacitor/core";
 import { ApiClient } from "infrastructure/http/ApiClient";
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000";
+function resolveApiBaseUrl(): string {
+  const envUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000";
+  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
+    // Android emulator routes host machine via 10.0.2.2
+    return envUrl.replace(/^http:\/\/(?:localhost|127\.0\.0\.1|192\.168\.\d+\.\d+)/, "http://10.0.2.2");
+  }
+  return envUrl;
+}
+
+const apiBaseUrl = resolveApiBaseUrl();
 
 const apiClient = new ApiClient(apiBaseUrl);
 

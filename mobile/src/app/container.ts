@@ -1,6 +1,8 @@
 import { BillAccountsLocalDataSource } from "data/datasources/local/BillAccountsLocalDataSource";
+import { CartLocalDataSource } from "data/datasources/local/CartLocalDataSource";
 import { ContactsLocalDataSource } from "data/datasources/local/ContactsLocalDataSource";
 import { ProductsLocalDataSource } from "data/datasources/local/ProductsLocalDataSource";
+import { SalesLocalDataSource } from "data/datasources/local/SalesLocalDataSource";
 import { SessionLocalDataSource } from "data/datasources/local/SessionLocalDataSource";
 import { SyncLocalDataSource } from "data/datasources/local/SyncLocalDataSource";
 import { AuthRemoteDataSource } from "data/datasources/remote/AuthRemoteDataSource";
@@ -8,13 +10,21 @@ import { BillAccountsRemoteDataSource } from "data/datasources/remote/BillAccoun
 import { ContactsRemoteDataSource } from "data/datasources/remote/ContactsRemoteDataSource";
 import { ProductsRemoteDataSource } from "data/datasources/remote/ProductsRemoteDataSource";
 import { AuthRepositoryImpl } from "data/repositories/AuthRepositoryImpl";
+import { CartRepositoryImpl } from "data/repositories/CartRepositoryImpl";
 import { ContactRepositoryImpl } from "data/repositories/ContactRepositoryImpl";
 import { SyncRepositoryImpl } from "data/repositories/SyncRepositoryImpl";
-import { GetPersistedSessionUseCase } from "domain/usecases/GetPersistedSessionUseCase";
+import { AddToCartUseCase } from "domain/usecases/AddToCartUseCase";
+import { ClearCartUseCase } from "domain/usecases/ClearCartUseCase";
+import { CompleteSaleUseCase } from "domain/usecases/CompleteSaleUseCase";
+import { GetCartUseCase } from "domain/usecases/GetCartUseCase";
+import { GetLocalBillAccountsUseCase } from "domain/usecases/GetLocalBillAccountsUseCase";
 import { GetLocalCustomersUseCase } from "domain/usecases/GetLocalCustomersUseCase";
+import { GetLocalProductsUseCase } from "domain/usecases/GetLocalProductsUseCase";
+import { GetPersistedSessionUseCase } from "domain/usecases/GetPersistedSessionUseCase";
 import { GetSyncStatusUseCase } from "domain/usecases/GetSyncStatusUseCase";
 import { LoginUseCase } from "domain/usecases/LoginUseCase";
 import { LogoutUseCase } from "domain/usecases/LogoutUseCase";
+import { RemoveFromCartUseCase } from "domain/usecases/RemoveFromCartUseCase";
 import { SyncInitialDataUseCase } from "domain/usecases/SyncInitialDataUseCase";
 import { ApiClient } from "infrastructure/http/ApiClient";
 
@@ -31,13 +41,13 @@ const sessionLocalDataSource = new SessionLocalDataSource();
 const contactsLocalDataSource = new ContactsLocalDataSource();
 const productsLocalDataSource = new ProductsLocalDataSource();
 const billAccountsLocalDataSource = new BillAccountsLocalDataSource();
+const cartLocalDataSource = new CartLocalDataSource();
+const salesLocalDataSource = new SalesLocalDataSource();
 const syncLocalDataSource = new SyncLocalDataSource();
 
-const authRepository = new AuthRepositoryImpl(
-  authRemoteDataSource,
-  sessionLocalDataSource,
-);
+const authRepository = new AuthRepositoryImpl(authRemoteDataSource, sessionLocalDataSource);
 const contactRepository = new ContactRepositoryImpl(contactsLocalDataSource);
+const cartRepository = new CartRepositoryImpl(cartLocalDataSource);
 const syncRepository = new SyncRepositoryImpl(
   contactsRemoteDataSource,
   contactsLocalDataSource,
@@ -53,6 +63,13 @@ export const container = {
   getPersistedSessionUseCase: new GetPersistedSessionUseCase(authRepository),
   syncInitialDataUseCase: new SyncInitialDataUseCase(syncRepository),
   getLocalCustomersUseCase: new GetLocalCustomersUseCase(contactRepository),
+  getLocalProductsUseCase: new GetLocalProductsUseCase(productsLocalDataSource),
+  getLocalBillAccountsUseCase: new GetLocalBillAccountsUseCase(billAccountsLocalDataSource),
   getSyncStatusUseCase: new GetSyncStatusUseCase(syncRepository),
   logoutUseCase: new LogoutUseCase(authRepository, syncRepository),
+  getCartUseCase: new GetCartUseCase(cartRepository),
+  addToCartUseCase: new AddToCartUseCase(cartRepository),
+  removeFromCartUseCase: new RemoveFromCartUseCase(cartRepository),
+  clearCartUseCase: new ClearCartUseCase(cartRepository),
+  completeSaleUseCase: new CompleteSaleUseCase(salesLocalDataSource),
 };

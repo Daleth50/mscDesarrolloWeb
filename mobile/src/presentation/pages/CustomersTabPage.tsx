@@ -5,6 +5,7 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonNote,
   IonPage,
   IonRefresher,
   IonRefresherContent,
@@ -15,9 +16,12 @@ import {
 } from "@ionic/react";
 import { container } from "app/container";
 import type { Contact } from "domain/entities/Contact";
+import { cartOutline } from "ionicons/icons";
 import { useEffect, useMemo, useState } from "react";
+import { useHistory } from "react-router-dom";
 
 export function CustomersTabPage() {
+  const history = useHistory();
   const [customers, setCustomers] = useState<Contact[]>([]);
   const [query, setQuery] = useState("");
 
@@ -32,16 +36,17 @@ export function CustomersTabPage() {
 
   const filteredCustomers = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) {
-      return customers;
-    }
-
-    return customers.filter((customer) => customer.name.toLowerCase().includes(q));
+    if (!q) return customers;
+    return customers.filter((c) => c.name.toLowerCase().includes(q));
   }, [customers, query]);
 
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
     await loadCustomers();
     event.detail.complete();
+  };
+
+  const handleSelectCustomer = (customerId: string) => {
+    history.push(`/pos/products/${customerId}`);
   };
 
   return (
@@ -62,7 +67,7 @@ export function CustomersTabPage() {
             <IonLabel position="stacked">Search customer</IonLabel>
             <IonInput
               value={query}
-              onIonInput={(event) => setQuery(event.detail.value || "")}
+              onIonInput={(e) => setQuery(e.detail.value || "")}
               placeholder="Search by name"
             />
           </IonItem>
@@ -77,11 +82,19 @@ export function CustomersTabPage() {
         ) : (
           <IonList inset>
             {filteredCustomers.map((customer) => (
-              <IonItem key={customer.id}>
+              <IonItem
+                key={customer.id}
+                button
+                detail
+                onClick={() => handleSelectCustomer(customer.id)}
+              >
                 <IonLabel>
                   <h2>{customer.name}</h2>
                   <p>{customer.email || customer.phone || "No contact info"}</p>
                 </IonLabel>
+                <IonNote slot="end" color="primary">
+                  New sale
+                </IonNote>
               </IonItem>
             ))}
           </IonList>

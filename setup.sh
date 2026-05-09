@@ -38,6 +38,24 @@ print_info() {
     echo -e "${BLUE}ℹ $1${NC}"
 }
 
+_offer_seed() {
+    echo
+    read -p "¿Deseas cargar datos de prueba? (usuarios, productos, categorías) (s/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Ss]$ ]]; then
+        print_info "Cargando datos de prueba desde database/SEED.sql..."
+        if mysql -u root -p swipall_pos < database/SEED.sql; then
+            print_success "Datos de prueba cargados"
+            echo -e "${BLUE}  Usuario: admin  |  Contraseña: admin123${NC}"
+        else
+            print_warning "No se pudieron cargar los datos de prueba automáticamente"
+            print_info "Ejecuta manualmente: mysql -u root -p swipall_pos < database/SEED.sql"
+        fi
+    else
+        print_info "Omitiendo datos de prueba"
+    fi
+}
+
 # Start
 print_header "INICIANDO INSTALACIÓN DEL PROYECTO"
 
@@ -199,13 +217,14 @@ if [[ $REPLY =~ ^[Ss]$ ]]; then
     # Try to execute SQL file directly
     if mysql -u root -p < database/DATABASE.sql 2>/dev/null; then
         print_success "Base de datos creada exitosamente desde database/DATABASE.sql"
-        
+
         # Apply migrations
         print_info "Aplicando migraciones..."
         cd backend
         FLASK_APP=run.py python -m flask db upgrade
         cd ..
         print_success "Migraciones aplicadas"
+        _offer_seed
     else
         print_warning "No se pudo aplicar el script SQL automáticamente."
         print_info "Ejecuta manualmente el siguiente comando:"
@@ -219,6 +238,7 @@ if [[ $REPLY =~ ^[Ss]$ ]]; then
             FLASK_APP=run.py python -m flask db upgrade
             cd ..
             print_success "Migraciones aplicadas"
+            _offer_seed
         else
             print_warning "Por favor, ejecuta el script SQL manualmente y aplica las migraciones"
         fi

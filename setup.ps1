@@ -35,6 +35,26 @@ function Write-Info {
     Write-Host "ℹ $args" -ForegroundColor Cyan
 }
 
+function Invoke-OfferSeed {
+    Write-Host ""
+    $seedResponse = Read-Host "¿Deseas cargar datos de prueba? (usuarios, productos, categorías) (s/n)"
+    if ($seedResponse -eq "s" -or $seedResponse -eq "S") {
+        Write-Info "Cargando datos de prueba desde database\SEED.sql..."
+        $output = mysql -u root -p swipall_pos < "database\SEED.sql" 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Success "Datos de prueba cargados"
+            Write-Host "  Usuario: admin  |  Contraseña: admin123" -ForegroundColor Cyan
+        }
+        else {
+            Write-Warning-Custom "No se pudieron cargar los datos de prueba automáticamente"
+            Write-Info "Ejecuta manualmente: mysql -u root -p swipall_pos < database\SEED.sql"
+        }
+    }
+    else {
+        Write-Info "Omitiendo datos de prueba"
+    }
+}
+
 # Start
 Write-Header "INICIANDO INSTALACIÓN DEL PROYECTO"
 
@@ -261,6 +281,7 @@ if ($response -eq "s" -or $response -eq "S") {
         python -m flask db upgrade
         Pop-Location
         Write-Success "Migraciones aplicadas"
+        Invoke-OfferSeed
     }
     catch {
         Write-Warning-Custom "Error durante la creación de la base de datos"

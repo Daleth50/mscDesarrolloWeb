@@ -1,7 +1,7 @@
 ###############################################################################
 #                  SETUP SCRIPT FOR Windows (PowerShell)                     #
 #          Instala dependencias y configura el proyecto completo             #
-#                  Backend (Flask) + Frontend (React)                        #
+#            Backend (Flask) + Frontend (React) + Mobile (Ionic)            #
 ###############################################################################
 
 # Require admin privileges
@@ -140,8 +140,22 @@ else {
     exit 1
 }
 
-# Step 4: Create environment files
-Write-Header "PASO 4: CONFIGURANDO ARCHIVOS DE ENTORNO"
+# Step 4: Install mobile dependencies
+Write-Header "PASO 4: INSTALANDO DEPENDENCIAS DE MOBILE"
+
+if (Test-Path "mobile") {
+    Write-Info "Instalando paquetes npm para mobile..."
+    Push-Location mobile
+    npm install
+    Pop-Location
+    Write-Success "Dependencias de mobile instaladas"
+}
+else {
+    Write-Warning-Custom "Directorio mobile no encontrado, omitiendo"
+}
+
+# Step 5: Create environment files
+Write-Header "PASO 5: CONFIGURANDO ARCHIVOS DE ENTORNO"
 
 # Backend .env
 if (-not (Test-Path "backend\.env")) {
@@ -172,8 +186,35 @@ else {
     Write-Info "frontend\.env.local ya existe"
 }
 
-# Step 5: Database setup instructions
-Write-Header "PASO 5: CONFIGURACIÓN DE BASE DE DATOS"
+# Mobile .env
+if (Test-Path "mobile") {
+    if (-not (Test-Path "mobile\.env")) {
+        Write-Info "Detectando IP local para mobile..."
+        $localIP = (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi-Fi" -ErrorAction SilentlyContinue).IPAddress
+        if (-not $localIP) {
+            $localIP = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notlike "127.*" -and $_.IPAddress -notlike "169.*" } | Select-Object -First 1).IPAddress
+        }
+        if (-not $localIP) {
+            $localIP = "127.0.0.1"
+            Write-Warning-Custom "No se pudo detectar la IP local, usando 127.0.0.1"
+        }
+        else {
+            Write-Success "IP local detectada: $localIP"
+        }
+        Write-Info "Creando mobile\.env..."
+        @"
+# API URL - Apunta al backend en tu máquina (IP local para dispositivos físicos)
+VITE_API_BASE_URL=http://${localIP}:5000
+"@ | Out-File "mobile\.env" -Encoding UTF8
+        Write-Success "mobile\.env creado (VITE_API_BASE_URL=http://${localIP}:5000)"
+    }
+    else {
+        Write-Info "mobile\.env ya existe"
+    }
+}
+
+# Step 6: Database setup instructions
+Write-Header "PASO 6: CONFIGURACIÓN DE BASE DE DATOS"
 
 Write-Info "Asegúrate de que MySQL esté ejecutándose"
 $response = Read-Host "¿MySQL está en ejecución? (s/n)"
@@ -231,7 +272,7 @@ else {
     exit 1
 }
 
-# Step 6: Summary
+# Step 7: Summary
 Write-Header "✅ INSTALACIÓN COMPLETADA"
 
 Write-Host "El proyecto ha sido configurado exitosamente!" -ForegroundColor Green
@@ -240,6 +281,7 @@ Write-Host ""
 Write-Host "PRÓXIMOS PASOS:" -ForegroundColor Blue
 Write-Host "1. Verifica backend\.env con tus credenciales de MySQL"
 Write-Host "2. Verifica frontend\.env.local (API_URL debe coincidir con FLASK_PORT)"
+Write-Host "3. Verifica mobile\.env (API_URL apunta a la IP de tu máquina)"
 Write-Host ""
 
 Write-Host "PARA INICIAR EL PROYECTO:" -ForegroundColor Blue
@@ -264,9 +306,15 @@ Write-Host "cd frontend" -ForegroundColor Yellow
 Write-Host "npm run dev" -ForegroundColor Yellow
 Write-Host ""
 
+Write-Host "Terminal 3 (Mobile):" -ForegroundColor Blue
+Write-Host "cd mobile" -ForegroundColor Yellow
+Write-Host "npm run dev" -ForegroundColor Yellow
+Write-Host ""
+
 Write-Host "URLs DE ACCESO:" -ForegroundColor Blue
 Write-Host "  Frontend: http://127.0.0.1:5173"
 Write-Host "  Backend:  http://127.0.0.1:5000"
+Write-Host "  Mobile:   http://127.0.0.1:8100"
 Write-Host ""
 
 Write-Success "¡Listo para comenzar!"

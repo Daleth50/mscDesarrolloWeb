@@ -123,8 +123,21 @@ else
     exit 1
 fi
 
-# Step 4: Create environment files
-print_header "PASO 4: CONFIGURANDO ARCHIVOS DE ENTORNO"
+# Step 4: Install mobile dependencies
+print_header "PASO 4: INSTALANDO DEPENDENCIAS DE MOBILE"
+
+if [ -d "mobile" ]; then
+    print_info "Instalando paquetes npm para mobile..."
+    cd mobile
+    npm install
+    cd ..
+    print_success "Dependencias de mobile instaladas"
+else
+    print_warning "Directorio mobile no encontrado, omitiendo"
+fi
+
+# Step 5: Create environment files
+print_header "PASO 5: CONFIGURANDO ARCHIVOS DE ENTORNO"
 
 # Backend .env
 if [ ! -f "backend/.env" ]; then
@@ -152,8 +165,30 @@ else
     print_info "frontend/.env.local ya existe"
 fi
 
-# Step 5: Database setup instructions
-print_header "PASO 5: CONFIGURACIÓN DE BASE DE DATOS"
+# Mobile .env
+if [ -d "mobile" ]; then
+    if [ ! -f "mobile/.env" ]; then
+        print_info "Detectando IP local para mobile..."
+        LOCAL_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}')
+        if [ -z "$LOCAL_IP" ]; then
+            LOCAL_IP="127.0.0.1"
+            print_warning "No se pudo detectar la IP local, usando 127.0.0.1"
+        else
+            print_success "IP local detectada: $LOCAL_IP"
+        fi
+        print_info "Creando mobile/.env..."
+        cat > mobile/.env << EOF
+# API URL - Apunta al backend en tu máquina (IP local para dispositivos físicos)
+VITE_API_BASE_URL=http://${LOCAL_IP}:5000
+EOF
+        print_success "mobile/.env creado (VITE_API_BASE_URL=http://${LOCAL_IP}:5000)"
+    else
+        print_info "mobile/.env ya existe"
+    fi
+fi
+
+# Step 6: Database setup instructions
+print_header "PASO 6: CONFIGURACIÓN DE BASE DE DATOS"
 
 print_info "Asegúrate de que MySQL esté ejecutándose"
 read -p "¿MySQL está en ejecución? (s/n) " -n 1 -r
@@ -193,7 +228,7 @@ else
     exit 1
 fi
 
-# Step 6: Summary
+# Step 7: Summary
 print_header "✅ INSTALACIÓN COMPLETADA"
 
 echo -e "${GREEN}El proyecto ha sido configurado exitosamente!${NC}\n"
@@ -201,6 +236,7 @@ echo -e "${GREEN}El proyecto ha sido configurado exitosamente!${NC}\n"
 echo -e "${BLUE}PRÓXIMOS PASOS:${NC}"
 echo "1. Verifica backend/.env con tus credenciales de MySQL"
 echo "2. Verifica frontend/.env.local (API_URL debe coincidir con FLASK_PORT)"
+echo "3. Verifica mobile/.env (API_URL apunta a la IP de tu máquina)"
 echo ""
 echo -e "${BLUE}PARA INICIAR EL PROYECTO:${NC}"
 echo ""

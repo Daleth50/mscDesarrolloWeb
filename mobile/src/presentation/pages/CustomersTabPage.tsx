@@ -1,4 +1,13 @@
-import { IonContent, IonPage, IonRefresher, IonRefresherContent, type RefresherEventDetail } from "@ionic/react";
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonRefresher,
+  IonRefresherContent,
+  IonTitle,
+  IonToolbar,
+  type RefresherEventDetail,
+} from "@ionic/react";
 import { container } from "app/container";
 import type { Contact } from "domain/entities/Contact";
 import { useEffect, useMemo, useState } from "react";
@@ -43,9 +52,11 @@ export function CustomersTabPage() {
 
   return (
     <IonPage>
-      <div className="page-header">
-        <div className="page-header-title">Elige un cliente</div>
-      </div>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Elige un cliente</IonTitle>
+        </IonToolbar>
+      </IonHeader>
 
       <IonContent fullscreen>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>

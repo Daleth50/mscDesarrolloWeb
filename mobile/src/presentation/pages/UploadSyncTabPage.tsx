@@ -1,4 +1,4 @@
-import { IonContent, IonPage } from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from "@ionic/react";
 import { container } from "app/container";
 import { useAppState } from "presentation/context/AppStateContext";
 import { useEffect, useState } from "react";
@@ -55,9 +55,11 @@ export function UploadSyncTabPage() {
 
   return (
     <IonPage>
-      <div className="page-header">
-        <div className="page-header-title">Sincronizar</div>
-      </div>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Sincronizar</IonTitle>
+        </IonToolbar>
+      </IonHeader>
 
       <IonContent fullscreen>
         <div className="sync-wrapper">

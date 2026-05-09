@@ -1,4 +1,12 @@
-import { IonContent, IonPage } from "@ionic/react";
+import {
+  IonBackButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
 import { container } from "app/container";
 import type { Cart } from "domain/entities/Cart";
 import type { Product } from "domain/entities/Product";
@@ -49,10 +57,14 @@ export function ProductsPage() {
 
   return (
     <IonPage>
-      <div className="page-header">
-        <div className="page-header-back" onClick={() => history.goBack()}>← Productos</div>
-        <div className="page-header-title">Productos</div>
-      </div>
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/tabs/customers" text="Atrás" />
+          </IonButtons>
+          <IonTitle>Productos</IonTitle>
+        </IonToolbar>
+      </IonHeader>
 
       <IonContent fullscreen>
         <div style={{ padding: "12px 16px", paddingBottom: cartCount > 0 ? "72px" : "12px" }}>

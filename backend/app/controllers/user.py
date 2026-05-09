@@ -72,7 +72,7 @@ class UserViewModel:
             last_name=last_name,
             email=email,
             username=username,
-            password=generate_password_hash(password),
+            password=generate_password_hash(password, method="pbkdf2:sha256"),
             role=role,
         )
         db.session.add(new_user)
@@ -121,7 +121,7 @@ class UserViewModel:
         if role:
             user.role = role
         if password:
-            user.password = generate_password_hash(password)
+            user.password = generate_password_hash(password, method="pbkdf2:sha256")
 
         db.session.commit()
         return user.to_dict()
@@ -158,7 +158,7 @@ class UserViewModel:
         user.email = email
         user.username = username
         if password:
-            user.password = generate_password_hash(password)
+            user.password = generate_password_hash(password, method="pbkdf2:sha256")
 
         db.session.commit()
         return user.to_dict()

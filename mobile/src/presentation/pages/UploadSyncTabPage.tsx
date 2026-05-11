@@ -33,31 +33,15 @@ export function UploadSyncTabPage() {
     setProgress(0);
 
     try {
-      const syncedCustomers = await container.syncPendingCustomersUseCase.execute(session.token);
-      const pending = await container.salesLocalDataSource.getPendingSales();
-      if (pending.length === 0) {
-        setUploadState("success");
-        setMessage(
-          syncedCustomers > 0
-            ? `${syncedCustomers} clientes sincronizados correctamente.`
-            : "No hay cambios pendientes de sincronizar.",
-        );
-        setProgress(1);
-        setPendingCustomerCount(0);
-        return;
-      }
-
-      // Upload each sale sequentially and track progress
-      for (let i = 0; i < pending.length; i++) {
-        setProgress((i + 1) / pending.length);
-      }
+      const result = await container.syncPendingSalesUseCase.execute(session.token);
 
       setUploadState("success");
       setMessage(
-        syncedCustomers > 0
-          ? `${syncedCustomers} clientes sincronizados correctamente. ${pending.length} ventas sincronizadas correctamente.`
-          : `${pending.length} ventas sincronizadas correctamente.`,
+        result.customersUploadedCount > 0 || result.salesUploadedCount > 0
+          ? `${result.customersUploadedCount} clientes sincronizados correctamente. ${result.salesUploadedCount} ventas sincronizadas correctamente.`
+          : "No hay cambios pendientes de sincronizar.",
       );
+      setProgress(1);
       setPendingCount(0);
       setPendingCustomerCount(0);
     } catch (err) {

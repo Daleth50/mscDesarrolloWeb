@@ -4,8 +4,16 @@ import { ProductsLocalDataSource } from "data/datasources/local/ProductsLocalDat
 import { SyncLocalDataSource } from "data/datasources/local/SyncLocalDataSource";
 import { BillAccountsRemoteDataSource } from "data/datasources/remote/BillAccountsRemoteDataSource";
 import { ContactsRemoteDataSource } from "data/datasources/remote/ContactsRemoteDataSource";
+import { PosOrdersRemoteDataSource } from "data/datasources/remote/PosOrdersRemoteDataSource";
 import { ProductsRemoteDataSource } from "data/datasources/remote/ProductsRemoteDataSource";
-import type { SyncRepository, SyncResult, SyncStep } from "domain/repositories/SyncRepository";
+import type {
+  SyncPendingSalesResult,
+  SyncRepository,
+  SyncResult,
+  SyncStep,
+} from "domain/repositories/SyncRepository";
+import type { CartItem } from "domain/entities/Cart";
+import type { Sale } from "domain/entities/Sale";
 
 export class SyncRepositoryImpl implements SyncRepository {
   constructor(
@@ -15,6 +23,8 @@ export class SyncRepositoryImpl implements SyncRepository {
     private readonly productsLocalDataSource: ProductsLocalDataSource,
     private readonly billAccountsRemoteDataSource: BillAccountsRemoteDataSource,
     private readonly billAccountsLocalDataSource: BillAccountsLocalDataSource,
+    private readonly posOrdersRemoteDataSource: PosOrdersRemoteDataSource,
+    private readonly salesLocalDataSource: { getPendingSales(): Promise<Sale[]>; updateSaleCustomerId(saleId: string, customerId: string): Promise<Sale | null>; markSaleSynced(saleId: string): Promise<Sale | null>; },
     private readonly syncLocalDataSource: SyncLocalDataSource,
   ) {}
 
@@ -59,17 +69,66 @@ export class SyncRepositoryImpl implements SyncRepository {
   }
 
   async syncPendingCustomers(token: string): Promise<number> {
+    const result = await this.uploadPendingCustomers(token);
+    return result.length;
+  }
+
+  async syncPendingSales(token: string): Promise<SyncPendingSalesResult> {
+    const syncedCustomers = await this.uploadPendingCustomers(token);
+    const customerIdMap = new Map(syncedCustomers.map((item) => [item.localId, item.serverId]));
+
+    const pendingSales = await this.salesLocalDataSource.getPendingSales();
+    let uploadedSales = 0;
+
+    for (const sale of pendingSales) {
+      const resolvedCustomerId = customerIdMap.get(sale.customerId) ?? sale.customerId;
+      if (resolvedCustomerId !== sale.customerId) {
+        await this.salesLocalDataSource.updateSaleCustomerId(sale.id, resolvedCustomerId);
+      }
+
+      try {
+        const billAccounts = await this.billAccountsLocalDataSource.getBillAccounts();
+        const billAccount = billAccounts.find((account) => account.id === sale.billAccountId);
+        if (!billAccount) {
+          throw new Error("Bill account not found");
+        }
+
+        const remoteCart = await this.posOrdersRemoteDataSource.createCart(token, resolvedCustomerId);
+        for (const item of sale.items) {
+          await this.posOrdersRemoteDataSource.addCartItem(token, remoteCart.id, item);
+        }
+
+        const paymentMethod = billAccount.type === "cash" ? "cash" : "transfer";
+        await this.posOrdersRemoteDataSource.completeCart(token, remoteCart.id, {
+          billAccountId: sale.billAccountId,
+          paymentMethod,
+        });
+
+        await this.salesLocalDataSource.markSaleSynced(sale.id);
+        uploadedSales += 1;
+      } catch {
+        // Keep the sale pending so it can be retried later.
+      }
+    }
+
+    return {
+      customersUploadedCount: syncedCustomers.length,
+      salesUploadedCount: uploadedSales,
+    };
+  }
+
+  private async uploadPendingCustomers(token: string): Promise<Array<{ localId: string; serverId: string }>> {
     const localCustomers = await this.contactsLocalDataSource.getCustomers();
     const pendingCustomers = localCustomers.filter(
       (contact) => contact.kind === "customer" && contact.pendingSync,
     );
 
     if (pendingCustomers.length === 0) {
-      return 0;
+      return [];
     }
 
     const remainingCustomers: typeof localCustomers = [];
-    let uploadedCount = 0;
+    const mappings: Array<{ localId: string; serverId: string }> = [];
 
     for (const customer of localCustomers) {
       if (customer.kind !== "customer" || !customer.pendingSync) {
@@ -87,20 +146,20 @@ export class SyncRepositoryImpl implements SyncRepository {
           geolocation: customer.geolocation ?? null,
           pendingSync: false,
           kind: "customer",
-        });
+        } as unknown as Omit<import("domain/entities/Contact").Contact, "id">);
 
         remainingCustomers.push({
           ...createdCustomer,
           pendingSync: false,
         });
-        uploadedCount += 1;
+        mappings.push({ localId: customer.id, serverId: createdCustomer.id });
       } catch {
         remainingCustomers.push(customer);
       }
     }
 
     await this.contactsLocalDataSource.saveCustomers(remainingCustomers);
-    return uploadedCount;
+    return mappings;
   }
 
   async isInitialSyncCompleted(): Promise<boolean> {

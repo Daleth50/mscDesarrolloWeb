@@ -8,6 +8,7 @@ import { SyncLocalDataSource } from "data/datasources/local/SyncLocalDataSource"
 import { AuthRemoteDataSource } from "data/datasources/remote/AuthRemoteDataSource";
 import { BillAccountsRemoteDataSource } from "data/datasources/remote/BillAccountsRemoteDataSource";
 import { ContactsRemoteDataSource } from "data/datasources/remote/ContactsRemoteDataSource";
+import { PosOrdersRemoteDataSource } from "data/datasources/remote/PosOrdersRemoteDataSource";
 import { ProductsRemoteDataSource } from "data/datasources/remote/ProductsRemoteDataSource";
 import { AuthRepositoryImpl } from "data/repositories/AuthRepositoryImpl";
 import { CartRepositoryImpl } from "data/repositories/CartRepositoryImpl";
@@ -20,6 +21,7 @@ import { GetCartUseCase } from "domain/usecases/GetCartUseCase";
 import { GetLocalBillAccountsUseCase } from "domain/usecases/GetLocalBillAccountsUseCase";
 import { GetLocalCustomersUseCase } from "domain/usecases/GetLocalCustomersUseCase";
 import { SyncPendingCustomersUseCase } from "domain/usecases/SyncPendingCustomersUseCase";
+import { SyncPendingSalesUseCase } from "domain/usecases/SyncPendingSalesUseCase";
 import { AddLocalCustomerUseCase } from "domain/usecases/AddLocalCustomerUseCase";
 import { GetLocalProductsUseCase } from "domain/usecases/GetLocalProductsUseCase";
 import { GetPersistedSessionUseCase } from "domain/usecases/GetPersistedSessionUseCase";
@@ -46,6 +48,7 @@ const apiClient = new ApiClient(apiBaseUrl);
 
 const authRemoteDataSource = new AuthRemoteDataSource(apiClient);
 const contactsRemoteDataSource = new ContactsRemoteDataSource(apiClient);
+const posOrdersRemoteDataSource = new PosOrdersRemoteDataSource(apiClient);
 const productsRemoteDataSource = new ProductsRemoteDataSource(apiClient);
 const billAccountsRemoteDataSource = new BillAccountsRemoteDataSource(apiClient);
 
@@ -67,6 +70,8 @@ const syncRepository = new SyncRepositoryImpl(
   productsLocalDataSource,
   billAccountsRemoteDataSource,
   billAccountsLocalDataSource,
+  posOrdersRemoteDataSource,
+  salesLocalDataSource,
   syncLocalDataSource,
 );
 
@@ -76,6 +81,7 @@ export const container = {
   getPersistedSessionUseCase: new GetPersistedSessionUseCase(authRepository),
   syncInitialDataUseCase: new SyncInitialDataUseCase(syncRepository),
   syncPendingCustomersUseCase: new SyncPendingCustomersUseCase(syncRepository),
+  syncPendingSalesUseCase: new SyncPendingSalesUseCase(syncRepository),
   getLocalCustomersUseCase: new GetLocalCustomersUseCase(contactRepository),
   addLocalCustomerUseCase: new AddLocalCustomerUseCase(contactRepository),
   getLocalProductsUseCase: new GetLocalProductsUseCase(productsLocalDataSource),

@@ -8,6 +8,7 @@ import { LoginPage } from "presentation/pages/LoginPage";
 import { ProductsPage } from "presentation/pages/ProductsPage";
 import { SyncPage } from "presentation/pages/SyncPage";
 import { TabsPage } from "presentation/pages/TabsPage";
+import { RegisterCustomerPage } from "presentation/pages/RegisterCustomerPage";
 import { Redirect, Route, Switch } from "react-router-dom";
 
 function AppRoutes() {
@@ -46,6 +47,10 @@ function AppRoutes() {
 
         <Route path="/pos/complete/:customerId" exact>
           {!session ? <Redirect to="/login" /> : <CompleteSalePage />}
+        </Route>
+
+        <Route path="/tabs/customers/new" exact>
+          {!session ? <Redirect to="/login" /> : <RegisterCustomerPage />}
         </Route>
 
         <Route path="/tabs">

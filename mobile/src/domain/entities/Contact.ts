@@ -4,5 +4,8 @@ export interface Contact {
   email: string | null;
   phone: string | null;
   address: string | null;
+  notes?: string | null;
+  pendingSync?: boolean;
+  geolocation?: { lat: number; lng: number } | null;
   kind: "customer" | "supplier";
 }

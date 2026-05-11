@@ -19,6 +19,7 @@ import { CompleteSaleUseCase } from "domain/usecases/CompleteSaleUseCase";
 import { GetCartUseCase } from "domain/usecases/GetCartUseCase";
 import { GetLocalBillAccountsUseCase } from "domain/usecases/GetLocalBillAccountsUseCase";
 import { GetLocalCustomersUseCase } from "domain/usecases/GetLocalCustomersUseCase";
+import { AddLocalCustomerUseCase } from "domain/usecases/AddLocalCustomerUseCase";
 import { GetLocalProductsUseCase } from "domain/usecases/GetLocalProductsUseCase";
 import { GetPersistedSessionUseCase } from "domain/usecases/GetPersistedSessionUseCase";
 import { GetSyncStatusUseCase } from "domain/usecases/GetSyncStatusUseCase";
@@ -74,6 +75,7 @@ export const container = {
   getPersistedSessionUseCase: new GetPersistedSessionUseCase(authRepository),
   syncInitialDataUseCase: new SyncInitialDataUseCase(syncRepository),
   getLocalCustomersUseCase: new GetLocalCustomersUseCase(contactRepository),
+  addLocalCustomerUseCase: new AddLocalCustomerUseCase(contactRepository),
   getLocalProductsUseCase: new GetLocalProductsUseCase(productsLocalDataSource),
   getLocalBillAccountsUseCase: new GetLocalBillAccountsUseCase(billAccountsLocalDataSource),
   getSyncStatusUseCase: new GetSyncStatusUseCase(syncRepository),

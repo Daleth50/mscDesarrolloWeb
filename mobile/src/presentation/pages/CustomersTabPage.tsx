@@ -6,8 +6,12 @@ import {
   IonRefresherContent,
   IonTitle,
   IonToolbar,
+  IonFab,
+  IonFabButton,
+  IonIcon,
   type RefresherEventDetail,
 } from "@ionic/react";
+import { addOutline } from "ionicons/icons";
 import { container } from "app/container";
 import type { Contact } from "domain/entities/Contact";
 import { useEffect, useMemo, useState } from "react";
@@ -91,6 +95,12 @@ export function CustomersTabPage() {
           )}
         </div>
       </IonContent>
+
+      <IonFab vertical="bottom" horizontal="end" slot="fixed">
+        <IonFabButton onClick={() => history.push("/tabs/customers/new")}>
+          <IonIcon icon={addOutline} />
+        </IonFabButton>
+      </IonFab>
     </IonPage>
   );
 }

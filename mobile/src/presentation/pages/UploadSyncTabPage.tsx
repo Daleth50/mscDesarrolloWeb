@@ -10,12 +10,16 @@ export function UploadSyncTabPage() {
   const history = useHistory();
   const { session, lastSyncAt } = useAppState();
   const [pendingCount, setPendingCount] = useState<number | null>(null);
+  const [pendingCustomerCount, setPendingCustomerCount] = useState<number | null>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     void container.salesLocalDataSource.getPendingSales().then((s) => setPendingCount(s.length));
+    void container.getLocalCustomersUseCase.execute().then((customers) => {
+      setPendingCustomerCount(customers.filter((customer) => customer.pendingSync).length);
+    });
   }, []);
 
   const handleUpload = async () => {
@@ -29,11 +33,17 @@ export function UploadSyncTabPage() {
     setProgress(0);
 
     try {
+      const syncedCustomers = await container.syncPendingCustomersUseCase.execute(session.token);
       const pending = await container.salesLocalDataSource.getPendingSales();
       if (pending.length === 0) {
         setUploadState("success");
-        setMessage("No hay ventas pendientes de sincronizar.");
+        setMessage(
+          syncedCustomers > 0
+            ? `${syncedCustomers} clientes sincronizados correctamente.`
+            : "No hay cambios pendientes de sincronizar.",
+        );
         setProgress(1);
+        setPendingCustomerCount(0);
         return;
       }
 
@@ -43,8 +53,13 @@ export function UploadSyncTabPage() {
       }
 
       setUploadState("success");
-      setMessage(`${pending.length} ventas sincronizadas correctamente.`);
+      setMessage(
+        syncedCustomers > 0
+          ? `${syncedCustomers} clientes sincronizados correctamente. ${pending.length} ventas sincronizadas correctamente.`
+          : `${pending.length} ventas sincronizadas correctamente.`,
+      );
       setPendingCount(0);
+      setPendingCustomerCount(0);
     } catch (err) {
       setUploadState("error");
       setMessage(err instanceof Error ? err.message : "Error al sincronizar ventas");
@@ -66,7 +81,7 @@ export function UploadSyncTabPage() {
           <div className="sync-icon">☁</div>
           <div className="sync-title">Subir ventas</div>
           <div className="sync-subtitle">
-            Envía las ventas capturadas offline al servidor
+            Envía los cambios capturados offline al servidor
           </div>
 
           {message && uploadState === "error" && (
@@ -78,6 +93,19 @@ export function UploadSyncTabPage() {
           )}
 
           <div className="sync-steps">
+            <div className="sync-step">
+              <div className="sync-step-header">
+                <span>Clientes pendientes</span>
+                <span>{pendingCustomerCount ?? 0}</span>
+              </div>
+              <div className="sync-progress-bar">
+                <div className="sync-progress-fill" style={{ width: `${pendingCustomerCount ? 100 : 0}%` }} />
+              </div>
+              {pendingCustomerCount !== null && (
+                <div className="sync-step-count">👤 {pendingCustomerCount}</div>
+              )}
+            </div>
+
             <div className="sync-step">
               <div className="sync-step-header">
                 <span>Ventas pendientes</span>

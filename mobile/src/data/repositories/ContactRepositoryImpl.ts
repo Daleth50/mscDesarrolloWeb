@@ -10,6 +10,11 @@ export class ContactRepositoryImpl implements ContactRepository {
     return contacts.filter((contact) => contact.kind === "customer");
   }
 
+  async getPendingLocalCustomers(): Promise<Contact[]> {
+    const contacts = await this.getLocalCustomers();
+    return contacts.filter((contact) => contact.pendingSync);
+  }
+
   async saveLocalCustomers(contacts: Contact[]): Promise<void> {
     await this.contactsLocalDataSource.saveCustomers(contacts);
   }

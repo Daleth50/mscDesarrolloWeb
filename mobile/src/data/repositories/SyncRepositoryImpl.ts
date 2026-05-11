@@ -21,7 +21,17 @@ export class SyncRepositoryImpl implements SyncRepository {
   async syncInitialData(token: string, onStep?: (step: SyncStep) => void): Promise<SyncResult> {
     onStep?.("customers");
     const customers = await this.contactsRemoteDataSource.getCustomers(token);
-    await this.contactsLocalDataSource.saveCustomers(customers);
+    const localCustomers = await this.contactsLocalDataSource.getCustomers();
+    const pendingCustomers = localCustomers.filter((contact) => contact.kind === "customer" && contact.pendingSync);
+    const mergedCustomers = [...customers];
+
+    for (const pendingCustomer of pendingCustomers) {
+      if (!mergedCustomers.some((contact) => contact.id === pendingCustomer.id)) {
+        mergedCustomers.push(pendingCustomer);
+      }
+    }
+
+    await this.contactsLocalDataSource.saveCustomers(mergedCustomers);
 
     onStep?.("categories");
     const categories = await this.productsRemoteDataSource.getCategories(token);
@@ -41,10 +51,56 @@ export class SyncRepositoryImpl implements SyncRepository {
     return {
       syncedAt,
       customersCount: customers.length,
+      pendingCustomersUploadedCount: pendingCustomers.length,
       productsCount: products.length,
       categoriesCount: categories.length,
       billAccountsCount: billAccounts.length,
     };
+  }
+
+  async syncPendingCustomers(token: string): Promise<number> {
+    const localCustomers = await this.contactsLocalDataSource.getCustomers();
+    const pendingCustomers = localCustomers.filter(
+      (contact) => contact.kind === "customer" && contact.pendingSync,
+    );
+
+    if (pendingCustomers.length === 0) {
+      return 0;
+    }
+
+    const remainingCustomers: typeof localCustomers = [];
+    let uploadedCount = 0;
+
+    for (const customer of localCustomers) {
+      if (customer.kind !== "customer" || !customer.pendingSync) {
+        remainingCustomers.push(customer);
+        continue;
+      }
+
+      try {
+        const createdCustomer = await this.contactsRemoteDataSource.createCustomer(token, {
+          name: customer.name,
+          email: customer.email ?? null,
+          phone: customer.phone ?? null,
+          address: customer.address ?? null,
+          notes: customer.notes ?? null,
+          geolocation: customer.geolocation ?? null,
+          pendingSync: false,
+          kind: "customer",
+        });
+
+        remainingCustomers.push({
+          ...createdCustomer,
+          pendingSync: false,
+        });
+        uploadedCount += 1;
+      } catch {
+        remainingCustomers.push(customer);
+      }
+    }
+
+    await this.contactsLocalDataSource.saveCustomers(remainingCustomers);
+    return uploadedCount;
   }
 
   async isInitialSyncCompleted(): Promise<boolean> {

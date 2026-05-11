@@ -7,4 +7,8 @@ export class ContactsRemoteDataSource {
   async getCustomers(token: string): Promise<Contact[]> {
     return this.apiClient.get<Contact[]>("/api/contacts?kind=customer", token);
   }
+
+  async createCustomer(token: string, customer: Omit<Contact, "id">): Promise<Contact> {
+    return this.apiClient.post<Contact>("/api/contacts", customer, token);
+  }
 }

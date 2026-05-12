@@ -1,3 +1,5 @@
+import { ApiRequestInterceptor, type ApiInterceptorConfig } from "./ApiRequestInterceptor";
+
 export class ApiError extends Error {
   constructor(message: string, public readonly status: number) {
     super(message);
@@ -5,7 +7,14 @@ export class ApiError extends Error {
 }
 
 export class ApiClient {
-  constructor(private readonly baseUrl: string) {}
+  private readonly interceptor: ApiRequestInterceptor;
+
+  constructor(
+    private readonly baseUrl: string,
+    interceptorConfig: ApiInterceptorConfig,
+  ) {
+    this.interceptor = new ApiRequestInterceptor(interceptorConfig);
+  }
 
   async get<T>(path: string, token?: string): Promise<T> {
     return this.request<T>(path, {
@@ -26,28 +35,16 @@ export class ApiClient {
     path: string,
     options: { method: "GET" | "POST"; body?: unknown; token?: string },
   ): Promise<T> {
-    const headers = new Headers({
-      "Content-Type": "application/json",
-    });
-
-    if (options.token) {
-      headers.set("Authorization", `Bearer ${options.token}`);
-    }
+    // Intercept request - attach headers with token if needed
+    const interceptedRequest = await this.interceptor.interceptRequest(path, options);
 
     const response = await fetch(`${this.baseUrl}${path}`, {
-      method: options.method,
-      headers,
-      body: options.body ? JSON.stringify(options.body) : undefined,
+      method: interceptedRequest.method,
+      headers: interceptedRequest.headers,
+      body: interceptedRequest.body,
     });
 
-    const payload = (await response.json().catch(() => null)) as
-      | { error?: string }
-      | null;
-
-    if (!response.ok) {
-      throw new ApiError(payload?.error || "Request failed", response.status);
-    }
-
-    return payload as T;
+    // Intercept response - handle 401 and extract payload
+    return this.interceptor.interceptResponse<T>(response);
   }
 }

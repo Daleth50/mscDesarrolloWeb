@@ -44,7 +44,24 @@ function resolveApiBaseUrl(): string {
 
 const apiBaseUrl = resolveApiBaseUrl();
 
-const apiClient = new ApiClient(apiBaseUrl);
+const sessionLocalDataSource = new SessionLocalDataSource();
+
+// Global handler for 401 errors - will be assigned by AppStateContext
+export const globalAuthHandler = {
+  onUnauthorized: (() => {
+    // No-op by default, will be overridden by AppStateContext
+  }) as () => void,
+};
+
+const apiClient = new ApiClient(apiBaseUrl, {
+  getToken: async () => {
+    const session = await sessionLocalDataSource.getSession();
+    return session?.token ?? null;
+  },
+  onUnauthorized: () => {
+    globalAuthHandler.onUnauthorized();
+  },
+});
 
 const authRemoteDataSource = new AuthRemoteDataSource(apiClient);
 const contactsRemoteDataSource = new ContactsRemoteDataSource(apiClient);
@@ -52,7 +69,6 @@ const posOrdersRemoteDataSource = new PosOrdersRemoteDataSource(apiClient);
 const productsRemoteDataSource = new ProductsRemoteDataSource(apiClient);
 const billAccountsRemoteDataSource = new BillAccountsRemoteDataSource(apiClient);
 
-const sessionLocalDataSource = new SessionLocalDataSource();
 const contactsLocalDataSource = new ContactsLocalDataSource();
 const productsLocalDataSource = new ProductsLocalDataSource();
 const billAccountsLocalDataSource = new BillAccountsLocalDataSource();

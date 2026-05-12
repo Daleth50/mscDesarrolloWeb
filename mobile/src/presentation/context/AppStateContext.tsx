@@ -1,4 +1,4 @@
-import { container } from "app/container";
+import { container, globalAuthHandler } from "app/container";
 import type { Session } from "domain/entities/Session";
 import {
   createContext,
@@ -70,6 +70,13 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     setIsInitialSyncCompleted(false);
     setLastSyncAt(null);
   }, []);
+
+  // Set up the global 401 handler to call logout when unauthorized
+  useEffect(() => {
+    globalAuthHandler.onUnauthorized = () => {
+      void logout();
+    };
+  }, [logout]);
 
   const value = useMemo(
     () => ({

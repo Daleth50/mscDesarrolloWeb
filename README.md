@@ -30,6 +30,7 @@ All documentation is located in the **`docs/`** folder.
 - [Environment Variables Configuration](#environment-variables-configuration)
 - [Database and Migrations](#database-and-migrations)
 - [Development Execution](#development-execution)
+  - [Start Scripts (Backend + Mobile)](#start-scripts-backend--mobile)
 - [Production Build and Execution](#production-build-and-execution)
 - [Project Structure](#project-structure)
 - [API Summary](#api-summary)
@@ -142,6 +143,32 @@ cd ..
 
 ## Development Execution
 
+### Start Scripts (Backend + Mobile)
+
+The fastest way to start both services at once:
+
+#### macOS / Linux
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+#### Windows (PowerShell)
+```powershell
+.\start.ps1
+```
+
+Both scripts start the Backend and Mobile app in parallel and stop them together when you exit (Ctrl+C on macOS/Linux, or any key on Windows).
+
+| Service | URL |
+|---------|-----|
+| Backend | http://127.0.0.1:5000 |
+| Mobile  | http://127.0.0.1:8100 |
+
+> **Prerequisites:** Run `setup.sh` / `setup.ps1` first to create the virtual environment and install dependencies.
+
+---
+
 ### Option A: Single script (backend + frontend)
 
 ```bash
@@ -167,6 +194,13 @@ Terminal 2 (frontend):
 
 ```bash
 cd frontend
+npm run dev
+```
+
+Terminal 3 (mobile):
+
+```bash
+cd mobile
 npm run dev
 ```
 
@@ -236,6 +270,12 @@ Authentication:
 ## Useful Commands
 
 ```bash
+# Iniciar Backend + Mobile juntos (macOS/Linux)
+./start.sh
+
+# Iniciar Backend + Mobile juntos (Windows)
+.\start.ps1
+
 # Backend
 cd backend
 source ../.venv/bin/activate
@@ -246,24 +286,28 @@ cd frontend
 npm run dev
 npm run build
 npm run preview
+
+# Mobile
+cd mobile
+npm run dev
 ```
 
 ## Troubleshooting
 
 ### Installation script issues
 
-#### setup.sh script does not run on macOS
+#### setup.sh / start.sh do not run on macOS
 ```bash
 # Give execution permissions:
-chmod +x setup.sh
-./setup.sh
+chmod +x setup.sh start.sh
+./setup.sh   # or ./start.sh
 ```
 
-#### setup.ps1 script does not run on Windows
+#### setup.ps1 / start.ps1 do not run on Windows
 ```powershell
 # In PowerShell as Administrator:
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-.\setup.ps1
+.\setup.ps1   # or .\start.ps1
 ```
 
 #### Python/Node.js not recognized

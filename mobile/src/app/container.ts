@@ -109,4 +109,5 @@ export const container = {
   removeFromCartUseCase: new RemoveFromCartUseCase(cartRepository),
   clearCartUseCase: new ClearCartUseCase(cartRepository),
   completeSaleUseCase: new CompleteSaleUseCase(salesLocalDataSource),
+  syncRepository,
 };

@@ -15,6 +15,7 @@ import {
 } from "ionicons/icons";
 import { CustomersTabPage } from "presentation/pages/CustomersTabPage";
 import { PlaceholderPage } from "presentation/pages/PlaceholderPage";
+import { ProfileTabPage } from "presentation/pages/ProfileTabPage";
 import { UploadSyncTabPage } from "presentation/pages/UploadSyncTabPage";
 import { Redirect, Route } from "react-router-dom";
 
@@ -26,7 +27,7 @@ export function TabsPage() {
         <Route path="/tabs/returns" component={PlaceholderPage} exact />
         <Route path="/tabs/expenses" component={PlaceholderPage} exact />
         <Route path="/tabs/sync" component={UploadSyncTabPage} exact />
-        <Route path="/tabs/profile" component={PlaceholderPage} exact />
+        <Route path="/tabs/profile" component={ProfileTabPage} exact />
         <Redirect exact from="/tabs" to="/tabs/customers" />
       </IonRouterOutlet>
 

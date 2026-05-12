@@ -44,10 +44,10 @@ class ContactViewModel:
     @staticmethod
     def create_contact(form_data):
         form_data = form_data or {}
-        name = form_data.get("name", "").strip()
-        email = form_data.get("email", "").strip() or None
-        phone = form_data.get("phone", "").strip() or None
-        address = form_data.get("address", "").strip() or None
+        name = (form_data.get("name") or "").strip()
+        email = (form_data.get("email") or "").strip() or None
+        phone = (form_data.get("phone") or "").strip() or None
+        address = (form_data.get("address") or "").strip() or None
         kind = ContactViewModel.normalize_kind(form_data.get("kind") or "customer")
 
         if not name:

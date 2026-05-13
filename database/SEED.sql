@@ -60,3 +60,21 @@ INSERT INTO bill_accounts (id, name, type, balance) VALUES
 -- ======================================
 INSERT INTO warehouses (id, name, location) VALUES
     (UUID(), 'Almacén Principal', 'Local principal');
+
+-- ======================================
+-- INVENTARIOS (inventories)
+-- Stock inicial de cada producto en el almacén principal
+-- ======================================
+INSERT INTO inventories (id, warehouse_id, product_id, quantity)
+SELECT UUID(), w.id, p.id, v.quantity
+FROM warehouses w
+JOIN products p ON p.sku = v.sku
+JOIN (
+    SELECT 'BEB-001' AS sku, 50  AS quantity UNION ALL
+    SELECT 'BEB-002',        80             UNION ALL
+    SELECT 'COM-001',        30             UNION ALL
+    SELECT 'COM-002',        30             UNION ALL
+    SELECT 'POS-001',        20             UNION ALL
+    SELECT 'SNA-001',        40
+) v ON p.sku = v.sku
+WHERE w.name = 'Almacén Principal';

@@ -14,6 +14,7 @@ import {
   swapHorizontalOutline,
 } from "ionicons/icons";
 import { CustomersTabPage } from "presentation/pages/CustomersTabPage";
+import { ExpensesTabPage } from "presentation/pages/ExpensesTabPage";
 import { PlaceholderPage } from "presentation/pages/PlaceholderPage";
 import { ProfileTabPage } from "presentation/pages/ProfileTabPage";
 import { UploadSyncTabPage } from "presentation/pages/UploadSyncTabPage";
@@ -25,7 +26,7 @@ export function TabsPage() {
       <IonRouterOutlet>
         <Route path="/tabs/customers" component={CustomersTabPage} exact />
         <Route path="/tabs/returns" component={PlaceholderPage} exact />
-        <Route path="/tabs/expenses" component={PlaceholderPage} exact />
+        <Route path="/tabs/expenses" component={ExpensesTabPage} exact />
         <Route path="/tabs/sync" component={UploadSyncTabPage} exact />
         <Route path="/tabs/profile" component={ProfileTabPage} exact />
         <Redirect exact from="/tabs" to="/tabs/customers" />

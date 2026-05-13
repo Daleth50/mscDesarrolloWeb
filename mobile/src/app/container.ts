@@ -1,6 +1,7 @@
 import { BillAccountsLocalDataSource } from "data/datasources/local/BillAccountsLocalDataSource";
 import { CartLocalDataSource } from "data/datasources/local/CartLocalDataSource";
 import { ContactsLocalDataSource } from "data/datasources/local/ContactsLocalDataSource";
+import { ExpenseLocalDataSource } from "data/datasources/local/ExpenseLocalDataSource";
 import { ProductsLocalDataSource } from "data/datasources/local/ProductsLocalDataSource";
 import { SalesLocalDataSource } from "data/datasources/local/SalesLocalDataSource";
 import { SessionLocalDataSource } from "data/datasources/local/SessionLocalDataSource";
@@ -8,6 +9,7 @@ import { SyncLocalDataSource } from "data/datasources/local/SyncLocalDataSource"
 import { AuthRemoteDataSource } from "data/datasources/remote/AuthRemoteDataSource";
 import { BillAccountsRemoteDataSource } from "data/datasources/remote/BillAccountsRemoteDataSource";
 import { ContactsRemoteDataSource } from "data/datasources/remote/ContactsRemoteDataSource";
+import { ExpenseRemoteDataSource } from "data/datasources/remote/ExpenseRemoteDataSource";
 import { PosOrdersRemoteDataSource } from "data/datasources/remote/PosOrdersRemoteDataSource";
 import { ProductsRemoteDataSource } from "data/datasources/remote/ProductsRemoteDataSource";
 import { AuthRepositoryImpl } from "data/repositories/AuthRepositoryImpl";
@@ -17,10 +19,13 @@ import { SyncRepositoryImpl } from "data/repositories/SyncRepositoryImpl";
 import { AddToCartUseCase } from "domain/usecases/AddToCartUseCase";
 import { ClearCartUseCase } from "domain/usecases/ClearCartUseCase";
 import { CompleteSaleUseCase } from "domain/usecases/CompleteSaleUseCase";
+import { CreateExpenseUseCase } from "domain/usecases/CreateExpenseUseCase";
 import { GetCartUseCase } from "domain/usecases/GetCartUseCase";
 import { GetLocalBillAccountsUseCase } from "domain/usecases/GetLocalBillAccountsUseCase";
 import { GetLocalCustomersUseCase } from "domain/usecases/GetLocalCustomersUseCase";
+import { GetLocalExpensesUseCase } from "domain/usecases/GetLocalExpensesUseCase";
 import { SyncPendingCustomersUseCase } from "domain/usecases/SyncPendingCustomersUseCase";
+import { SyncPendingExpensesUseCase } from "domain/usecases/SyncPendingExpensesUseCase";
 import { SyncPendingSalesUseCase } from "domain/usecases/SyncPendingSalesUseCase";
 import { AddLocalCustomerUseCase } from "domain/usecases/AddLocalCustomerUseCase";
 import { GetLocalProductsUseCase } from "domain/usecases/GetLocalProductsUseCase";
@@ -65,11 +70,13 @@ const apiClient = new ApiClient(apiBaseUrl, {
 
 const authRemoteDataSource = new AuthRemoteDataSource(apiClient);
 const contactsRemoteDataSource = new ContactsRemoteDataSource(apiClient);
+const expenseRemoteDataSource = new ExpenseRemoteDataSource(apiClient);
 const posOrdersRemoteDataSource = new PosOrdersRemoteDataSource(apiClient);
 const productsRemoteDataSource = new ProductsRemoteDataSource(apiClient);
 const billAccountsRemoteDataSource = new BillAccountsRemoteDataSource(apiClient);
 
 const contactsLocalDataSource = new ContactsLocalDataSource();
+const expenseLocalDataSource = new ExpenseLocalDataSource();
 const productsLocalDataSource = new ProductsLocalDataSource();
 const billAccountsLocalDataSource = new BillAccountsLocalDataSource();
 const cartLocalDataSource = new CartLocalDataSource();
@@ -98,10 +105,13 @@ export const container = {
   syncInitialDataUseCase: new SyncInitialDataUseCase(syncRepository),
   syncPendingCustomersUseCase: new SyncPendingCustomersUseCase(syncRepository),
   syncPendingSalesUseCase: new SyncPendingSalesUseCase(syncRepository),
+  syncPendingExpensesUseCase: new SyncPendingExpensesUseCase(expenseLocalDataSource, expenseRemoteDataSource),
   getLocalCustomersUseCase: new GetLocalCustomersUseCase(contactRepository),
   addLocalCustomerUseCase: new AddLocalCustomerUseCase(contactRepository),
   getLocalProductsUseCase: new GetLocalProductsUseCase(productsLocalDataSource),
   getLocalBillAccountsUseCase: new GetLocalBillAccountsUseCase(billAccountsLocalDataSource),
+  getLocalExpensesUseCase: new GetLocalExpensesUseCase(expenseLocalDataSource),
+  createExpenseUseCase: new CreateExpenseUseCase(expenseLocalDataSource),
   getSyncStatusUseCase: new GetSyncStatusUseCase(syncRepository),
   logoutUseCase: new LogoutUseCase(authRepository, syncRepository),
   getCartUseCase: new GetCartUseCase(cartRepository),

@@ -11,6 +11,7 @@ export function UploadSyncTabPage() {
   const { session, lastSyncAt } = useAppState();
   const [pendingCount, setPendingCount] = useState<number | null>(null);
   const [pendingCustomerCount, setPendingCustomerCount] = useState<number | null>(null);
+  const [pendingExpensesCount, setPendingExpensesCount] = useState<number | null>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
@@ -19,6 +20,9 @@ export function UploadSyncTabPage() {
     void container.salesLocalDataSource.getPendingSales().then((s) => setPendingCount(s.length));
     void container.getLocalCustomersUseCase.execute().then((customers) => {
       setPendingCustomerCount(customers.filter((customer) => customer.pendingSync).length);
+    });
+    void container.getLocalExpensesUseCase.execute().then((expenses) => {
+      setPendingExpensesCount(expenses.filter((e) => e.status === "pending_sync").length);
     });
   }, []);
 
@@ -33,20 +37,29 @@ export function UploadSyncTabPage() {
     setProgress(0);
 
     try {
-      const result = await container.syncPendingSalesUseCase.execute(session.token);
+      // Sync sales and customers
+      const salesResult = await container.syncPendingSalesUseCase.execute(session.token);
+      
+      // Sync expenses
+      const expensesResult = await container.syncPendingExpensesUseCase.execute(session.token);
 
       setUploadState("success");
-      setMessage(
-        result.customersUploadedCount > 0 || result.salesUploadedCount > 0
-          ? `${result.customersUploadedCount} clientes sincronizados correctamente. ${result.salesUploadedCount} ventas sincronizadas correctamente.`
-          : "No hay cambios pendientes de sincronizar.",
-      );
+      const message = [
+        `${salesResult.customersUploadedCount} clientes sincronizados`,
+        `${salesResult.salesUploadedCount} ventas sincronizadas`,
+        `${expensesResult.length} gastos sincronizados`,
+      ]
+        .filter((m) => m)
+        .join(". ");
+
+      setMessage(message || "No hay cambios pendientes de sincronizar.");
       setProgress(1);
       setPendingCount(0);
       setPendingCustomerCount(0);
+      setPendingExpensesCount(0);
     } catch (err) {
       setUploadState("error");
-      setMessage(err instanceof Error ? err.message : "Error al sincronizar ventas");
+      setMessage(err instanceof Error ? err.message : "Error al sincronizar");
     }
   };
 
@@ -63,7 +76,7 @@ export function UploadSyncTabPage() {
       <IonContent fullscreen>
         <div className="sync-wrapper">
           <div className="sync-icon">☁</div>
-          <div className="sync-title">Subir ventas</div>
+          <div className="sync-title">Subir cambios</div>
           <div className="sync-subtitle">
             Envía los cambios capturados offline al servidor
           </div>
@@ -100,6 +113,19 @@ export function UploadSyncTabPage() {
               </div>
               {pendingCount !== null && (
                 <div className="sync-step-count">📦 {pendingCount}</div>
+              )}
+            </div>
+
+            <div className="sync-step">
+              <div className="sync-step-header">
+                <span>Gastos pendientes</span>
+                <span>{pendingExpensesCount ?? 0}</span>
+              </div>
+              <div className="sync-progress-bar">
+                <div className="sync-progress-fill" style={{ width: `${pendingExpensesCount ? 100 : 0}%` }} />
+              </div>
+              {pendingExpensesCount !== null && (
+                <div className="sync-step-count">💰 {pendingExpensesCount}</div>
               )}
             </div>
 

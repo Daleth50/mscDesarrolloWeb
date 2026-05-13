@@ -4,6 +4,7 @@ import { AppLoadingScreen } from "presentation/components/AppLoadingScreen";
 import { AppStateProvider, useAppState } from "presentation/context/AppStateContext";
 import { CartPage } from "presentation/pages/CartPage";
 import { CompleteSalePage } from "presentation/pages/CompleteSalePage";
+import { CreateExpensePage } from "presentation/pages/CreateExpensePage";
 import { LoginPage } from "presentation/pages/LoginPage";
 import { ProductsPage } from "presentation/pages/ProductsPage";
 import { SyncPage } from "presentation/pages/SyncPage";
@@ -47,6 +48,10 @@ function AppRoutes() {
 
         <Route path="/pos/complete/:customerId" exact>
           {!session ? <Redirect to="/login" /> : <CompleteSalePage />}
+        </Route>
+
+        <Route path="/expenses/create" exact>
+          {!session ? <Redirect to="/login" /> : <CreateExpensePage />}
         </Route>
 
         <Route path="/tabs/customers/new" exact>

@@ -34,3 +34,8 @@ export const salesStore = localforage.createInstance({
   name: "msc-mobile-db",
   storeName: "sales",
 });
+
+export const expensesStore = localforage.createInstance({
+  name: "msc-mobile-db",
+  storeName: "expenses",
+});

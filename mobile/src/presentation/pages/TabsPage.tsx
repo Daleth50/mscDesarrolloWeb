@@ -36,10 +36,10 @@ export function TabsPage() {
           <IonIcon icon={storefrontOutline} />
           <IonLabel>Vender</IonLabel>
         </IonTabButton>
-        <IonTabButton tab="returns" href="/tabs/returns">
+        {/* <IonTabButton tab="returns" href="/tabs/returns">
           <IonIcon icon={swapHorizontalOutline} />
           <IonLabel>Cambios</IonLabel>
-        </IonTabButton>
+        </IonTabButton> */}
         <IonTabButton tab="expenses" href="/tabs/expenses">
           <IonIcon icon={cashOutline} />
           <IonLabel>Gastos</IonLabel>

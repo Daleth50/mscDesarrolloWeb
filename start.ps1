@@ -41,7 +41,12 @@ if (-not (Test-Path "mobile")) {
     exit 1
 }
 
-Write-Header "INICIANDO BACKEND + MOBILE"
+if (-not (Test-Path "frontend")) {
+    Write-Error-Custom "Directorio frontend no encontrado"
+    exit 1
+}
+
+Write-Header "INICIANDO BACKEND + MOBILE + FRONTEND"
 
 # Iniciar Backend en nueva ventana de PowerShell
 Write-Info "Iniciando Backend (Flask)..."
@@ -60,9 +65,17 @@ $mobileJob = Start-Process powershell -ArgumentList "-NoExit", "-Command", `
     -PassThru
 Write-Success "Mobile iniciado (PID: $($mobileJob.Id))"
 
+# Iniciar Frontend en nueva ventana de PowerShell
+Write-Info "Iniciando Frontend (Web)..."
+$frontendJob = Start-Process powershell -ArgumentList "-NoExit", "-Command", `
+    "Set-Location frontend; npm run dev" `
+    -PassThru
+Write-Success "Frontend iniciado (PID: $($frontendJob.Id))"
+
 Write-Header "SERVICIOS EN EJECUCIÓN"
 Write-Host "  Backend:  http://127.0.0.1:5000" -ForegroundColor Green
 Write-Host "  Mobile:   http://127.0.0.1:8100" -ForegroundColor Green
+Write-Host "  Frontend: http://127.0.0.1:5173" -ForegroundColor Green
 Write-Host ""
 Write-Host "  Cierra las ventanas de PowerShell para detener los servicios." -ForegroundColor Yellow
 Write-Host ""
@@ -75,4 +88,5 @@ Write-Host ""
 Write-Warning-Custom "Deteniendo servicios..."
 Stop-Process -Id $backendJob.Id -Force -ErrorAction SilentlyContinue
 Stop-Process -Id $mobileJob.Id -Force -ErrorAction SilentlyContinue
+Stop-Process -Id $frontendJob.Id -Force -ErrorAction SilentlyContinue
 Write-Success "Servicios detenidos."

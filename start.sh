@@ -47,12 +47,17 @@ if [ ! -d "mobile" ]; then
     exit 1
 fi
 
-print_header "INICIANDO BACKEND + MOBILE"
+if [ ! -d "frontend" ]; then
+    print_error "Directorio frontend no encontrado"
+    exit 1
+fi
+
+print_header "INICIANDO BACKEND + MOBILE + FRONTEND"
 
 # Cleanup al salir: matar procesos hijos
 cleanup() {
     echo -e "\n${YELLOW}Deteniendo servicios...${NC}"
-    kill $BACKEND_PID $MOBILE_PID 2>/dev/null
+    kill $BACKEND_PID $MOBILE_PID $FRONTEND_PID 2>/dev/null
     echo -e "${GREEN}Servicios detenidos.${NC}"
     exit 0
 }
@@ -78,12 +83,21 @@ MOBILE_PID=$!
 cd ..
 print_success "Mobile iniciado (PID: $MOBILE_PID)"
 
+# Iniciar Frontend
+print_info "Iniciando Frontend (Web)..."
+cd frontend
+npm run dev &
+FRONTEND_PID=$!
+cd ..
+print_success "Frontend iniciado (PID: $FRONTEND_PID)"
+
 print_header "SERVICIOS EN EJECUCIÓN"
 echo -e "${GREEN}  Backend:  http://127.0.0.1:5000${NC}"
 echo -e "${GREEN}  Mobile:   http://127.0.0.1:8100${NC}"
+echo -e "${GREEN}  Frontend: http://127.0.0.1:5173${NC}"
 echo ""
 echo -e "${YELLOW}  Presiona Ctrl+C para detener ambos servicios${NC}"
 echo ""
 
 # Esperar a que ambos procesos terminen
-wait $BACKEND_PID $MOBILE_PID
+wait $BACKEND_PID $MOBILE_PID $FRONTEND_PID

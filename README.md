@@ -260,6 +260,7 @@ Base URL: `/api`
 - Reports: `/reports/overview`
 - Users: `/users`
 - Accounts receivable: `/bill-accounts`, `/bill-accounts/:id/movements`
+- Expenses: `/expenses`, `/expenses/:id`
 
 Health check:
 - `GET /health`

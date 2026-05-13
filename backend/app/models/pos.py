@@ -1,6 +1,9 @@
 from uuid import uuid4
 from app.database import db
 
+EXPENSE_STATUSES = {"success", "cancelled"}
+EXPENSE_DEFAULT_STATUS = "success"
+
 
 class Contact(db.Model):
     __tablename__ = "contacts"
@@ -130,6 +133,38 @@ class BillAccount(db.Model):
         server_default=db.func.current_timestamp(),
         server_onupdate=db.func.current_timestamp(),
     )
+
+
+class Expense(db.Model):
+    __tablename__ = "expenses"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
+    amount = db.Column(db.Numeric(18, 4), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default=EXPENSE_DEFAULT_STATUS, server_default=EXPENSE_DEFAULT_STATUS)
+    note = db.Column(db.Text, nullable=True)
+    latitude = db.Column(db.Numeric(10, 8), nullable=True)
+    longitude = db.Column(db.Numeric(11, 8), nullable=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.current_timestamp())
+    updated_at = db.Column(
+        db.DateTime,
+        server_default=db.func.current_timestamp(),
+        server_onupdate=db.func.current_timestamp(),
+    )
+
+    def __repr__(self):
+        return f"<Expense {self.id}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "amount": float(self.amount) if self.amount is not None else None,
+            "status": self.status,
+            "note": self.note,
+            "latitude": float(self.latitude) if self.latitude is not None else None,
+            "longitude": float(self.longitude) if self.longitude is not None else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
 
 
 class OrderBillAccount(db.Model):

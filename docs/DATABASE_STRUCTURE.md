@@ -190,6 +190,22 @@ Relationship between orders and billing accounts.
 
 ---
 
+### 13. expenses
+Operational expenses (independent of orders).
+
+| Column | Type | Constraints | Description |
+|---------|------|---|---|
+| `id` | String(36) | PK, UUID | Unique identifier |
+| `amount` | Numeric(18,4) | NOT NULL | Expense amount |
+| `status` | String(20) | NOT NULL, DEFAULT 'success' | Status: success, cancelled |
+| `note` | Text | - | Optional note or description |
+| `latitude` | Numeric(10,8) | - | Geographic latitude (optional) |
+| `longitude` | Numeric(11,8) | - | Geographic longitude (optional) |
+| `created_at` | DateTime | DEFAULT NOW | Creation date |
+| `updated_at` | DateTime | DEFAULT NOW | Last update |
+
+---
+
 ## Relationships (Entity Relationship Diagram)
 
 ```

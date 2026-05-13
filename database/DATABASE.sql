@@ -176,6 +176,20 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- ======================================
+-- TABLA: expenses
+-- ======================================
+CREATE TABLE expenses (
+  id CHAR(36) PRIMARY KEY,
+  amount DECIMAL(18,4) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'success',
+  note TEXT,
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 INSERT INTO users (
     id,
     first_name,

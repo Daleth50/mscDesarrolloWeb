@@ -6,6 +6,7 @@ from app.controllers.order.main import OrderViewModel
 from app.controllers.report.main import ReportViewModel
 from app.controllers.user import UserViewModel
 from app.controllers.bill_account import BillAccountViewModel
+from app.controllers.expense.main import ExpenseViewModel
 from app.auth import (
     generate_token,
     get_authenticated_user,
@@ -1006,5 +1007,89 @@ def delete_bill_account(account_id):
     except PermissionError as e:
         status = 401 if str(e) == "Unauthorized" else 403
         return jsonify({"error": str(e)}), status
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ==================== EXPENSES ====================
+
+@api_bp.route("/expenses", methods=["GET"])
+def get_expenses():
+    """Listar todos los gastos"""
+    try:
+        _require_admin_user()
+        expenses = ExpenseViewModel.get_all_expenses()
+        return jsonify(expenses), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/expenses/<string:expense_id>", methods=["GET"])
+def get_expense(expense_id):
+    """Obtener gasto por id"""
+    try:
+        _require_admin_user()
+        expense = ExpenseViewModel.get_expense_by_id(expense_id)
+        if not expense:
+            return jsonify({"error": "Expense not found"}), 404
+        return jsonify(expense), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/expenses", methods=["POST"])
+def create_expense():
+    """Crear nuevo gasto"""
+    try:
+        _require_admin_user()
+        data = request.get_json() or {}
+        expense = ExpenseViewModel.create_expense(data)
+        return jsonify(expense), 201
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/expenses/<string:expense_id>", methods=["PUT"])
+def update_expense(expense_id):
+    """Actualizar gasto"""
+    try:
+        _require_admin_user()
+        data = request.get_json() or {}
+        expense = ExpenseViewModel.update_expense(expense_id, data)
+        return jsonify(expense), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except ValueError as e:
+        status_code = 404 if str(e) == "Expense not found" else 400
+        return jsonify({"error": str(e)}), status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/expenses/<string:expense_id>", methods=["DELETE"])
+def delete_expense(expense_id):
+    """Eliminar gasto"""
+    try:
+        _require_admin_user()
+        ExpenseViewModel.delete_expense(expense_id)
+        return jsonify({"message": "Expense deleted"}), 200
+    except PermissionError as e:
+        status = 401 if str(e) == "Unauthorized" else 403
+        return jsonify({"error": str(e)}), status
+    except ValueError as e:
+        status_code = 404 if str(e) == "Expense not found" else 400
+        return jsonify({"error": str(e)}), status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500

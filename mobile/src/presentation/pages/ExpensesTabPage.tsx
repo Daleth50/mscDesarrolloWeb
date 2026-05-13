@@ -18,6 +18,7 @@ import type { Expense } from "domain/entities/Expense";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 
+import { useAppState } from "presentation/context/AppStateContext";
 function formatRelativeDate(isoDate: string): string {
   const date = new Date(isoDate);
   const now = new Date();
@@ -33,6 +34,7 @@ function formatRelativeDate(isoDate: string): string {
 
 export function ExpensesTabPage() {
   const history = useHistory();
+    const { syncUpdateTrigger } = useAppState();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -51,7 +53,7 @@ export function ExpensesTabPage() {
 
   useEffect(() => {
     void loadExpenses();
-  }, []);
+  }, [syncUpdateTrigger]);
 
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
     await loadExpenses();

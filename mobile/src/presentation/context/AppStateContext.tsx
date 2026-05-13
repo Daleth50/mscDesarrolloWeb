@@ -19,6 +19,8 @@ interface AppStateContextValue {
   markSyncCompleted: (syncedAt: string) => void;
   resetSync: () => Promise<void>;
   logout: () => Promise<void>;
+  syncUpdateTrigger: number;
+  notifySyncUpdate: () => void;
 }
 
 const AppStateContext = createContext<AppStateContextValue | undefined>(undefined);
@@ -29,6 +31,11 @@ export function AppStateProvider({ children }: PropsWithChildren) {
   const [isInitialSyncCompleted, setIsInitialSyncCompleted] = useState(false);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
 
+  const [syncUpdateTrigger, setSyncUpdateTrigger] = useState(0);
+
+  const notifySyncUpdate = useCallback(() => {
+    setSyncUpdateTrigger((prev) => prev + 1);
+  }, []);
   const bootstrap = useCallback(async () => {
     setIsBootstrapping(true);
 
@@ -95,8 +102,12 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       markSyncCompleted,
       resetSync,
       logout,
+      syncUpdateTrigger,
+      notifySyncUpdate,
     }),
     [
+        syncUpdateTrigger,
+        notifySyncUpdate,
       isBootstrapping,
       session,
       isInitialSyncCompleted,

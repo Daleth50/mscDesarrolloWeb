@@ -8,7 +8,7 @@ type UploadState = "idle" | "running" | "success" | "error";
 
 export function UploadSyncTabPage() {
   const history = useHistory();
-  const { session, lastSyncAt } = useAppState();
+  const { session, lastSyncAt, notifySyncUpdate } = useAppState();
   const [pendingCount, setPendingCount] = useState<number | null>(null);
   const [pendingCustomerCount, setPendingCustomerCount] = useState<number | null>(null);
   const [pendingExpensesCount, setPendingExpensesCount] = useState<number | null>(null);
@@ -57,6 +57,9 @@ export function UploadSyncTabPage() {
       setPendingCount(0);
       setPendingCustomerCount(0);
       setPendingExpensesCount(0);
+      
+      // Notify all components that sync has completed
+      notifySyncUpdate();
     } catch (err) {
       setUploadState("error");
       setMessage(err instanceof Error ? err.message : "Error al sincronizar");

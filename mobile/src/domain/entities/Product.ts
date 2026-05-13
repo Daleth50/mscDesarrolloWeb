@@ -3,7 +3,7 @@ export interface Product {
   name: string;
   price: number;
   cost: number | null;
-  stock: number;
+  stock_available: number;
   category_id: string | null;
   category_name: string | null;
   barcode: string | null;

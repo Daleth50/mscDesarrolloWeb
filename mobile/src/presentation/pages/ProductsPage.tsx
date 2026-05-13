@@ -95,6 +95,9 @@ export function ProductsPage() {
                   </div>
                   <div className="product-meta">
                     <span className="product-code">{product.barcode || product.id.slice(0, 8)}</span>
+                    <span className="product-sub" style={{ marginLeft: "8px" }}>
+                      Stock: {product.stock_available}
+                    </span>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                       <span className="product-price">${product.price.toFixed(2)}</span>
                       {qty > 0 ? (

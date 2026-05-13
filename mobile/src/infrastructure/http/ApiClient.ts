@@ -31,9 +31,16 @@ export class ApiClient {
     });
   }
 
+  async delete<T>(path: string, token?: string): Promise<T> {
+    return this.request<T>(path, {
+      method: "DELETE",
+      token,
+    });
+  }
+
   private async request<T>(
     path: string,
-    options: { method: "GET" | "POST"; body?: unknown; token?: string },
+    options: { method: "GET" | "POST" | "DELETE"; body?: unknown; token?: string },
   ): Promise<T> {
     // Intercept request - attach headers with token if needed
     const interceptedRequest = await this.interceptor.interceptRequest(path, options);

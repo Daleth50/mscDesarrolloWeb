@@ -1,22 +1,18 @@
 import { IonAlert, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from "@ionic/react";
-import { container } from "app/container";
 import { useAppState } from "presentation/context/AppStateContext";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 
 export function ProfileTabPage() {
   const history = useHistory();
-  const { session, logout } = useAppState();
+  const { session, logout, resetSync } = useAppState();
   const [isResettingSync, setIsResettingSync] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleResetInitialSync = async () => {
     setIsResettingSync(true);
     try {
-      // Clear all downloaded data (customers, products, etc.)
-      await container.syncRepository.resetSyncState();
-      // Reset the sync completed flag in context
-      // Navigate to sync screen to re-download data
+      await resetSync();
       history.push("/sync");
     } catch (err) {
       console.error("Error resetting sync:", err);

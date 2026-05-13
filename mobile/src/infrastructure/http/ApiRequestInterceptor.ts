@@ -19,8 +19,8 @@ export class ApiRequestInterceptor {
    */
   async interceptRequest(
     path: string,
-    options: { method: "GET" | "POST"; body?: unknown; token?: string },
-  ): Promise<{ method: "GET" | "POST"; headers: Headers; body?: string }> {
+    options: { method: "GET" | "POST" | "DELETE"; body?: unknown; token?: string },
+  ): Promise<{ method: "GET" | "POST" | "DELETE"; headers: Headers; body?: string }> {
     const headers = new Headers({
       "Content-Type": "application/json",
     });

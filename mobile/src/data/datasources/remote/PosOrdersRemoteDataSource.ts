@@ -44,4 +44,8 @@ export class PosOrdersRemoteDataSource {
       token,
     );
   }
+
+  async deleteCart(token: string, cartId: string): Promise<void> {
+    await this.apiClient.delete(`/api/pos/cart/${cartId}`, token);
+  }
 }

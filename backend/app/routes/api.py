@@ -140,7 +140,7 @@ def reset_password():
         if not user or not user.is_active:
             return jsonify({"error": "User not found or inactive"}), 404
 
-        user.password = generate_password_hash(new_password)
+        user.password = generate_password_hash(new_password, method="pbkdf2:sha256")
         db.session.commit()
 
         return jsonify({"message": "Password updated successfully"}), 200
@@ -643,6 +643,18 @@ def complete_cart(cart_id):
         return jsonify(sale), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pos/cart/<string:cart_id>", methods=["DELETE"])
+def delete_cart(cart_id):
+    """Eliminar carrito pendiente y sus items"""
+    try:
+        OrderViewModel.delete_cart(cart_id)
+        return jsonify({}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

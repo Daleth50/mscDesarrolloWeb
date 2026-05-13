@@ -260,6 +260,26 @@ POST   /api/orders                   # Create order
 GET    /api/orders/sales             # Sales orders
 GET    /api/orders/purchases         # Purchase orders
 
+# POS Cart (sales flow)
+GET    /api/pos/bill-accounts        # List bill accounts (query ?type=cash|debt)
+POST   /api/pos/cart                 # Create cart (body: contact_id, payment_status)
+GET    /api/pos/cart/<id>            # Get cart with items
+PUT    /api/pos/cart/<id>            # Update cart (contact_id, payment_status)
+DELETE /api/pos/cart/<id>           # Delete pending cart and its items
+POST   /api/pos/cart/<id>/items      # Add item to cart (body: product_id, quantity)
+PUT    /api/pos/cart/<id>/items/<item_id>   # Update item quantity
+DELETE /api/pos/cart/<id>/items/<item_id>  # Remove item from cart
+POST   /api/pos/cart/<id>/complete   # Complete cart → creates sale (body: bill_account_id, payment_method: cash|transfer)
+
+# POS Purchases flow
+POST   /api/purchases/cart                          # Create purchase cart
+GET    /api/purchases/cart/<id>                     # Get purchase cart
+PUT    /api/purchases/cart/<id>                     # Update purchase cart
+POST   /api/purchases/cart/<id>/items               # Add item
+PUT    /api/purchases/cart/<id>/items/<item_id>     # Update item
+DELETE /api/purchases/cart/<id>/items/<item_id>     # Remove item
+POST   /api/purchases/cart/<id>/complete            # Complete purchase
+
 GET    /api/contacts                 # List contacts
 POST   /api/contacts                 # Create contact
 PUT    /api/contacts/<id>            # Update contact

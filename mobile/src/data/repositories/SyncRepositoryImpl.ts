@@ -12,7 +12,6 @@ import type {
   SyncResult,
   SyncStep,
 } from "domain/repositories/SyncRepository";
-import type { CartItem } from "domain/entities/Cart";
 import type { Sale } from "domain/entities/Sale";
 
 export class SyncRepositoryImpl implements SyncRepository {
@@ -86,6 +85,7 @@ export class SyncRepositoryImpl implements SyncRepository {
         await this.salesLocalDataSource.updateSaleCustomerId(sale.id, resolvedCustomerId);
       }
 
+      let remoteCartId: string | null = null;
       try {
         const billAccounts = await this.billAccountsLocalDataSource.getBillAccounts();
         const billAccount = billAccounts.find((account) => account.id === sale.billAccountId);
@@ -94,6 +94,8 @@ export class SyncRepositoryImpl implements SyncRepository {
         }
 
         const remoteCart = await this.posOrdersRemoteDataSource.createCart(token, resolvedCustomerId);
+        remoteCartId = remoteCart.id;
+
         for (const item of sale.items) {
           await this.posOrdersRemoteDataSource.addCartItem(token, remoteCart.id, item);
         }
@@ -106,8 +108,15 @@ export class SyncRepositoryImpl implements SyncRepository {
 
         await this.salesLocalDataSource.markSaleSynced(sale.id);
         uploadedSales += 1;
-      } catch {
-        // Keep the sale pending so it can be retried later.
+      } catch (error) {
+        console.error(`[SyncPendingSales] Failed to sync sale ${sale.id}:`, error);
+        if (remoteCartId) {
+          try {
+            await this.posOrdersRemoteDataSource.deleteCart(token, remoteCartId);
+          } catch (deleteError) {
+            console.error(`[SyncPendingSales] Failed to delete orphan cart ${remoteCartId}:`, deleteError);
+          }
+        }
       }
     }
 

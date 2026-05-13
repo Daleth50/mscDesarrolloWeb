@@ -460,6 +460,15 @@ class OrderViewModel:
         return OrderViewModel._serialize_cart(cart)
 
     @staticmethod
+    def delete_cart(cart_id):
+        cart = Order.query.filter(Order.id == cart_id, Order.type == "cart").first()
+        if not cart:
+            raise ValueError("Cart not found")
+        OrderItem.query.filter(OrderItem.order_id == cart.id).delete()
+        db.session.delete(cart)
+        db.session.commit()
+
+    @staticmethod
     def complete_cart(cart_id, form_data):
         form_data = form_data or {}
 

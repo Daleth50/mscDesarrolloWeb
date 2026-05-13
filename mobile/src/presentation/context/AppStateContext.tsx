@@ -17,6 +17,7 @@ interface AppStateContextValue {
   lastSyncAt: string | null;
   setSessionAfterLogin: (session: Session) => void;
   markSyncCompleted: (syncedAt: string) => void;
+  resetSync: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -64,6 +65,12 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     setLastSyncAt(syncedAt);
   }, []);
 
+  const resetSync = useCallback(async () => {
+    await container.syncRepository.resetSyncState();
+    setIsInitialSyncCompleted(false);
+    setLastSyncAt(null);
+  }, []);
+
   const logout = useCallback(async () => {
     await container.logoutUseCase.execute();
     setSession(null);
@@ -86,6 +93,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       lastSyncAt,
       setSessionAfterLogin,
       markSyncCompleted,
+      resetSync,
       logout,
     }),
     [
@@ -95,6 +103,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       lastSyncAt,
       setSessionAfterLogin,
       markSyncCompleted,
+      resetSync,
       logout,
     ],
   );

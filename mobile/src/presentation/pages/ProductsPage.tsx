@@ -16,6 +16,8 @@ import { useHistory, useParams } from "react-router-dom";
 export function ProductsPage() {
   const { customerId } = useParams<{ customerId: string }>();
   const history = useHistory();
+  const bottomOffset = "calc(56px + env(safe-area-inset-bottom, 0px))";
+  const bottomContentPadding = "calc(136px + env(safe-area-inset-bottom, 0px))";
 
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<Cart | null>(null);
@@ -67,7 +69,7 @@ export function ProductsPage() {
       </IonHeader>
 
       <IonContent fullscreen>
-        <div style={{ padding: "12px 16px", paddingBottom: cartCount > 0 ? "72px" : "12px" }}>
+        <div style={{ padding: "12px 16px", paddingBottom: cartCount > 0 ? bottomContentPadding : "12px" }}>
           <input
             className="search-input"
             placeholder="Buscar..."
@@ -125,7 +127,7 @@ export function ProductsPage() {
       </IonContent>
 
       {cartCount > 0 && (
-        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, padding: "12px 16px", background: "#fff", borderTop: "1px solid #e0e0e0", zIndex: 10 }}>
+        <div style={{ position: "fixed", bottom: bottomOffset, left: 0, right: 0, padding: "12px 16px", background: "#fff", borderTop: "1px solid #e0e0e0", zIndex: 10 }}>
           <button
             className="btn-primary"
             onClick={() => history.push(`/pos/cart/${customerId}`)}

@@ -15,6 +15,8 @@ import { useHistory, useParams } from "react-router-dom";
 export function CartPage() {
   const { customerId } = useParams<{ customerId: string }>();
   const history = useHistory();
+  const bottomOffset = "calc(56px + env(safe-area-inset-bottom, 0px))";
+  const bottomContentPadding = "calc(136px + env(safe-area-inset-bottom, 0px))";
   const [cart, setCart] = useState<Cart | null>(null);
 
   useEffect(() => {
@@ -49,7 +51,7 @@ export function CartPage() {
       </IonHeader>
 
       <IonContent fullscreen>
-        <div style={{ padding: "12px 16px", paddingBottom: "80px" }}>
+        <div style={{ padding: "12px 16px", paddingBottom: bottomContentPadding }}>
           {isEmpty ? (
             <p style={{ color: "#999", fontSize: "13px" }}>El carrito está vacío. Agrega productos primero.</p>
           ) : (
@@ -110,7 +112,7 @@ export function CartPage() {
       </IonContent>
 
       {!isEmpty && (
-        <div className="cart-actions" style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: "1px solid #e0e0e0", zIndex: 10 }}>
+        <div className="cart-actions" style={{ position: "fixed", bottom: bottomOffset, left: 0, right: 0, background: "#fff", borderTop: "1px solid #e0e0e0", zIndex: 10 }}>
           <button className="btn-outline" style={{ flex: 1 }}>Efectivo</button>
           <button
             className="btn-primary"

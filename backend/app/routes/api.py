@@ -1047,7 +1047,9 @@ def get_expense(expense_id):
 def create_expense():
     """Crear nuevo gasto"""
     try:
-        _require_admin_user()
+        user = get_authenticated_user()
+        if not user:
+            raise PermissionError("Unauthorized")
         data = request.get_json() or {}
         expense = ExpenseViewModel.create_expense(data)
         return jsonify(expense), 201

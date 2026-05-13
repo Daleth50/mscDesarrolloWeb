@@ -25,6 +25,14 @@ To install and run the project for the first time:
   - Access URLs
   - API Summary
 
+### Frontends
+- **Web frontend**: [frontend/](../frontend)
+  - React + Vite + Material UI
+  - Browser-based UI
+- **Mobile frontend**: [mobile/](../mobile)
+  - Ionic + Capacitor + React
+  - Android / iOS targets
+
 ### Database
 - **[DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)** - Complete database structure
   - Description of all tables (12 tables)
@@ -79,11 +87,17 @@ See [README.md](README.md) section "API Summary"
 - Routes/Endpoints: `backend/app/routes/`
 - Migrations: `backend/migrations/versions/`
 
-### Frontend (React)
+### Web Frontend (React)
 - Components: `frontend/src/components/`
 - Pages: `frontend/src/pages/`
 - API Services: `frontend/src/services/api.js`
 - Configuration: `frontend/vite.config.js`
+
+### Mobile Frontend (Ionic)
+- Pages: `mobile/src/presentation/pages/`
+- Components: `mobile/src/presentation/components/`
+- State: `mobile/src/presentation/context/`
+- Network: `mobile/src/infrastructure/http/`
 
 ### Documentation
 - Installation: [SETUP.md](SETUP.md)
@@ -154,7 +168,7 @@ flask db downgrade        # Revert last migration
 
 If you have questions about:
 - **Installation** → See [SETUP.md](SETUP.md)
-- **Project Structure** → See [README.md](README.md)
+- **Web + Mobile frontend structure** → See [README.md](README.md)
 - **Database** → See [DATABASE_STRUCTURE.md](DATABASE_STRUCTURE.md)
 - **Database Migrations** → See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
 

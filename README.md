@@ -1,9 +1,11 @@
 # AppWeb POS
 
-Point of Sale web application with SPA + REST API architecture.
+Point of Sale solution with REST API plus two frontends:
+
+- Web frontend: React + Vite + Material UI
+- Mobile frontend: Ionic + Capacitor + React
 
 - Backend: Flask + SQLAlchemy + MySQL
-- Frontend: React + Vite + Material UI
 - Auth: Bearer token in `Authorization` header
 
 ---
@@ -69,7 +71,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 - Verifies Python 3 and Node.js
 - Creates Python virtual environment
 - Installs backend dependencies (Flask, SQLAlchemy, etc)
-- Installs frontend dependencies (React, Vite, etc)
+- Installs web frontend dependencies (React, Vite, etc)
+- Installs mobile frontend dependencies (Ionic, Capacitor, etc)
 - Creates necessary `.env` files
 - Configures the database
 - Applies migrations automatically
@@ -88,8 +91,13 @@ source .venv/bin/activate
 # 2) Backend dependencies
 pip install -r backend/requirements.txt
 
-# 3) Frontend dependencies
+# 3) Web frontend dependencies
 cd frontend
+npm install
+cd ..
+
+# 4) Mobile frontend dependencies
+cd mobile
 npm install
 cd ..
 ```
@@ -114,7 +122,7 @@ AUTH_TOKEN_MAX_AGE=28800
 PASSWORD_RESET_TOKEN_MAX_AGE=3600
 ```
 
-### 2) Frontend: `frontend/.env.local`
+### 2) Web frontend: `frontend/.env.local`
 
 ```env
 VITE_API_URL=http://127.0.0.1:5000/api
@@ -122,7 +130,7 @@ VITE_API_URL=http://127.0.0.1:5000/api
 
 Notes:
 - If you change `FLASK_PORT`, also update `VITE_API_URL`.
-- If you don't define `VITE_API_URL`, the frontend uses `http://localhost:4203/api` by default.
+- If you don't define `VITE_API_URL`, the web frontend uses `http://localhost:4203/api` by default.
 
 ## Database and Migrations
 
@@ -131,6 +139,12 @@ Create the database in MySQL:
 ```sql
 CREATE DATABASE swipall_pos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
+
+Then load the initial data with `database/SEED.sql`. That seed creates a demo admin user you can use to log in:
+
+- Username: `admin`
+- Email: `admin@swipall.io`
+- Password: `admin123`
 
 Apply migrations:
 
@@ -169,7 +183,7 @@ Both scripts start the Backend and Mobile app in parallel and stop them together
 
 ---
 
-### Option A: Single script (backend + frontend)
+### Option A: Single script (backend + web frontend)
 
 ```bash
 source .venv/bin/activate
@@ -177,8 +191,9 @@ python backend/app/scripts/dev.py
 ```
 
 Expected services:
-- Frontend: `http://127.0.0.1:5173`
+- Web frontend: `http://127.0.0.1:5173`
 - Backend API: `http://127.0.0.1:5000`
+- Mobile frontend: `http://127.0.0.1:8100`
 
 ### Option B: Separate terminals
 
@@ -190,14 +205,14 @@ source ../.venv/bin/activate
 python run.py
 ```
 
-Terminal 2 (frontend):
+Terminal 2 (web frontend):
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-Terminal 3 (mobile):
+Terminal 3 (mobile frontend):
 
 ```bash
 cd mobile
@@ -206,7 +221,7 @@ npm run dev
 
 ## Production Build and Execution
 
-Generate React build in `backend/app/static/dist`:
+Generate the web frontend build in `backend/app/static/dist`:
 
 ```bash
 cd frontend
@@ -214,7 +229,7 @@ npm run build
 cd ..
 ```
 
-Start Flask serving the compiled SPA:
+Start Flask serving the compiled web frontend:
 
 ```bash
 cd backend
@@ -234,18 +249,22 @@ appWeb/
 │   │   ├── models/           # SQLAlchemy models
 │   │   ├── routes/           # Flask endpoints (`/health`, `/api/*`)
 │   │   ├── scripts/dev.py    # Development unified startup
-│   │   └── static/dist/      # Frontend build for production
+│   │   └── static/dist/      # Web frontend build for production
 │   ├── migrations/           # Alembic
 │   ├── requirements.txt
 │   └── run.py                # Main entry point
-└── frontend/
-	├── src/
-	│   ├── pages/
-	│   ├── controllers/
-	│   ├── services/api.js
-	│   └── components/
-	├── package.json
-	└── vite.config.js
+├── frontend/                 # Web frontend (React + Vite)
+│   ├── src/
+│   │   ├── pages/
+│   │   ├── controllers/
+│   │   ├── services/api.js
+│   │   └── components/
+│   ├── package.json
+│   └── vite.config.js
+└── mobile/                   # Mobile frontend (Ionic + Capacitor)
+    ├── src/
+    ├── package.json
+    └── capacitor.config.ts
 ```
 
 ## API Summary
@@ -282,13 +301,13 @@ cd backend
 source ../.venv/bin/activate
 python run.py
 
-# Frontend
+# Web frontend
 cd frontend
 npm run dev
 npm run build
 npm run preview
 
-# Mobile
+# Mobile frontend
 cd mobile
 npm run dev
 ```
@@ -333,11 +352,17 @@ python -m venv .venv
 - Confirm the database exists and migrations were applied.
 - Try running manually: `python -m flask db upgrade`
 
-### Frontend not connecting to API
+### Web frontend not connecting to API
 
 - Check `frontend/.env.local` and the `VITE_API_URL` value.
 - Verify that Flask port matches the configured URL.
 - Use `http://127.0.0.1:5000/api` (not localhost)
+
+### Mobile frontend not connecting to API
+
+- Check the backend URL configured in the mobile app.
+- Verify that the backend is running on `http://127.0.0.1:5000`.
+- Confirm the device or emulator can reach the backend host.
 
 ### 401 Error on endpoints
 

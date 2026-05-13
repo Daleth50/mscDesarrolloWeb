@@ -65,7 +65,8 @@ python backend/app/scripts/dev.py
 ```
 
 Then open:
-- Frontend: http://127.0.0.1:5173
+- Web frontend: http://127.0.0.1:5173
+- Mobile frontend: http://127.0.0.1:8100
 - Backend: http://127.0.0.1:5000
 
 ### Option B: Separate terminals (more control)
@@ -77,9 +78,15 @@ source ../.venv/bin/activate
 python run.py
 ```
 
-Terminal 2 - Frontend:
+Terminal 2 - Web frontend:
 ```bash
 cd frontend
+npm run dev
+```
+
+Terminal 3 - Mobile frontend:
+```bash
+cd mobile
 npm run dev
 ```
 
@@ -92,11 +99,14 @@ Backend:
 * Running on http://127.0.0.1:5000
 ```
 
-Frontend:
+Web frontend:
 ```
 VITE v5.0.0  ready in 1234 ms
 Local:   http://127.0.0.1:5173/
 ```
+
+Mobile frontend:
+Ionic/Capacitor development server output.
 
 ## Something went wrong?
 
@@ -123,7 +133,7 @@ Local:   http://127.0.0.1:5173/
 
 1. Project installed
 2. Database configured
-3. Frontend + Backend running
+3. Web frontend + Mobile frontend + Backend running
 4. Read API documentation in README.md
 5. Start developing!
 

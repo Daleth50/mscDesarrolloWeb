@@ -14,8 +14,6 @@ export function UploadSyncTabPage() {
   const [pendingExpensesCount, setPendingExpensesCount] = useState<number | null>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [message, setMessage] = useState<string | null>(null);
-  const [progress, setProgress] = useState(0);
-
   useEffect(() => {
     void container.salesLocalDataSource.getPendingSales().then((s) => setPendingCount(s.length));
     void container.getLocalCustomersUseCase.execute().then((customers) => {
@@ -34,7 +32,6 @@ export function UploadSyncTabPage() {
 
     setUploadState("running");
     setMessage(null);
-    setProgress(0);
 
     try {
       // Sync sales and customers
@@ -53,7 +50,6 @@ export function UploadSyncTabPage() {
         .join(". ");
 
       setMessage(message || "No hay cambios pendientes de sincronizar.");
-      setProgress(1);
       setPendingCount(0);
       setPendingCustomerCount(0);
       setPendingExpensesCount(0);
@@ -65,8 +61,6 @@ export function UploadSyncTabPage() {
       setMessage(err instanceof Error ? err.message : "Error al sincronizar");
     }
   };
-
-  const pct = Math.round(progress * 100);
 
   return (
     <IonPage>
@@ -109,10 +103,10 @@ export function UploadSyncTabPage() {
             <div className="sync-step">
               <div className="sync-step-header">
                 <span>Ventas pendientes</span>
-                <span>{pct}%</span>
+                <span>{pendingCount ?? 0}</span>
               </div>
               <div className="sync-progress-bar">
-                <div className="sync-progress-fill" style={{ width: `${pct}%` }} />
+                <div className="sync-progress-fill" style={{ width: `${pendingCount ? 100 : 0}%` }} />
               </div>
               {pendingCount !== null && (
                 <div className="sync-step-count">📦 {pendingCount}</div>

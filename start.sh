@@ -25,7 +25,7 @@ print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
 print_info()    { echo -e "${BLUE}ℹ $1${NC}"; }
 
 # Verificar que estamos en la raíz del proyecto
-if [ ! -f "README.md" ]; then
+if [ ! -f "backend/requirements.txt" ] || [ ! -f "frontend/package.json" ]; then
     print_error "Este script debe ejecutarse desde la raíz del proyecto"
     exit 1
 fi
@@ -54,41 +54,47 @@ fi
 
 print_header "INICIANDO BACKEND + MOBILE + FRONTEND"
 
-# Cleanup al salir: matar procesos hijos
+# Cleanup al salir: matar todos los procesos hijos que siguen vivos
 cleanup() {
     echo -e "\n${YELLOW}Deteniendo servicios...${NC}"
-    kill $BACKEND_PID $MOBILE_PID $FRONTEND_PID 2>/dev/null
+    for pid in $BACKEND_PID $MOBILE_PID $FRONTEND_PID; do
+        if kill -0 "$pid" 2>/dev/null; then
+            kill "$pid" 2>/dev/null
+        fi
+    done
     echo -e "${GREEN}Servicios detenidos.${NC}"
     exit 0
 }
 trap cleanup SIGINT SIGTERM
 
+# Activar entorno virtual antes de lanzar los procesos en background
+source .venv/bin/activate
+
 # Iniciar Backend
 print_info "Iniciando Backend (Flask)..."
-source .venv/bin/activate
-cd backend
-python run.py &
+(cd backend && python run.py) &
 BACKEND_PID=$!
-cd ..
 print_success "Backend iniciado (PID: $BACKEND_PID)"
 
 # Pequeña pausa para que el backend levante primero
 sleep 2
 
+# Verificar que el backend sigue vivo tras el arranque
+if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
+    print_error "El backend falló al arrancar. Revisa los logs."
+    exit 1
+fi
+
 # Iniciar Mobile
 print_info "Iniciando Mobile (Ionic)..."
-cd mobile
-npm run dev &
+(cd mobile && npm run dev) &
 MOBILE_PID=$!
-cd ..
 print_success "Mobile iniciado (PID: $MOBILE_PID)"
 
 # Iniciar Frontend
 print_info "Iniciando Frontend (Web)..."
-cd frontend
-npm run dev &
+(cd frontend && npm run dev) &
 FRONTEND_PID=$!
-cd ..
 print_success "Frontend iniciado (PID: $FRONTEND_PID)"
 
 print_header "SERVICIOS EN EJECUCIÓN"
@@ -96,8 +102,9 @@ echo -e "${GREEN}  Backend:  http://127.0.0.1:5000${NC}"
 echo -e "${GREEN}  Mobile:   http://127.0.0.1:8100${NC}"
 echo -e "${GREEN}  Frontend: http://127.0.0.1:5173${NC}"
 echo ""
-echo -e "${YELLOW}  Presiona Ctrl+C para detener ambos servicios${NC}"
+echo -e "${YELLOW}  Presiona Ctrl+C para detener los tres servicios${NC}"
 echo ""
 
-# Esperar a que ambos procesos terminen
+# Esperar a que los tres procesos terminen.
+# Si alguno muere antes, el script sale y el trap cleanup mata a los demás.
 wait $BACKEND_PID $MOBILE_PID $FRONTEND_PID

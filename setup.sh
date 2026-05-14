@@ -38,6 +38,20 @@ print_info() {
     echo -e "${BLUE}ℹ $1${NC}"
 }
 
+_run_migrations() {
+    print_info "Aplicando migraciones..."
+    # Subshell para no cambiar el directorio de trabajo del script principal
+    # Se carga el .env del backend para que Flask-Migrate tenga DATABASE_URL disponible
+    (
+        set -a
+        [ -f backend/.env ] && source backend/.env
+        set +a
+        cd backend
+        FLASK_APP=run.py python -m flask db upgrade
+    )
+    print_success "Migraciones aplicadas"
+}
+
 _offer_seed() {
     echo
     read -p "¿Deseas cargar datos de prueba? (usuarios, productos, categorías) (s/n) " -n 1 -r
@@ -59,8 +73,8 @@ _offer_seed() {
 # Start
 print_header "INICIANDO INSTALACIÓN DEL PROYECTO"
 
-# Check if running from project root
-if [ ! -f "README.md" ]; then
+# Verificación más robusta: comprobar archivos clave del proyecto
+if [ ! -f "backend/requirements.txt" ] || [ ! -f "frontend/package.json" ]; then
     print_error "Este script debe ejecutarse desde la raíz del proyecto"
     exit 1
 fi
@@ -132,9 +146,8 @@ print_header "PASO 3: INSTALANDO DEPENDENCIAS DE FRONTEND"
 
 if [ -d "frontend" ]; then
     print_info "Instalando paquetes npm..."
-    cd frontend
-    npm install
-    cd ..
+    # Subshell para no cambiar el directorio de trabajo del script principal
+    (cd frontend && npm install)
     print_success "Dependencias de frontend instaladas"
 else
     print_error "Directorio frontend no encontrado"
@@ -146,9 +159,7 @@ print_header "PASO 4: INSTALANDO DEPENDENCIAS DE MOBILE"
 
 if [ -d "mobile" ]; then
     print_info "Instalando paquetes npm para mobile..."
-    cd mobile
-    npm install
-    cd ..
+    (cd mobile && npm install)
     print_success "Dependencias de mobile instaladas"
 else
     print_warning "Directorio mobile no encontrado, omitiendo"
@@ -187,7 +198,11 @@ fi
 if [ -d "mobile" ]; then
     if [ ! -f "mobile/.env" ]; then
         print_info "Detectando IP local para mobile..."
-        LOCAL_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}')
+        # Compatibilidad macOS (ipconfig) y Linux (ip/hostname)
+        LOCAL_IP=$(ipconfig getifaddr en0 2>/dev/null \
+            || ipconfig getifaddr en1 2>/dev/null \
+            || ip route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if ($i=="src") print $(i+1); exit}' \
+            || hostname -I 2>/dev/null | awk '{print $1}')
         if [ -z "$LOCAL_IP" ]; then
             LOCAL_IP="127.0.0.1"
             print_warning "No se pudo detectar la IP local, usando 127.0.0.1"
@@ -213,31 +228,20 @@ read -p "¿MySQL está en ejecución? (s/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Ss]$ ]]; then
     print_info "Creando base de datos desde database/DATABASE.sql..."
-    
-    # Try to execute SQL file directly
+
     if mysql -u root -p < database/DATABASE.sql 2>/dev/null; then
         print_success "Base de datos creada exitosamente desde database/DATABASE.sql"
-
-        # Apply migrations
-        print_info "Aplicando migraciones..."
-        cd backend
-        FLASK_APP=run.py python -m flask db upgrade
-        cd ..
-        print_success "Migraciones aplicadas"
+        _run_migrations
         _offer_seed
     else
         print_warning "No se pudo aplicar el script SQL automáticamente."
         print_info "Ejecuta manualmente el siguiente comando:"
         echo -e "${YELLOW}mysql -u root -p < database/DATABASE.sql${NC}"
-        
+
         read -p "¿Ya ejecutaste el script manualmente? (s/n) " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Ss]$ ]]; then
-            print_info "Aplicando migraciones..."
-            cd backend
-            FLASK_APP=run.py python -m flask db upgrade
-            cd ..
-            print_success "Migraciones aplicadas"
+            _run_migrations
             _offer_seed
         else
             print_warning "Por favor, ejecuta el script SQL manualmente y aplica las migraciones"

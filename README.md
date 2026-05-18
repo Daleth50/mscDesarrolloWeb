@@ -229,6 +229,44 @@ cd mobile
 npm run dev
 ```
 
+### Mobile on Emulator / Physical Device (Capacitor)
+
+Running the app on an Android/iOS emulator or a real device requires building the web assets and syncing them with Capacitor first.
+
+#### Prerequisites
+- **Android:** Android Studio installed with at least one AVD (emulator) configured, or a device connected via USB with USB debugging enabled.
+- **iOS (macOS only):** Xcode installed with a simulator or a provisioned physical device.
+- Set `VITE_API_BASE_URL` in `mobile/.env` to your machine's local IP when using a physical device (see [Mobile frontend env](#3-mobile-frontend-mobileenv)).
+
+#### Build + sync + run (one command)
+
+```bash
+cd mobile
+
+# Android
+npm run cap:run:android
+
+# iOS
+npm run cap:run:ios
+```
+
+These scripts run `npm run build`, then `npx cap sync`, and finally launch the app on the selected device/emulator via Capacitor.
+
+#### Open in IDE instead (optional)
+
+If you prefer to run/debug directly from Android Studio or Xcode:
+
+```bash
+cd mobile
+
+# Build and sync first
+npm run cap:sync
+
+# Then open the native project
+npm run cap:open:android   # opens Android Studio
+npm run cap:open:ios       # opens Xcode
+```
+
 ## Production Build and Execution
 
 Generate the web frontend build in `backend/app/static/dist`:

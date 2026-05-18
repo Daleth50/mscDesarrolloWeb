@@ -132,6 +132,16 @@ Notes:
 - If you change `FLASK_PORT`, also update `VITE_API_URL`.
 - If you don't define `VITE_API_URL`, the web frontend uses `http://localhost:4203/api` by default.
 
+### 3) Mobile frontend: `mobile/.env`
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:4203
+```
+
+Notes:
+- Use `http://127.0.0.1:4203` for the browser/emulator.
+- When testing on a physical device, replace `127.0.0.1` with your machine's local IP (e.g. `http://192.168.1.x:4203`) so the device can reach the backend over the network.
+
 ## Database and Migrations
 
 Create the database in MySQL:

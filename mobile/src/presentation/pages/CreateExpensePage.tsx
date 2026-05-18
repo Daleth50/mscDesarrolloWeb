@@ -29,20 +29,39 @@ export function CreateExpensePage() {
 
   // Attempt to capture geolocation on mount
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.warn("Geolocation error:", error);
-          // Silent fail - location is optional
-        },
-      );
-    }
+    const tryGetLocation = async () => {
+      try {
+        const mod = await import('@capacitor/geolocation').catch(() => null);
+        if (mod && (mod as any).Geolocation) {
+          const { Geolocation } = mod as any;
+          const pos = await Geolocation.getCurrentPosition();
+          if (pos && pos.coords) {
+            setLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Geolocation plugin error:', err);
+      }
+
+      // Fallback to navigator.geolocation for web
+      if (navigator && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setLocation({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.warn('Geolocation error:', error);
+            // Silent fail - location is optional
+          },
+        );
+      }
+    };
+
+    void tryGetLocation();
   }, []);
 
   const isValid = amount && parseFloat(amount) > 0;

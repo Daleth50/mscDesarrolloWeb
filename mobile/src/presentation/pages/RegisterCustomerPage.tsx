@@ -17,8 +17,19 @@ export function RegisterCustomerPage() {
     setIsSaving(true);
     try {
       // try to capture current geolocation (best-effort)
-      const getPosition = () =>
-        new Promise<{ lat: number; lng: number } | null>((resolve) => {
+      const getPosition = async (): Promise<{ lat: number; lng: number } | null> => {
+        try {
+          const mod = await import('@capacitor/geolocation').catch(() => null);
+          if (mod && (mod as any).Geolocation) {
+            const { Geolocation } = mod as any;
+            const pos = await Geolocation.getCurrentPosition();
+            if (pos && pos.coords) return { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          }
+        } catch (err) {
+          console.warn('Geolocation plugin error:', err);
+        }
+
+        return new Promise((resolve) => {
           if (!navigator || !navigator.geolocation) return resolve(null);
           navigator.geolocation.getCurrentPosition(
             (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
@@ -26,6 +37,7 @@ export function RegisterCustomerPage() {
             { timeout: 5000 },
           );
         });
+      };
 
       const geolocation = await getPosition();
 
